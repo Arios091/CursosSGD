@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CursoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,5 +20,23 @@ Route::get('/', function () {
 })->name('welcome');
 
 Auth::routes();
-//Route::get('/', [App\Http\Controllers\LoginController::class, 'indexLogin'])->name('login');
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+//Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::get('/home', [App\Http\Controllers\CursoController::class, 'index'])->name('home');
+
+
+Route::post('/cursos', [CursoController::class, 'store'])->name('cursos.store');
+// crear curso (muestra formulario)
+Route::get('/cursos/crear', [CursoController::class, 'create'])->name('cursos.create');
+// Editar curso (muestra formulario)
+Route::get('/cursos/{curso}/editar', [CursoController::class, 'edit'])->name('cursos.edit');
+
+// Actualizar curso (guardar cambios)
+Route::put('/cursos/{curso}', [CursoController::class, 'update'])->name('cursos.update');
+
+// Eliminar curso
+Route::delete('/cursos/{curso}', [CursoController::class, 'destroy'])->name('cursos.destroy');
+
+//Comenzar curso (inscribirse y crear progreso)
+Route::post('/cursos/{curso}/comenzar', [CursoController::class, 'comenzar'])->name('cursos.comenzar');

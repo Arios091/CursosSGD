@@ -21,7 +21,14 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role', // Agregado para asignar el rol del usuario
     ];
+
+    //Agregamos un método para verificar si el usuario es admin
+    public function isAdmin(): bool
+    {
+    return $this->role === 'admin';
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -41,4 +48,22 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+    * Curso que el usuario está cursando actualmente (solo uno permitido)
+    */
+    public function cursoEnProgreso()
+    {
+    return $this->belongsTo(Curso::class, 'curso_en_progreso_id');
+    }
+
+    /**
+    * Todos los progresos/inscripciones del usuario
+    */
+    public function progresos()
+    {
+    return $this->hasMany(ProgresoCurso::class);
+    }
+
+
 }

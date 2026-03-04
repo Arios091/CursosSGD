@@ -5,6 +5,12 @@
 @section('content')
 <div class="py-5">
     <div class="container mt-5">
+        @if (session('error'))
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <h1 class="display-3 fw-bold text-dark mb-3">
