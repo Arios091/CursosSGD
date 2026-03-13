@@ -29,13 +29,6 @@
                                 @enderror
                             </div>
 
-                            <div class="mb-3">
-                                <label for="creditos" class="form-label">Créditos *</label>
-                                <input type="number" name="creditos" id="creditos" class="form-control @error('creditos') is-invalid @enderror" value="{{ old('creditos', 4) }}" min="1" required>
-                                @error('creditos')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
@@ -54,7 +47,7 @@
                                 </div>
                             </div>
                             
-                            <!-- Sección para agregar un material (por ahora solo uno, luego lo hacemos dinámico) -->
+                            <!-- Sección para agregar un material al curso -->
                                 <div class="border-top pt-4 mt-4">
                                     <h5 class="mb-3">Agregar Material al Curso</h5>
 
@@ -87,6 +80,21 @@
                                         @enderror
                                     </div>
                                 </div>
+                                <!-- Sección para el módulo inicial -->
+                                    <div class="border-top pt-4 mt-4">
+                                        <h5 class="mb-3">Módulo Inicial</h5>
+                                        <p class="text-muted small mb-3">
+                                            Puedes dejar el nombre en blanco → se autogenerará como "Módulo 1".
+                                        </p>
+
+                                        <div class="mb-3">
+                                            <label for="modulo_titulo" class="form-label">Nombre del Módulo 1 (opcional)</label>
+                                            <input type="text" name="modulo_titulo" id="modulo_titulo" class="form-control @error('modulo_titulo') is-invalid @enderror" value="{{ old('modulo_titulo') }}" placeholder="Ej: Introducción al tema">
+                                            @error('modulo_titulo')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
 
 
                             <div class="d-grid">

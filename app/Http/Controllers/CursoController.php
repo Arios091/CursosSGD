@@ -32,20 +32,17 @@ class CursoController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'titulo' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'creditos' => 'required|integer|min:1',
-            'fecha_inicio' => 'nullable|date',
-            'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
-            // Validación del módulo (opcional)
-            'modulo_titulo' => 'nullable|string|max:255',
+                'titulo' => 'required|string|max:255',
+                'descripcion' => 'nullable|string',
+                'fecha_inicio' => 'nullable|date',
+                'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
+                'modulo_titulo' => 'nullable|string|max:255',
         ]);
 
         // Crear el curso
         $curso = Curso::create([
             'titulo' => $request->titulo,
             'descripcion' => $request->descripcion,
-            'creditos' => $request->creditos,
             'fecha_inicio' => $request->fecha_inicio,
             'fecha_fin' => $request->fecha_fin,
             'user_id' => auth()->id(),
@@ -84,17 +81,23 @@ class CursoController extends Controller
         $validated = $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
-            'creditos' => 'required|integer|min:1',
-            'fecha_inicio' => 'nullable|date|after_or_equal:today',
+            'fecha_inicio' => 'nullable|date',
             'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
+            'carga_horaria' => 'nullable|numeric|min:0',
             // Validaciones del material (solo si se llenó algo)
             'material_titulo' => 'nullable|string|max:255',
             'material_tipo' => 'nullable|in:pdf,video,cuestionario',
             'material_url' => 'nullable|url',
         ]);
 
-        // Actualizar los campos del curso
-        $curso->update($validated);
+        // Actualizar los campos del curso (solo los permitidos)
+        $curso->update([
+            'titulo' => $validated['titulo'],
+            'descripcion' => $validated['descripcion'] ?? null,
+            'fecha_inicio' => $validated['fecha_inicio'] ?? null,
+            'fecha_fin' => $validated['fecha_fin'] ?? null,
+            'carga_horaria' => $validated['carga_horaria'] ?? $curso->carga_horaria,
+        ]);
 
         // Si se llenó información de material → agregarlo como nuevo
         if ($request->filled('material_titulo') && $request->filled('material_url') && $request->filled('material_tipo')) {

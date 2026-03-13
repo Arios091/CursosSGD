@@ -21,21 +21,21 @@ class CursoPolicy
         return true;
     }
 
-    // Solo admin puede crear cursos nuevos
+    // Solo admin y docentes pueden crear cursos nuevos
     public function create(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->role === 'admin' || $user->role === 'docente';
     }
 
-    // Solo admin puede editar
+    // Solo admin puede editar todos los cursos, docentes solo los suyos
     public function update(User $user, Curso $curso): bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() || ($user->id === $curso->user_id && $user->role === 'docente');
     }
 
-    // Solo admin puede eliminar
+    // Solo admin puede eliminar todos los cursos, docentes solo los suyos
     public function delete(User $user, Curso $curso): bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() || ($user->id === $curso->user_id && $user->role === 'docente');
     }
 }

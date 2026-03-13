@@ -22,6 +22,32 @@
                                 @enderror
                             </div>
 
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label">Descripción</label>
+                                <textarea name="descripcion" id="descripcion" class="form-control @error('descripcion') is-invalid @enderror" rows="4">{{ old('descripcion', $curso->descripcion) }}</textarea>
+                                @error('descripcion')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="fecha_inicio" class="form-label">Fecha de Inicio</label>
+                                    <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control @error('fecha_inicio') is-invalid @enderror" value="{{ old('fecha_inicio', $curso->fecha_inicio) }}">
+                                    @error('fecha_inicio')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="fecha_fin" class="form-label">Fecha de Fin</label>
+                                    <input type="date" name="fecha_fin" id="fecha_fin" class="form-control @error('fecha_fin') is-invalid @enderror" value="{{ old('fecha_fin', $curso->fecha_fin) }}">
+                                    @error('fecha_fin')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
 
                             <!-- Sección para agregar un material (por ahora solo uno, luego lo hacemos dinámico) -->
                                 <div class="border-top pt-4 mt-4">

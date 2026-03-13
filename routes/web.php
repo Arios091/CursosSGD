@@ -28,7 +28,10 @@ Route::get('/home', [App\Http\Controllers\CursoController::class, 'index'])->nam
 
 Route::post('/cursos', [CursoController::class, 'store'])->name('cursos.store');
 // crear curso (muestra formulario)
-Route::get('/cursos/crear', [CursoController::class, 'create'])->name('cursos.create');
+//Route::get('/cursos/crear', [CursoController::class, 'create'])->name('cursos.create');
+
+Route::get('/crear.curso', function () { return view('cursos.create-livewire'); })->middleware('auth')->name('crear.curso');
+
 // Editar curso (muestra formulario)
 Route::get('/cursos/{curso}/editar', [CursoController::class, 'edit'])->name('cursos.edit');
 
@@ -40,3 +43,5 @@ Route::delete('/cursos/{curso}', [CursoController::class, 'destroy'])->name('cur
 
 //Comenzar curso (inscribirse y crear progreso)
 Route::post('/cursos/{curso}/comenzar', [CursoController::class, 'comenzar'])->name('cursos.comenzar');
+
+

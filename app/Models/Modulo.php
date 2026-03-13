@@ -17,7 +17,12 @@ class Modulo extends Model
         return $this->belongsTo(Curso::class);
     }
 
-    // Accesor para mostrar título autogenerado si no hay manual
+    public function materiales()
+    {
+        return $this->hasMany(Material::class)->orderBy('orden');
+    }
+
+    // Accesor: título autogenerado si no hay manual
     public function getTituloAttribute($value)
     {
         return $value ?? 'Módulo ' . $this->orden;

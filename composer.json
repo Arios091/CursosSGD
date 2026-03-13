@@ -14,9 +14,10 @@
         "laravel/ui": "3.0"
     },
     "require-dev": {
-        "facade/ignition": "^2.5",
+        "facade/ignition": "2.17",
         "fakerphp/faker": "^1.9.1",
         "laravel/sail": "^1.0.1",
+        "livewire/livewire": "2.11",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^5.10",
         "phpunit/phpunit": "^9.5.10"
@@ -56,7 +57,10 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "audit": {
+            "block-insecure": false
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true

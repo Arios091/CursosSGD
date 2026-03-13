@@ -14,9 +14,10 @@ class Curso extends Model
     protected $fillable = [
         'titulo',
         'descripcion',
-        'creditos',
         'fecha_inicio',
         'fecha_fin',
+        'carga_horaria',
+        'imagen_referencial',
         'user_id',
     ];
 

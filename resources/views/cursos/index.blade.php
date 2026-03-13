@@ -5,9 +5,9 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Lista de Cursos</h1>
 
-            <!-- Botón "Crear Nuevo Curso" SOLO para admin -->
-            @if (auth()->user()->role === 'admin')
-                <a href="{{ route('cursos.create') }}" class="btn btn-success btn-lg px-5">
+            <!-- Botón "Crear Nuevo Curso" SOLO para admin y docentes -->
+            @if (auth()->user()->role === 'admin' || auth()->user()->role === 'docente')
+                <a href="{{ route('crear.curso') }}" class="btn btn-success">
                     Crear Nuevo Curso
                 </a>
             @endif
@@ -39,8 +39,8 @@
                                     </small>
                                 </div>
 
-                                <!-- Botones Editar y Eliminar SOLO para admin -->
-                                @if (auth()->user()->role === 'admin')
+                                <!-- Botones Editar y Eliminar para admin y docentes (sus propios cursos) -->
+                                @if (auth()->user()->role === 'admin' || (auth()->user()->id === $curso->user_id && auth()->user()->role === 'docente'))
                                     <div class="mt-3 d-flex gap-2">
                                         <a href="{{ route('cursos.edit', $curso) }}" class="btn btn-sm btn-warning">
                                             Editar
