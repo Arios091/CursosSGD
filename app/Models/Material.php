@@ -7,15 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Material extends Model
 {
     protected $fillable = [
-        'curso_id',
+        'modulo_id',
         'titulo',
         'tipo',
         'url',
         'orden',
     ];
 
-    public function curso()
+    public function modulo()
     {
-        return $this->belongsTo(Curso::class);
+        return $this->belongsTo(Modulo::class);
     }
 }

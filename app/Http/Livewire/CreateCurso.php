@@ -7,183 +7,305 @@ use Livewire\WithFileUploads;
 use App\Models\Curso;
 use App\Models\Modulo;
 use App\Models\Material;
+use App\Models\Cuestionario;
+use App\Models\EvaluacionFinal;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class CreateCurso extends Component
 {
     use WithFileUploads;
 
-    // Control del paso actual
-    public $step = 1; // 1: datos básicos, 2: módulos, 3: resumen
-
-    // Paso 1: Datos básicos del curso
+    public $step = 1;
     public $titulo = '';
     public $descripcion = '';
-    public $imagen_referencial; // archivo subido
-    public $carga_horaria = 0;
+    public $imagen_referencial;
+    public $carga_horaria = 1;
+    
+    public $modulos = [];
+    public $evaluacion_final_titulo = 'Evaluación Final';
+    public $evaluacion_final_preguntas = [];
 
-    // Paso 2: Módulos (array dinámico)
-    public $modulos = []; // cada módulo tendrá: titulo, materiales (array), cuestionario
-
-    // Paso 3: Confirmación + evaluación final
-    public $confirmado = false;
-
-    // Objetos de evaluación final
-    public $evaluacion_final = [
-        'titulo' => 'Evaluación Final',
-        'min_aprobacion' => 80,
-        'preguntas' => [],
-    ];
-
-    // Variables de validación
     protected $rules = [
         'titulo' => 'required|string|min:3|max:255',
-        'descripcion' => 'nullable|string|max:1000',
-        'carga_horaria' => 'required|numeric|min:1',
-        'imagen_referencial' => 'nullable|image|max:2048',
-        'modulos' => 'required|array|min:1',
-        'modulos.*.titulo' => 'required|string|min:3|max:255',
-        'modulos.*.materiales' => 'required|array|min:1',
-        'modulos.*.materiales.*.titulo' => 'required|string|max:255',
-        'modulos.*.materiales.*.tipo' => 'required|in:pdf,video,cuestionario',
-        'modulos.*.materiales.*.url' => 'required|string',
-                'evaluacion_final.titulo' => 'required|string|max:255',
-        'evaluacion_final.min_aprobacion' => 'required|numeric|min:0|max:100',
-        'evaluacion_final.preguntas' => 'required|array|min:1',
-    ];
-
-    protected $messages = [
-        'titulo.required' => 'El título del curso es obligatorio',
-        'titulo.min' => 'El título debe tener al menos 3 caracteres',
-        'carga_horaria.required' => 'La carga horaria es obligatoria',
-        'carga_horaria.numeric' => 'La carga horaria debe ser un número',
-        'carga_horaria.min' => 'La carga horaria debe ser mayor a 0',
-        'modulos.required' => 'Debe agregar al menos un módulo',
-        'modulos.*.titulo.required' => 'El título del módulo es obligatorio',
-        'modulos.*.materiales.required' => 'Cada módulo debe tener al menos un material',
-        'modulos.*.materiales.*.titulo.required' => 'El título del material es obligatorio',
-        'modulos.*.materiales.*.url.required' => 'La URL del material es obligatoria',
-        'evaluacion_final.titulo.required' => 'El título de la evaluación final es obligatorio',
-        'evaluacion_final.min_aprobacion.required' => 'El mínimo de aprobación es obligatorio',
-        'evaluacion_final.preguntas.required' => 'Debes agregar al menos una pregunta a la evaluación final',
-        'imagen_referencial.image' => 'El archivo debe ser una imagen',
+        'carga_horaria' => 'required|numeric|min:1|max:500',
+        'modulos.*.titulo' => 'required|string|min:1',
+        'modulos.*.materiales.*.titulo' => 'required|string|min:1',
+        'modulos.*.materiales.*.tipo' => 'required|in:pdf,video',
+        'modulos.*.materiales.*.url' => 'nullable|string',
+        'modulos.*.cuestionario.preguntas.*.texto' => 'nullable|string',
+        'evaluacion_final_preguntas.*.texto' => 'nullable|string',
     ];
 
     public function mount()
     {
-        // Verificar autorización usando la Policy
-        if (!Auth::check() || !Auth::user()->can('create', Curso::class)) {
-            redirect()->route('home')->with('error', 'No tienes permiso para crear cursos');
+        // Solo admin puede crear cursos
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'No tienes permiso para crear cursos.');
         }
-
-        // Iniciar con 1 módulo vacío
-        $this->addModulo();
+        
+        $savedData = Session::get('curso_creating', null);
+        
+        if ($savedData) {
+            $this->titulo = $savedData['titulo'] ?? '';
+            $this->descripcion = $savedData['descripcion'] ?? '';
+            $this->carga_horaria = $savedData['carga_horaria'] ?? 1;
+            $this->modulos = $savedData['modulos'] ?? [];
+            $this->evaluacion_final_titulo = $savedData['evaluacion_final_titulo'] ?? 'Evaluación Final';
+            $this->evaluacion_final_preguntas = $savedData['evaluacion_final_preguntas'] ?? [];
+            $this->step = $savedData['step'] ?? 1;
+        } else {
+            $this->agregarModulo();
+            $this->agregarPreguntaEvaluacion();
+        }
     }
 
-    public function addModulo()
+    public function updated($property, $value)
     {
+        Log::info("Updated property: $property, value: " . (is_array($value) ? 'array' : $value));
+        
+        if ($property !== 'imagen_referencial' && !str_contains($property, '.archivo')) {
+            $this->saveToSession();
+        }
+    }
+
+    public function updatedModulosMaterialesTipo($value)
+    {
+        Log::info("Tipo cambiado a: $value");
+        $this->saveToSession();
+    }
+
+    public function actualizarTipoMaterial($moduloIndex, $materialIndex, $tipoNuevo)
+    {
+        Log::info("actualizarTipoMaterial: modulo=$moduloIndex, material=$materialIndex, tipo=$tipoNuevo");
+        $this->saveToSession();
+    }
+
+    protected function saveToSession()
+    {
+        $modulosSinArchivos = array_map(function($modulo) {
+            $modulo['materiales'] = array_map(function($material) {
+                unset($material['archivo']);
+                return $material;
+            }, $modulo['materiales'] ?? []);
+            return $modulo;
+        }, $this->modulos);
+
+        Session::put('curso_creating', [
+            'titulo' => $this->titulo,
+            'descripcion' => $this->descripcion,
+            'carga_horaria' => $this->carga_horaria,
+            'modulos' => $modulosSinArchivos,
+            'evaluacion_final_titulo' => $this->evaluacion_final_titulo,
+            'evaluacion_final_preguntas' => $this->evaluacion_final_preguntas,
+            'step' => $this->step,
+        ]);
+    }
+
+    public function clearSession()
+    {
+        Session::forget('curso_creating');
+    }
+
+    public function agregarModulo()
+    {
+        $numero = count($this->modulos) + 1;
         $this->modulos[] = [
             'titulo' => '',
-            'orden' => count($this->modulos) + 1,
-            'materiales' => [],
-            'cuestionario' => ['preguntas' => []],
+            'materiales' => [
+                ['titulo' => '', 'tipo' => 'pdf', 'url' => '', 'archivo' => null]
+            ],
+            'cuestionario' => [
+                'titulo' => 'Cuestionario Módulo ' . $numero,
+                'min_aprobacion' => 80,
+                'preguntas' => [
+                    ['texto' => '', 'opciones' => [['texto' => '', 'es_correcta' => true], ['texto' => '', 'es_correcta' => false]]]
+                ]
+            ]
         ];
     }
 
-    public function addMaterial($moduloIndex)
-    {
-        $this->modulos[$moduloIndex]['materiales'][] = [
-            'titulo' => '',
-            'tipo' => 'pdf',
-            'url' => '',
-        ];
-    }
-
-    public function removeMaterial($moduloIndex, $materialIndex)
-    {
-        unset($this->modulos[$moduloIndex]['materiales'][$materialIndex]);
-        $this->modulos[$moduloIndex]['materiales'] = array_values($this->modulos[$moduloIndex]['materiales']);
-    }
-
-    public function addQuestion($moduloIndex)
-    {
-        $this->modulos[$moduloIndex]['cuestionario']['preguntas'][] = ['texto' => ''];
-    }
-
-    public function removeQuestion($moduloIndex, $questionIndex)
-    {
-        unset($this->modulos[$moduloIndex]['cuestionario']['preguntas'][$questionIndex]);
-        $this->modulos[$moduloIndex]['cuestionario']['preguntas'] = array_values($this->modulos[$moduloIndex]['cuestionario']['preguntas']);
-    }
-
-    public function removeModulo($index)
+    public function eliminarModulo($index)
     {
         if (count($this->modulos) > 1) {
             unset($this->modulos[$index]);
-            $this->modulos = array_values($this->modulos); // Reindexar
-        } else {
-            // informar al usuario que necesita al menos un módulo
-            $this->addError('modulos', 'Debe haber al menos un módulo');
+            $this->modulos = array_values($this->modulos);
         }
     }
 
-    public function nextStep()
+    public function agregarMaterial($moduloIndex)
     {
-        // Validar datos del paso actual
-        if ($this->step == 1) {
-            // validar cada campo individualmente (no se permite un array)
-            $this->validateOnly('titulo');
-            $this->validateOnly('carga_horaria');
-        } elseif ($this->step == 2) {
-            $this->validateOnly('modulos');
-            // check modules have at least one material to allow quiz creation
-            // nothing else here; detailed validation runs on save
-        }
+        $this->modulos[$moduloIndex]['materiales'][] = ['titulo' => '', 'tipo' => 'pdf', 'url' => '', 'archivo' => null];
+    }
 
+    public function eliminarMaterial($moduloIndex, $materialIndex)
+    {
+        if (count($this->modulos[$moduloIndex]['materiales']) > 1) {
+            unset($this->modulos[$moduloIndex]['materiales'][$materialIndex]);
+            $this->modulos[$moduloIndex]['materiales'] = array_values($this->modulos[$moduloIndex]['materiales']);
+        }
+    }
+
+    public function agregarPreguntaCuestionario($moduloIndex)
+    {
+        $this->modulos[$moduloIndex]['cuestionario']['preguntas'][] = [
+            'texto' => '',
+            'opciones' => [
+                ['texto' => '', 'es_correcta' => true],
+                ['texto' => '', 'es_correcta' => false]
+            ]
+        ];
+    }
+
+    public function eliminarPreguntaCuestionario($moduloIndex, $preguntaIndex)
+    {
+        unset($this->modulos[$moduloIndex]['cuestionario']['preguntas'][$preguntaIndex]);
+        $this->modulos[$moduloIndex]['cuestionario']['preguntas'] = array_values($this->modulos[$moduloIndex]['cuestionario']['preguntas']);
+    }
+
+    public function agregarOpcionCuestionario($moduloIndex, $preguntaIndex)
+    {
+        $this->modulos[$moduloIndex]['cuestionario']['preguntas'][$preguntaIndex]['opciones'][] = ['texto' => '', 'es_correcta' => false];
+    }
+
+    public function eliminarOpcionCuestionario($moduloIndex, $preguntaIndex, $opcionIndex)
+    {
+        $opciones = $this->modulos[$moduloIndex]['cuestionario']['preguntas'][$preguntaIndex]['opciones'];
+        if (count($opciones) > 2) {
+            unset($opciones[$opcionIndex]);
+            $this->modulos[$moduloIndex]['cuestionario']['preguntas'][$preguntaIndex]['opciones'] = array_values($opciones);
+        }
+    }
+
+    public function setCorrectaCuestionario($moduloIndex, $preguntaIndex, $opcionIndex)
+    {
+        foreach ($this->modulos[$moduloIndex]['cuestionario']['preguntas'][$preguntaIndex]['opciones'] as $i => $opcion) {
+            $this->modulos[$moduloIndex]['cuestionario']['preguntas'][$preguntaIndex]['opciones'][$i]['es_correcta'] = ($i === $opcionIndex);
+        }
+    }
+
+    public function agregarPreguntaEvaluacion()
+    {
+        $this->evaluacion_final_preguntas[] = [
+            'texto' => '',
+            'opciones' => [
+                ['texto' => '', 'es_correcta' => true],
+                ['texto' => '', 'es_correcta' => false]
+            ]
+        ];
+    }
+
+    public function eliminarPreguntaEvaluacion($index)
+    {
+        if (count($this->evaluacion_final_preguntas) > 1) {
+            unset($this->evaluacion_final_preguntas[$index]);
+            $this->evaluacion_final_preguntas = array_values($this->evaluacion_final_preguntas);
+        }
+    }
+
+    public function agregarOpcionEvaluacion($preguntaIndex)
+    {
+        $this->evaluacion_final_preguntas[$preguntaIndex]['opciones'][] = ['texto' => '', 'es_correcta' => false];
+    }
+
+    public function eliminarOpcionEvaluacion($preguntaIndex, $opcionIndex)
+    {
+        $opciones = $this->evaluacion_final_preguntas[$preguntaIndex]['opciones'];
+        if (count($opciones) > 2) {
+            unset($opciones[$opcionIndex]);
+            $this->evaluacion_final_preguntas[$preguntaIndex]['opciones'] = array_values($opciones);
+        }
+    }
+
+    public function setCorrectaEvaluacion($preguntaIndex, $opcionIndex)
+    {
+        foreach ($this->evaluacion_final_preguntas[$preguntaIndex]['opciones'] as $i => $opcion) {
+            $this->evaluacion_final_preguntas[$preguntaIndex]['opciones'][$i]['es_correcta'] = ($i === $opcionIndex);
+        }
+    }
+
+    public function siguiente()
+    {
         if ($this->step < 3) {
-            // solamente avanzar a paso 3 si hay al menos un módulo completo
-            if ($this->step == 2 && !$this->canProceedToEvaluation()) {
-                $this->addError('modulos', 'Debes completar al menos un módulo con material y cuestionario antes de continuar');
-                return;
-            }
             $this->step++;
         }
     }
 
-    public function canProceedToEvaluation()
-    {
-        foreach ($this->modulos as $modulo) {
-            if (!empty($modulo['materiales']) && count($modulo['materiales']) >= 1 &&
-                !empty($modulo['cuestionario']['preguntas']) &&
-                count($modulo['cuestionario']['preguntas']) >= 1
-            ) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function previousStep()
+    public function anterior()
     {
         if ($this->step > 1) {
             $this->step--;
+            $this->dispatchBrowserEvent('stepChanged', ['step' => $this->step]);
         }
     }
 
-    public function save()
+    public function puedeCrear(): bool
     {
-        // Validar todos los datos
-        $this->validate();
-
-        // Requisito adicional: al menos un módulo debe tener material y cuestionario
-        if (! $this->canProceedToEvaluation()) {
-            $this->addError('modulos', 'Debes completar al menos un módulo con material y cuestionario antes de guardar el curso');
-            return;
+        if (empty(trim($this->titulo)) || $this->carga_horaria < 1) {
+            Log::info('puedeCrear false: titulo vacio');
+            return false;
         }
 
+        foreach ($this->modulos as $idx => $modulo) {
+            if (empty(trim($modulo['titulo']))) {
+                Log::info('puedeCrear false: modulo sin titulo ' . $idx);
+                return false;
+            }
+            $tieneMaterial = false;
+            foreach ($modulo['materiales'] as $mIdx => $material) {
+                $titulo = $material['titulo'] ?? '';
+                $tipo = $material['tipo'] ?? 'pdf';
+                $url = $material['url'] ?? '';
+                
+                Log::info("Material $idx.$mIdx: tipo=$tipo, titulo=$titulo, url=$url");
+                
+                if (!empty(trim($titulo))) {
+                    if ($tipo === 'video' && !empty(trim($url))) {
+                        $tieneMaterial = true;
+                    }
+                    if ($tipo === 'pdf' && !empty($material['archivo'])) {
+                        $tieneMaterial = true;
+                    }
+                }
+            }
+            if (!$tieneMaterial) {
+                Log::info('puedeCrear false: modulo sin material ' . $idx);
+                return false;
+            }
+        }
+
+        $evalValida = false;
+        foreach ($this->evaluacion_final_preguntas as $preg) {
+            if (!empty(trim($preg['texto']))) {
+                $evalValida = true;
+                break;
+            }
+        }
+
+        if (!$evalValida) {
+            Log::info('puedeCrear false: evaluacion sin preguntas');
+        }
+
+        return $evalValida;
+    }
+
+    public function guardar()
+    {
+        Log::info('Intentando guardar curso. puedeCrear: ' . ($this->puedeCrear() ? 'true' : 'false'));
+        
+        if (!$this->puedeCrear()) {
+            Log::info('Error: No puede crear curso');
+            session()->flash('error', 'Completa todos los campos requeridos: título, módulo con material (PDF o video con URL), y al menos una pregunta en la evaluación final.');
+            return;
+        }
+        
+        $this->validate();
+
         try {
-            // Crear el curso
+            DB::beginTransaction();
+
             $curso = Curso::create([
                 'titulo' => $this->titulo,
                 'descripcion' => $this->descripcion,
@@ -191,56 +313,100 @@ class CreateCurso extends Component
                 'user_id' => Auth::id(),
             ]);
 
-            // Guardar imagen si se subió
             if ($this->imagen_referencial) {
                 $path = $this->imagen_referencial->store('cursos', 'public');
                 $curso->update(['imagen_referencial' => $path]);
             }
 
-            // Crear módulos, materiales y (opcional) cuestionarios
-            foreach ($this->modulos as $index => $moduloData) {
+            foreach ($this->modulos as $idx => $moduloData) {
                 $modulo = $curso->modulos()->create([
-                    'titulo' => $moduloData['titulo'],
-                    'orden' => $index + 1,
+                    'titulo' => $moduloData['titulo'] ?: 'Módulo ' . ($idx + 1),
+                    'orden' => $idx + 1,
                 ]);
 
-                // materiales
-                if (!empty($moduloData['materiales'])) {
-                    foreach ($moduloData['materiales'] as $mIndex => $material) {
-                        $modulo->materiales()->create([
-                            'titulo' => $material['titulo'] ?? 'Material ' . ($mIndex + 1),
-                            'tipo' => $material['tipo'] ?? 'pdf',
-                            'url' => $material['url'] ?? '',
-                            'orden' => $mIndex + 1,
-                        ]);
+                foreach ($moduloData['materiales'] as $mIdx => $material) {
+                    if (empty(trim($material['titulo']))) {
+                        continue;
                     }
+
+                    $materialUrl = null;
+                    $tipo = $material['tipo'] ?? 'pdf';
+                    
+                    if ($tipo === 'video' && !empty(trim($material['url'] ?? ''))) {
+                        $materialUrl = trim($material['url']);
+                    } elseif ($tipo === 'pdf' && !empty($material['archivo'])) {
+                        $archivo = $material['archivo'];
+                        $filename = time() . '_' . $curso->id . '_m' . ($idx + 1) . '_' . $mIdx . '.' . $archivo->getClientOriginalExtension();
+                        $materialUrl = $archivo->storeAs('materiales', $filename, 'public');
+                    }
+
+                    $modulo->materiales()->create([
+                        'titulo' => $material['titulo'],
+                        'tipo' => $tipo,
+                        'url' => $materialUrl,
+                        'orden' => $mIdx + 1,
+                    ]);
                 }
 
-                // TODO: guardar cuestionario en alguna tabla o procesar según la lógica de la aplicación
+                $preguntasValidas = array_filter($moduloData['cuestionario']['preguntas'], fn($p) => !empty(trim($p['texto'])));
+                if (!empty($preguntasValidas)) {
+                    $cuestionario = $modulo->cuestionario()->create([
+                        'titulo' => $moduloData['cuestionario']['titulo'],
+                        'min_aprobacion' => 80,
+                    ]);
+
+                    foreach ($preguntasValidas as $pIdx => $pregunta) {
+                        $pregModel = $cuestionario->preguntas()->create([
+                            'pregunta' => $pregunta['texto'],
+                            'orden' => $pIdx + 1,
+                        ]);
+
+                        foreach ($pregunta['opciones'] as $oIdx => $opcion) {
+                            if (!empty(trim($opcion['texto']))) {
+                                $pregModel->opciones()->create([
+                                    'opcion' => $opcion['texto'],
+                                    'es_correcta' => $opcion['es_correcta'],
+                                    'orden' => $oIdx + 1,
+                                ]);
+                            }
+                        }
+                    }
+                }
             }
 
-            // Limpiar datos
-            $this->reset();
-            $this->step = 1;
-            $this->addModulo();
+            $evalPreguntasValidas = array_filter($this->evaluacion_final_preguntas, fn($p) => !empty(trim($p['texto'])));
+            if (!empty($evalPreguntasValidas)) {
+                $evaluacion = $curso->evaluacionFinal()->create([
+                    'titulo' => $this->evaluacion_final_titulo,
+                    'min_aprobacion' => 80,
+                ]);
 
-            return redirect()->route('home')->with('success', '¡Curso creado correctamente! Ahora puedes agregar materiales y contenido a los módulos.');
+                foreach ($evalPreguntasValidas as $pIdx => $pregunta) {
+                    $pregModel = $evaluacion->preguntas()->create([
+                        'pregunta' => $pregunta['texto'],
+                        'orden' => $pIdx + 1,
+                    ]);
+
+                    foreach ($pregunta['opciones'] as $oIdx => $opcion) {
+                        if (!empty(trim($opcion['texto']))) {
+                            $pregModel->opciones()->create([
+                                'opcion' => $opcion['texto'],
+                                'es_correcta' => $opcion['es_correcta'],
+                                'orden' => $oIdx + 1,
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            DB::commit();
+            $this->clearSession();
+            session()->flash('success', '¡Curso creado correctamente!');
+            return redirect()->route('home');
         } catch (\Exception $e) {
-            \Log::error('Error al crear curso: ' . $e->getMessage());
-            // mostrar mensaje flash para que el usuario lo vea
-            session()->flash('error', 'Error al crear el curso: ' . $e->getMessage());
+            DB::rollBack();
+            session()->flash('error', 'Error: ' . $e->getMessage());
         }
-    }
-
-    public function addEvalQuestion()
-    {
-        $this->evaluacion_final['preguntas'][] = '';
-    }
-
-    public function removeEvalQuestion($index)
-    {
-        unset($this->evaluacion_final['preguntas'][$index]);
-        $this->evaluacion_final['preguntas'] = array_values($this->evaluacion_final['preguntas']);
     }
 
     public function render()

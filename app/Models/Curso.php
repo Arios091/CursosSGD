@@ -52,4 +52,12 @@ class Curso extends Model
     {
         return $this->hasMany(Material::class)->orderBy('orden');
     }
+
+    /**
+     * Evaluación final del curso
+     */
+    public function evaluacionFinal()
+    {
+        return $this->hasOne(EvaluacionFinal::class);
+    }
 } 

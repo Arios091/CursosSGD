@@ -2,33 +2,33 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProgresoCurso extends Model
+class ProgresoMaterial extends Model
 {
-    protected $table = 'progreso_cursos';
+    protected $table = 'progreso_materiales';
 
     protected $fillable = [
         'user_id',
-        'curso_id',
-        'estado',
-        'modulo_actual',
-        'material_actual',
+        'material_id',
+        'completado',
         'completado_at',
     ];
 
     protected $casts = [
+        'completado' => 'boolean',
         'completado_at' => 'datetime',
     ];
+
+    public $timestamps = true;
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function curso()
+    public function material()
     {
-        return $this->belongsTo(Curso::class);
+        return $this->belongsTo(Material::class);
     }
 }

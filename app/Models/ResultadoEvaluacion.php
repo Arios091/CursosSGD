@@ -2,23 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProgresoCurso extends Model
+class ResultadoEvaluacion extends Model
 {
-    protected $table = 'progreso_cursos';
+    protected $table = 'resultados_evaluacion';
 
     protected $fillable = [
         'user_id',
         'curso_id',
-        'estado',
-        'modulo_actual',
-        'material_actual',
+        'nota',
+        'aprobado',
         'completado_at',
     ];
 
     protected $casts = [
+        'aprobado' => 'boolean',
         'completado_at' => 'datetime',
     ];
 
