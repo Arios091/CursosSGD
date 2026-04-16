@@ -1,33 +1,23 @@
 @extends('layouts.app')
 
 @section('content')
-@if(session('error'))
-    <div style="background: #fee2e2; color: #991b1b; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px;">
-        {{ session('error') }}
-    </div>
-@endif
-
-@if(session('success'))
-    <div style="background: #dcfce7; color: #166534; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px;">
-        {{ session('success') }}
-    </div>
-@endif
-
 @php
     $user = auth()->user();
     $isAdmin = $user && $user->role === 'admin';
-    $esEstudiante = !$isAdmin;
+    $esDocente = $user && $user->role === 'docente';
+    $esEstudiante = !$isAdmin && !$esDocente;
     
-    $modulos = $curso->modulos->sortBy('orden');
-    $moduloIndex = request('modulo', 0);
-    $moduloActual = $modulos->values()->get($moduloIndex);
-    $materiales = $moduloActual ? $moduloActual->materiales->sortBy('orden') : collect();
+    // Use controller variables (already reindexed)
+    if (!isset($modulos)) { $modulos = $curso->modulos->sortBy('orden')->values(); }
+    if (!isset($moduloIndex)) { $moduloIndex = request('modulo', 0); }
+    if (!isset($moduloActual)) { $moduloActual = $modulos->get($moduloIndex); }
+    if (!isset($materiales)) { $materiales = $moduloActual ? $moduloActual->materiales->sortBy('orden')->values() : collect(); }
+    if (!isset($materialIndex)) { $materialIndex = request('material', 0); }
+    if (!isset($materialSeleccionado)) { $materialSeleccionado = $materiales->get($materialIndex) ?? $materiales->first(); }
     
-    $materialIndex = request('material', 0);
-    $materialSeleccionado = $materiales->values()->get($materialIndex) ?? $materiales->first();
-    
+    // Calcular progreso
     $materialesCompletados = [];
-    if ($esEstudiante && $materiales->count() > 0) {
+    if (($esEstudiante || $esDocente) && $materiales->count() > 0) {
         $materialIds = $materiales->pluck('id')->toArray();
         $materialesCompletados = \App\Models\ProgresoMaterial::where('user_id', auth()->id())
             ->whereIn('material_id', $materialIds)
@@ -36,271 +26,439 @@
             ->toArray();
     }
     
-    $totalMateriales = $curso->modulos->flatMap(function($m) { return $m->materiales; })->count();
+    $totalMateriales = $curso->modulos->flatMap(fn($m) => $m->materiales)->count();
     $materialesCompletadosTotal = \App\Models\ProgresoMaterial::where('user_id', auth()->id())
-        ->whereIn('material_id', $curso->modulos->flatMap(function($m) { return $m->materiales->pluck('id'); }))
+        ->whereIn('material_id', $curso->modulos->flatMap(fn($m) => $m->materiales->pluck('id')))
         ->where('completado', true)
         ->count();
     $progresoPorcentaje = $totalMateriales > 0 ? round(($materialesCompletadosTotal / $totalMateriales) * 100) : 0;
 @endphp
 
-<style>
-    .course-container { display: flex; min-height: calc(100vh - 56px); }
-    .sidebar { width: 300px; background: white; border-right: 1px solid #e1e5eb; flex-shrink: 0; }
-    .sidebar-header { background: linear-gradient(135deg, #0B5E2E 0%, #0d7a3f 100%); padding: 20px; color: white; }
-    .sidebar-header h4 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-    .module-link { display: block; padding: 14px 16px; text-decoration: none; color: #333; border-left: 4px solid transparent; }
-    .module-link:hover { background: #f8f9fa; }
-    .module-link.active { background: #f0f7f2; border-left-color: #0B5E2E; }
-    .module-title { font-size: 13px; font-weight: 500; }
-    .module-status { font-size: 11px; color: #666; }
-    .main-content { flex: 1; padding: 24px; overflow-y: auto; }
-    .content-header { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-    .content-header h2 { font-size: 20px; margin-bottom: 4px; }
-    .materials-section { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-    .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
-    .materials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
-    .material-card { display: flex; align-items: center; gap: 10px; padding: 12px; background: #f8f9fa; border-radius: 6px; text-decoration: none; color: #333; }
-    .material-card:hover { background: #f0f7f2; }
-    .material-card.active { background: #0B5E2E; color: white; }
-    .material-card.completed { background: #f0fdf4; }
-    .material-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 14px; }
-    .material-card:not(.active):not(.completed) .material-icon { background: #e1e5eb; }
-    .material-card.active .material-icon { background: rgba(255,255,255,0.2); }
-    .material-card.completed .material-icon { background: #22c55e; color: white; }
-    .material-title { font-size: 13px; }
-    .viewer-container { background: white; border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
-    .viewer-header { padding: 16px 20px; border-bottom: 1px solid #e1e5eb; display: flex; align-items: center; gap: 12px; }
-    .viewer-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
-    .viewer-icon.video { background: #fef3c7; color: #f59e0b; }
-    .viewer-icon.pdf { background: #dbeafe; color: #3b82f6; }
-    .viewer-title { font-size: 16px; font-weight: 600; }
-    .viewer-content iframe, .viewer-content video { width: 100%; height: 450px; border: none; }
-    .actions-section { background: white; border-radius: 8px; padding: 20px; }
-    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; margin-bottom: 12px; }
-    .status-badge.pending { background: #fef3c7; color: #92400e; }
-    .status-badge.completed { background: #dcfce7; color: #166534; }
-    .btn-action { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 6px; font-size: 14px; font-weight: 500; text-decoration: none; border: none; cursor: pointer; }
-    .btn-complete { background: #0B5E2E; color: white; }
-    .btn-complete:hover { background: #0d7a3f; }
-    .btn-next { background: white; color: #0B5E2E; border: 2px solid #0B5E2E; }
-    .btn-next:hover { background: #0B5E2E; color: white; }
-    .empty-state { text-align: center; padding: 60px 20px; color: #666; }
-    .empty-icon { font-size: 48px; color: #d1d5db; margin-bottom: 12px; }
-    @media (max-width: 768px) { .course-container { flex-direction: column; } .sidebar { width: 100%; } }
-</style>
-
-<div class="course-container">
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h4>{{ Str::limit($curso->titulo, 30) }}</h4>
-            <div style="margin-top: 10px;">
-                <div style="height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; overflow: hidden;">
-                    <div style="height: 100%; background: #C9A227; width: {{ $progresoPorcentaje }}%;"></div>
-                </div>
-                <div style="font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 4px;">
-                    {{ $progresoPorcentaje }}% - {{ $materialesCompletadosTotal }}/{{ $totalMateriales }}
-                </div>
+@if($isAdmin)
+{{-- VISTA ADMIN - Lista simple de cursos --}}
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <a href="{{ route('home') }}" style="color: #0B5E2E; text-decoration: none;">
+            <i class="fas fa-arrow-left me-1"></i> Volver al Dashboard
+        </a>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">{{ $curso->titulo }}</h4>
+            <div>
+                <a href="{{ route('cursos.edit', $curso) }}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> Editar</a>
+                <form action="{{ route('cursos.destroy', $curso) }}" method="POST" style="display:inline;">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar este curso?')"><i class="fas fa-trash"></i> Eliminar</button>
+                </form>
             </div>
         </div>
-        
-        <div>
-            @foreach($modulos as $index => $modulo)
-                @php
-                    $moduloMateriales = $modulo->materiales;
-                    $moduloCompletados = 0;
-                    if ($esEstudiante && $moduloMateriales->count() > 0) {
-                        $moduloCompletados = \App\Models\ProgresoMaterial::where('user_id', auth()->id())
-                            ->whereIn('material_id', $moduloMateriales->pluck('id'))
-                            ->where('completado', true)
-                            ->count();
+        <div class="card-body">
+            <p><strong>Descripción:</strong> {{ $curso->descripcion }}</p>
+            <p><strong>Carga Horaria:</strong> {{ $curso->carga_horaria }} horas</p>
+            <p><strong>Estado:</strong> {{ $curso->estado }}</p>
+        </div>
+    </div>
+    <h5 class="mb-3">Módulos del Curso</h5>
+    @foreach($modulos as $idx => $modulo)
+    <div class="card mb-3">
+        <div class="card-header bg-light"><h6 class="mb-0">Módulo {{ $idx + 1 }}: {{ $modulo->titulo }}</h6></div>
+        <div class="card-body">
+            @if($modulo->materiales->count() > 0)
+                <ul class="list-group">
+                    @foreach($modulo->materiales as $mIdx => $material)
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><strong>{{ $mIdx + 1 }}.</strong> {{ $material->titulo }} <span class="badge bg-{{ $material->tipo == 'video' ? 'danger' : 'info' }}">{{ $material->tipo }}</span></span>
+                            @if($material->url)<small class="text-muted">{{ $material->url }}</small>@endif
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="text-muted mb-0">Sin materiales</p>
+            @endif
+            @if($modulo->cuestionario)
+                <div class="mt-2"><span class="badge bg-warning text-dark">📝 Cuestionario: {{ $modulo->cuestionario->titulo }}</span></div>
+            @endif
+        </div>
+    </div>
+    @endforeach
+    @if($curso->evaluacionFinal)
+    <div class="card mb-3">
+        <div class="card-header bg-warning text-dark"><h6 class="mb-0">🎓 Evaluación Final: {{ $curso->evaluacionFinal->titulo }}</h6></div>
+        <div class="card-body"><p>{{ $curso->evaluacionFinal->preguntas->count() }} preguntas</p></div>
+    </div>
+    @endif
+</div>
+
+@else
+{{-- VISTA ESTUDIANTE / DOCENTE - Interfaz de curso moderna --}}
+<style>
+    .cs-container { display: flex; min-height: calc(100vh - 56px); }
+    .cs-sidebar { width: 300px; background: #fff; border-right: 1px solid #e5e7eb; flex-shrink: 0; overflow-y: auto; }
+    .cs-sidebar-header { background: linear-gradient(135deg, #0B5E2E 0%, #0d7a3f 100%); padding: 20px; color: #fff; }
+    .cs-sidebar-header h4 { font-size: 15px; font-weight: 600; margin: 0 0 10px; }
+    .cs-progress { height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; overflow: hidden; }
+    .cs-progress-bar { height: 100%; background: #C9A227; transition: width 0.3s; }
+    .cs-progress-text { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 4px; }
+    .cs-module-link { display: block; padding: 12px 16px; text-decoration: none; color: #374151; border-left: 3px solid transparent; transition: all 0.2s; }
+    .cs-module-link:hover { background: #f9fafb; }
+    .cs-module-link.active { background: #f0fdf4; border-left-color: #0B5E2E; }
+    .cs-module-link.completed { background: #f0fdf4; }
+    .cs-module-title { font-size: 13px; font-weight: 500; }
+    .cs-module-meta { font-size: 11px; color: #6b7280; margin-top: 2px; }
+    .cs-module-check { color: #22c55e; font-weight: bold; }
+    .cs-main { flex: 1; background: #f3f4f6; padding: 24px; overflow-y: auto; }
+    .cs-card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden; }
+    .cs-card-header { padding: 20px 24px; border-bottom: 1px solid #e5e7eb; }
+    .cs-card-body { padding: 24px; }
+    .cs-breadcrumb { font-size: 13px; color: #6b7280; margin-bottom: 4px; }
+    .cs-breadcrumb a { color: #0B5E2E; text-decoration: none; }
+    .cs-breadcrumb a:hover { text-decoration: underline; }
+    .cs-module-name { font-size: 20px; font-weight: 700; color: #111827; margin: 0; }
+    .cs-materials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .cs-material-item { display: flex; align-items: center; gap: 12px; padding: 14px; background: #f9fafb; border-radius: 10px; text-decoration: none; color: #374151; border: 2px solid transparent; transition: all 0.2s; cursor: pointer; }
+    .cs-material-item:hover { border-color: #0B5E2E; background: #f0fdf4; }
+    .cs-material-item.active { background: #0B5E2E; color: #fff; border-color: #0B5E2E; }
+    .cs-material-item.completed { background: #f0fdf4; border-color: #22c55e; }
+    .cs-material-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .cs-material-icon.video { background: #fef3c7; color: #f59e0b; }
+    .cs-material-icon.pdf { background: #dbeafe; color: #3b82f6; }
+    .cs-material-item.active .cs-material-icon { background: rgba(255,255,255,0.2); color: #fff; }
+    .cs-material-item.completed .cs-material-icon { background: #22c55e; color: #fff; }
+    .cs-material-name { font-size: 13px; font-weight: 500; }
+    .cs-viewer { background: #000; border-radius: 8px; overflow: hidden; }
+    .cs-viewer iframe, .cs-viewer video { width: 100%; height: 480px; border: none; }
+    .cs-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .cs-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; }
+    .cs-btn-primary { background: #0B5E2E; color: #fff; }
+    .cs-btn-primary:hover { background: #0d7a3f; color: #fff; }
+    .cs-btn-outline { background: #fff; color: #0B5E2E; border: 2px solid #0B5E2E; }
+    .cs-btn-outline:hover { background: #0B5E2E; color: #fff; }
+    .cs-btn-gold { background: #C9A227; color: #fff; }
+    .cs-btn-gold:hover { background: #b8911f; color: #fff; }
+    .cs-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; }
+    .cs-badge-success { background: #dcfce7; color: #166534; }
+    .cs-badge-warning { background: #fef3c7; color: #92400e; }
+    .cs-empty { text-align: center; padding: 80px 20px; }
+    .cs-empty-icon { font-size: 64px; margin-bottom: 16px; }
+    .cs-empty-title { font-size: 20px; font-weight: 600; color: #374151; margin-bottom: 8px; }
+    .cs-empty-text { color: #6b7280; }
+    .cs-quiz-banner { background: linear-gradient(135deg, #C9A227 0%, #d4af37 100%); color: #fff; padding: 20px 24px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+    .cs-quiz-banner h4 { margin: 0; font-size: 16px; }
+    .cs-quiz-banner p { margin: 4px 0 0; font-size: 13px; opacity: 0.9; }
+    .cs-eval-banner { background: linear-gradient(135deg, #0B5E2E 0%, #0d7a3f 100%); color: #fff; padding: 20px 24px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+    .cs-eval-banner h4 { margin: 0; font-size: 16px; }
+    .cs-eval-banner p { margin: 4px 0 0; font-size: 13px; opacity: 0.9; }
+    @media (max-width: 768px) { .cs-container { flex-direction: column; } .cs-sidebar { width: 100%; } }
+</style>
+
+@if(session('success'))
+<div style="background: #dcfce7; color: #166534; padding: 12px 20px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #22c55e;">
+    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+</div>
+@endif
+@if(session('error'))
+<div style="background: #fee2e2; color: #991b1b; padding: 12px 20px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #ef4444;">
+    <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+</div>
+@endif
+
+<div class="cs-container">
+    {{-- Sidebar de módulos --}}
+    <div class="cs-sidebar">
+        <div class="cs-sidebar-header">
+            <h4><i class="fas fa-book me-2"></i>{{ Str::limit($curso->titulo, 35) }}</h4>
+            <div class="cs-progress">
+                <div class="cs-progress-bar" style="width: {{ $progresoPorcentaje }}%;"></div>
+            </div>
+            <div class="cs-progress-text">{{ $progresoPorcentaje }}% completado ({{ $materialesCompletadosTotal }}/{{ $totalMateriales }})</div>
+        </div>
+        <div style="padding: 8px 0;">
+            @php
+                // Calculate unlocked modules: all completed modules + the first incomplete one
+                $unlockedUpTo = 0;
+                if ($esEstudiante || $esDocente) {
+                    foreach($modulos as $mIdx => $mod) {
+                        $mMats = $mod->materiales;
+                        if ($mMats->count() == 0) { $unlockedUpTo = $mIdx + 1; continue; }
+                        $mCompleted = \App\Models\ProgresoMaterial::where('user_id', auth()->id())->whereIn('material_id', $mMats->pluck('id'))->where('completado', true)->count();
+                        if ($mCompleted == $mMats->count()) {
+                            // Check quiz
+                            if ($mod->cuestionario) {
+                                $quizDone = \App\Models\ResultadoCuestionario::where('user_id', auth()->id())->where('modulo_id', $mod->id)->where('aprobado', true)->exists();
+                                if ($quizDone) { $unlockedUpTo = $mIdx + 1; continue; }
+                            } else {
+                                $unlockedUpTo = $mIdx + 1; continue;
+                            }
+                        }
+                        break;
                     }
-                    $moduloCompletado = $moduloCompletados == $moduloMateriales->count() && $moduloMateriales->count() > 0;
-                    $esActivo = $moduloActual && $moduloActual->id == $modulo->id;
+                } else {
+                    $unlockedUpTo = $modulos->count(); // Admin sees all
+                }
+            @endphp
+            @foreach($modulos as $idx => $modulo)
+                @php
+                    $modMats = $modulo->materiales;
+                    $modCompleted = ($esEstudiante || $esDocente) ? \App\Models\ProgresoMaterial::where('user_id', auth()->id())->whereIn('material_id', $modMats->pluck('id'))->where('completado', true)->count() : 0;
+                    $modDone = $modCompleted == $modMats->count() && $modMats->count() > 0;
+                    $modActive = $moduloActual && $moduloActual->id == $modulo->id;
+                    $isLocked = $idx > $unlockedUpTo;
                 @endphp
-                
-                <a href="{{ route('cursos.ver', $curso) }}?modulo={{ $index }}&material=0" class="module-link {{ $esActivo ? 'active' : '' }}">
-                    <div class="module-title">
-                        {{ $index + 1 }}. {{ $modulo->titulo ?: 'Módulo ' . ($index + 1) }}
-                        @if($moduloCompletado)
-                            <span style="color: #22c55e;">✓</span>
-                        @endif
+                @if($isLocked)
+                    <div class="cs-module-link" style="opacity: 0.5; cursor: not-allowed; pointer-events: none;">
+                        <div class="cs-module-title">
+                            <i class="fas fa-lock" style="color: #9ca3af; margin-right: 6px; font-size: 11px;"></i>
+                            {{ $idx + 1 }}. {{ $modulo->titulo ?: 'Módulo ' . ($idx + 1) }}
+                        </div>
+                        <div class="cs-module-meta">Bloqueado</div>
                     </div>
-                    <div class="module-status">
-                        {{ $moduloCompletados }}/{{ $moduloMateriales->count() }} materiales
-                    </div>
-                </a>
+                @else
+                    <a href="{{ route('cursos.ver', $curso) }}?modulo={{ $idx }}&material=0" class="cs-module-link {{ $modActive ? 'active' : '' }} {{ $modDone ? 'completed' : '' }}">
+                        <div class="cs-module-title">
+                            {{ $idx + 1 }}. {{ $modulo->titulo ?: 'Módulo ' . ($idx + 1) }}
+                            @if($modDone) <span class="cs-module-check">✓</span> @endif
+                        </div>
+                        <div class="cs-module-meta">{{ $modCompleted }}/{{ $modMats->count() }} materiales</div>
+                    </a>
+                @endif
             @endforeach
         </div>
     </div>
 
-    <div class="main-content">
+    {{-- Contenido principal --}}
+    <div class="cs-main">
         @if($moduloActual)
-            <div class="content-header">
-                <div style="color: #666; font-size: 14px; margin-bottom: 4px;">
-                    <a href="{{ route('home') }}" style="color: #0B5E2E; text-decoration: none;">Mis Cursos</a> / {{ $curso->titulo }}
-                </div>
-                <h2>{{ $moduloActual->titulo ?: 'Módulo ' . $moduloActual->orden }}</h2>
-                <div style="color: #666; font-size: 14px;">
-                    {{ $moduloActual->materiales->count() }} materiales en este módulo
+            {{-- Header del módulo --}}
+            <div class="cs-card">
+                <div class="cs-card-header">
+                    <div class="cs-breadcrumb">
+                        <a href="{{ route('home') }}">Inicio</a> / {{ $curso->titulo }}
+                    </div>
+                    <h1 class="cs-module-name">{{ $moduloActual->titulo ?: 'Módulo ' . $moduloActual->orden }}</h1>
                 </div>
             </div>
 
-            @if($moduloActual->materiales->count() > 0)
-            <div class="materials-section">
-                <h3 class="section-title">Materiales del Módulo</h3>
-                <div class="materials-grid">
-                    @foreach($materiales as $mIndex => $material)
-                        @php
-                            $completado = in_array($material->id, $materialesCompletados);
-                            $esActivo = $materialSeleccionado && $materialSeleccionado->id == $material->id;
-                        @endphp
-                        <a href="{{ route('cursos.ver', $curso) }}?modulo={{ $moduloIndex }}&material={{ $mIndex }}" 
-                           class="material-card {{ $esActivo ? 'active' : '' }} {{ $completado ? 'completed' : '' }}">
-                            <div class="material-icon">
-                                {{ $material->tipo == 'video' ? '▶' : '📄' }}
-                            </div>
-                            <div class="material-title">{{ $material->titulo }}</div>
-                        </a>
-                    @endforeach
+            {{-- Grid de materiales --}}
+            @if($materiales->count() > 0)
+            <div class="cs-card">
+                <div class="cs-card-header">
+                    <h3 style="font-size: 16px; font-weight: 600; margin: 0; color: #374151;">📚 Materiales del Módulo</h3>
+                </div>
+                <div class="cs-card-body">
+                    <div class="cs-materials-grid">
+                        @foreach($materiales as $mIdx => $material)
+                            @php
+                                $matDone = in_array($material->id, $materialesCompletados);
+                                $matActive = $materialSeleccionado && $materialSeleccionado->id == $material->id;
+                            @endphp
+                            <a href="{{ route('cursos.ver', [$curso, 'modulo' => $moduloIndex, 'material' => $mIdx]) }}" 
+                               class="cs-material-item {{ $matActive ? 'active' : '' }} {{ $matDone ? 'completed' : '' }}">
+                                <div class="cs-material-icon {{ $material->tipo }}">
+                                    {{ $material->tipo == 'video' ? '▶' : '📄' }}
+                                </div>
+                                <div class="cs-material-name">{{ $material->titulo }}</div>
+                                @if($matDone) <span style="margin-left: auto; color: #22c55e;">✓</span> @endif
+                            </a>
+                        @endforeach
+                    </div>
                 </div>
             </div>
             @endif
 
+            {{-- Visor de material --}}
             @if($materialSeleccionado)
-            <div class="viewer-container">
-                <div class="viewer-header">
-                    <div class="viewer-icon {{ $materialSeleccionado->tipo == 'video' ? 'video' : 'pdf' }}">
+            <div class="cs-card">
+                <div class="cs-card-header" style="display: flex; align-items: center; gap: 12px;">
+                    <div class="cs-material-icon {{ $materialSeleccionado->tipo }}" style="width: 40px; height: 40px; font-size: 18px;">
                         {{ $materialSeleccionado->tipo == 'video' ? '▶' : '📄' }}
                     </div>
-                    <div class="viewer-title">{{ $materialSeleccionado->titulo }}</div>
+                    <div>
+                        <div style="font-size: 16px; font-weight: 600;">{{ $materialSeleccionado->titulo }}</div>
+                        <div style="font-size: 12px; color: #6b7280;">{{ $materialSeleccionado->tipo == 'video' ? 'Video' : 'Documento PDF' }}</div>
+                    </div>
                 </div>
-                <div class="viewer-content">
-                    @if($materialSeleccionado->tipo == 'video')
-                        @if($materialSeleccionado->url)
+                <div class="cs-card-body" style="padding: 0;">
+                    <div class="cs-viewer">
+                        @if($materialSeleccionado->tipo == 'video' && $materialSeleccionado->url)
+                            @php
+                                $url = trim($materialSeleccionado->url);
+                                $videoId = null;
+                                $isYoutube = str_contains($url, 'youtube.com') || str_contains($url, 'youtu.be');
+                                $isVimeo = str_contains($url, 'vimeo.com');
+                                
+                                if ($isYoutube) {
+                                    if (preg_match('/youtu\.be\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
+                                        $videoId = $matches[1];
+                                    } elseif (preg_match('/[?&]v=([^&]+)/', $url, $matches)) {
+                                        $videoId = trim($matches[1]);
+                                    } elseif (preg_match('/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
+                                        $videoId = $matches[1];
+                                    }
+                                } elseif ($isVimeo) {
+                                    if (preg_match('/vimeo\.com\/(\d+)/', $url, $matches)) {
+                                        $videoId = $matches[1];
+                                    }
+                                }
+                            @endphp
+                            @if($videoId && $isYoutube)
+                                <iframe src="https://www.youtube.com/embed/{{ $videoId }}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                            @elseif($videoId && $isVimeo)
+                                <iframe src="https://player.vimeo.com/video/{{ $videoId }}" allowfullscreen allow="autoplay; fullscreen; picture-in-picture"></iframe>
+                            @else
+                                <video controls><source src="{{ asset('storage/'.$url) }}" type="video/mp4">Tu navegador no soporta el video.</video>
+                            @endif
+                        @elseif($materialSeleccionado->tipo == 'pdf')
                             @php
                                 $url = $materialSeleccionado->url;
-                                $isYoutube = str_contains($url, 'youtube.com') || str_contains($url, 'youtu.be') || str_contains($url, 'vimeo.com');
+                                // Verificar si es una URL válida o un valor inválido
+                                $isValidUrl = !empty($url) && $url !== '1' && strpos($url, 'materiales/') === 0;
                             @endphp
-                            @if($isYoutube)
-                                @if(str_contains($url, 'youtu.be'))
-                                    <iframe src="{{ str_replace('youtu.be', 'www.youtube.com/embed', $url) }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                                @elseif(str_contains($url, 'vimeo.com'))
-                                    <iframe src="{{ str_replace('vimeo.com/', 'player.vimeo.com/video/', $url) }}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                            
+                            @if($isValidUrl)
+                                @php
+                                    $filename = basename($url);
+                                    $pdfUrl = route('archivo.pdf', $filename);
+                                    $fileExists = \Illuminate\Support\Facades\Storage::disk('public')->exists('materiales/' . $filename);
+                                @endphp
+                                @if($fileExists)
+                                <div style="width: 100%; height: 600px; overflow: hidden;">
+                                    <embed src="{{ $pdfUrl }}" type="application/pdf" style="width: 100%; height: 100%;">
+                                </div>
+                                <div style="padding: 12px; text-align: center; background: #f9fafb; border-top: 1px solid #e5e7eb;">
+                                    <a href="{{ route('archivo.pdf.descargar', $filename) }}" target="_blank" style="color: #0B5E2E; font-size: 13px; text-decoration: none;">
+                                        <i class="fas fa-download"></i> Descargar PDF
+                                    </a>
+                                </div>
                                 @else
-                                    <iframe src="{{ str_replace('watch?v=', 'embed/', $url) }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                <div style="padding: 40px; text-align: center; color: #dc2626; background: #fef2f2; border-radius: 8px; margin: 20px 0;">
+                                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 12px;"></i>
+                                    <p style="font-weight: 600;">Archivo PDF no encontrado</p>
+                                    <p style="font-size: 13px; color: #6b7280;">El archivo no se encontró en el servidor. Por favor contacta al administrador.</p>
+                                </div>
                                 @endif
                             @else
-                                <video controls>
-                                    <source src="{{ asset('storage/'.$url) }}" type="video/mp4">
-                                    Tu navegador no soporta el video.
-                                </video>
-                            @endif
-                        @endif
-                    @else
-                        <iframe src="{{ asset('storage/'.$materialSeleccionado->url) }}" style="width:100%; height:500px; border:none;"></iframe>
-                    @endif
-                </div>
-            </div>
-            @endif
-
-            @if($esEstudiante && $materialSeleccionado)
-            <div class="actions-section">
-                @php
-                    $materialCompletado = in_array($materialSeleccionado->id, $materialesCompletados);
-                    $currentMaterialIndex = $materiales->search(fn($m) => $m->id == $materialSeleccionado->id);
-                    $nextMaterial = $materiales->values()->get($currentMaterialIndex + 1);
-                    $todosCompletados = count($materialesCompletados) == $materiales->count();
-                @endphp
-                
-                @if($materialCompletado)
-                    <div class="status-badge completed">
-                        ✓ Material completado
-                    </div>
-                    
-                    @if($nextMaterial)
-                        <a href="{{ route('cursos.ver', $curso) }}?modulo={{ $moduloIndex }}&material={{ $currentMaterialIndex + 1 }}" class="btn-action btn-next">
-                            Siguiente material →
-                        </a>
-                    @else
-                        <div style="background: #dcfce7; padding: 16px; border-radius: 8px; color: #166534; margin-bottom: 16px;">
-                            ✓ Has completado todos los materiales de este módulo
-                        </div>
-                        
-                        @if($moduloActual->cuestionario)
-                            <a href="/mis-cursos/{{ $curso->id }}/modulo/{{ $moduloActual->id }}/cuestionario" 
-                               class="btn-action" style="background: #C9A227; color: white; font-size: 16px; padding: 16px 32px;">
-                                📝 Realizar Cuestionario del Módulo →
-                            </a>
-                        @else
-                            @php
-                                // Verificar si es el último módulo y tiene evaluación final
-                                $esUltimoModulo = ($moduloIndex == ($modulos->count() - 1));
-                            @endphp
-                            @if($esUltimoModulo && $curso->evaluacionFinal)
-                                <a href="#" onclick="document.getElementById('modalEvaluacion').style.display='block'; document.getElementById('modalEvaluacion').className='modal show'; return false;" 
-                                   class="btn-action" style="background: #0B5E2E; color: white; font-size: 16px; padding: 16px 32px;">
-                                    🎓 Realizar Evaluación Final →
-                                </a>
-                            @endif
-                        @endif
-                    @endif
-                @else
-                    <div class="status-badge pending">
-                        ⏱ Material no completado
-                    </div>
-                    
-                    <form action="{{ route('cursos.material', $curso) }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="material_id" value="{{ $materialSeleccionado->id }}">
-                        <input type="hidden" name="modulo_id" value="{{ $moduloActual->id }}">
-                        <button type="submit" class="btn-action btn-complete">
-                            ✓ Marcar como Completado
-                        </button>
-                    </form>
-                @endif
-            </div>
-            @endif
-
-            <!-- Evaluación Final Modal -->
-            @if($curso->evaluacionFinal)
-            <div id="modalEvaluacion" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
-                <div style="background: white; max-width: 600px; margin: 50px auto; padding: 24px; border-radius: 12px; max-height: 80vh; overflow-y: auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h3 style="margin: 0; color: #0B5E2E;">{{ $curso->evaluacionFinal->titulo }}</h3>
-                        <button onclick="document.getElementById('modalEvaluacion').style.display='none'" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
-                    </div>
-                    <form action="{{ route('cursos.evaluacion', $curso) }}" method="POST">
-                        @csrf
-                        @foreach($curso->evaluacionFinal->preguntas as $pIndex => $pregunta)
-                            <div style="margin-bottom: 16px; padding: 12px; background: #f9fafb; border-radius: 8px;">
-                                <div style="font-weight: 500; margin-bottom: 8px;">
-                                    <span style="background: #0B5E2E; color: white; padding: 2px 8px; border-radius: 4px; margin-right: 8px;">{{ $pIndex + 1 }}</span>
-                                    {{ $pregunta->pregunta }}
-                                </div>
-                                @foreach($pregunta->opciones as $opcion)
-                                    <div style="margin-left: 20px;">
-                                        <input type="radio" name="respuestas[{{ $pregunta->id }}]" value="{{ $opcion->id }}" id="eval{{ $pregunta->id }}_{{ $opcion->id }}">
-                                        <label for="eval{{ $pregunta->id }}_{{ $opcion->id }}">{{ $opcion->opcion }}</label>
-                                    </div>
-                                @endforeach
+                            <div style="padding: 40px; text-align: center; color: #dc2626; background: #fef2f2; border-radius: 8px; margin: 20px 0;">
+                                <i class="fas fa-file-pdf" style="font-size: 48px; margin-bottom: 12px;"></i>
+                                <p style="font-weight: 600;">Archivo PDF no disponible</p>
+                                <p style="font-size: 13px; color: #6b7280;">El archivo no fue subido correctamente durante la creación del curso.</p>
+                                <p style="font-size: 12px; color: #9ca3af; margin-top: 8px;">Por favor, contacta al administrador para解决这个问题.</p>
                             </div>
-                        @endforeach
-                        <button type="submit" class="btn-action btn-complete" style="width: 100%; justify-content: center;">
-                            Enviar Evaluación
-                        </button>
-                    </form>
+                            @endif
+                        @else
+                            <div style="padding: 40px; text-align: center; color: #6b7280;">
+                                <i class="fas fa-file-alt" style="font-size: 48px; color: #d1d5db; margin-bottom: 12px;"></i>
+                                <p>Material no disponible</p>
+                                @if($materialSeleccionado->url)
+                                    <small style="color: #9ca3af;">URL: {{ $materialSeleccionado->url }}</small>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
+            @endif
+
+            {{-- Acciones del material --}}
+            @if(($esEstudiante || $esDocente) && $materialSeleccionado)
+            <div class="cs-card">
+                <div class="cs-card-body">
+                    @php
+                        $matDone = in_array($materialSeleccionado->id, $materialesCompletados);
+                        $curMatIdx = $materialIndex;
+                        $nextMat = $materiales->get($curMatIdx + 1);
+                        $allDone = count($materialesCompletados) == $materiales->count();
+                    @endphp
+                    
+                    @if($matDone)
+                        <div class="cs-actions">
+                            <span class="cs-badge cs-badge-success"><i class="fas fa-check"></i> Material completado</span>
+                            @if($nextMat)
+                                <a href="{{ route('cursos.ver', [$curso, 'modulo' => $moduloIndex, 'material' => $curMatIdx + 1]) }}" class="cs-btn cs-btn-outline">
+                                    Siguiente material: {{ $nextMat->titulo }} <i class="fas fa-arrow-right"></i>
+                                </a>
+                            @else
+                                @php
+                                    $nextModule = $modulos->get($moduloIndex + 1);
+                                @endphp
+                                @if($nextModule)
+                                    <a href="{{ route('cursos.ver', [$curso, 'modulo' => $moduloIndex + 1, 'material' => 0]) }}" class="cs-btn cs-btn-primary">
+                                        Siguiente módulo: {{ $nextModule->titulo ?: 'Módulo ' . ($moduloIndex + 2) }} <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                @else
+                                    <div style="background: #dcfce7; padding: 16px 20px; border-radius: 10px; color: #166534; width: 100%;">
+                                        <i class="fas fa-check-circle me-2"></i> ¡Has completado todos los materiales de este módulo!
+                                    </div>
+                                @endif
+                            @endif
+                        </div>
+                    @else
+                        <div class="cs-actions">
+                            <span class="cs-badge cs-badge-warning"><i class="fas fa-clock"></i> Material pendiente</span>
+                            <form action="{{ route('cursos.material', $curso) }}" method="POST" style="display: inline;">
+                                @csrf
+                                <input type="hidden" name="material_id" value="{{ $materialSeleccionado->id }}">
+                                <input type="hidden" name="modulo_id" value="{{ $moduloActual->id }}">
+                                <button type="submit" class="cs-btn cs-btn-primary">
+                                    <i class="fas fa-check"></i> Marcar como Completado
+                                </button>
+                            </form>
+                        </div>
+                    @endif
+                </div>
+            </div>
+            @endif
+
+            {{-- Banner de cuestionario del módulo (si todos los materiales están completados) --}}
+            @if(($esEstudiante || $esDocente) && $moduloActual->cuestionario && count($materialesCompletados) == $materiales->count() && $materiales->count() > 0)
+            <div class="cs-quiz-banner">
+                <div>
+                    <h4><i class="fas fa-clipboard-list me-2"></i>Cuestionario del Módulo</h4>
+                    <p>Has completado todos los materiales. ¡Es hora de evaluar tus conocimientos!</p>
+                </div>
+                <a href="{{ route('cursos.cuestionario.ver', [$curso, $moduloActual->id]) }}" class="cs-btn cs-btn-gold" style="flex-shrink: 0;">
+                    <i class="fas fa-play"></i> Iniciar Cuestionario
+                </a>
+            </div>
+            @endif
+
+            {{-- Banner de evaluación final (si es el último módulo y no tiene cuestionario o está aprobado) --}}
+            @if(($esEstudiante || $esDocente) && $moduloIndex == ($modulos->count() - 1) && $curso->evaluacionFinal)
+                @php
+                    $allModulesDone = true;
+                    foreach($modulos as $mod) {
+                        $modMats = $mod->materiales;
+                        if ($modMats->count() > 0) {
+                            $modCompleted = \App\Models\ProgresoMaterial::where('user_id', auth()->id())->whereIn('material_id', $modMats->pluck('id'))->where('completado', true)->count();
+                            if ($modCompleted < $modMats->count()) { $allModulesDone = false; break; }
+                        }
+                        if ($mod->cuestionario) {
+                            $modQuizDone = \App\Models\ResultadoCuestionario::where('user_id', auth()->id())->where('modulo_id', $mod->id)->where('aprobado', true)->exists();
+                            if (!$modQuizDone) { $allModulesDone = false; break; }
+                        }
+                    }
+                @endphp
+                @if($allModulesDone)
+                <div class="cs-eval-banner">
+                    <div>
+                        <h4><i class="fas fa-graduation-cap me-2"></i>Evaluación Final</h4>
+                        <p>¡Has completado todo el curso! Realiza la evaluación final para obtener tu certificado.</p>
+                    </div>
+                    <a href="{{ route('cursos.evaluacion-final', $curso) }}" class="cs-btn" style="background: #fff; color: #0B5E2E; flex-shrink: 0;">
+                        <i class="fas fa-play"></i> Iniciar Evaluación
+                    </a>
+                </div>
+                @endif
             @endif
 
         @else
-            <div class="empty-state">
-                <div class="empty-icon">📚</div>
-                <div style="font-size: 20px; font-weight: 600; color: #333; margin-bottom: 8px;">Selecciona un módulo</div>
-                <p>Elige un módulo del menú lateral para comenzar a estudiar</p>
+            <div class="cs-empty">
+                <div class="cs-empty-icon">📚</div>
+                <div class="cs-empty-title">Selecciona un módulo</div>
+                <div class="cs-empty-text">Elige un módulo del menú lateral para comenzar a estudiar</div>
             </div>
         @endif
     </div>
 </div>
+@endif
 @endsection

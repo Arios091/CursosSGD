@@ -16,6 +16,8 @@ class ProgresoCurso extends Model
         'modulo_actual',
         'material_actual',
         'completado_at',
+        'evaluacion_aprobada',
+        'fecha_fin',
     ];
 
     protected $casts = [
@@ -30,5 +32,15 @@ class ProgresoCurso extends Model
     public function curso()
     {
         return $this->belongsTo(Curso::class);
+    }
+
+    public function getCompletadoAttribute()
+    {
+        return in_array($this->estado, ['completado', 'terminado']);
+    }
+
+    public function isCompletado()
+    {
+        return $this->completado;
     }
 }

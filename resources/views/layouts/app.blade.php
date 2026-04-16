@@ -16,233 +16,906 @@
 
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
+        [x-cloak] { display: none !important; }
+
         :root {
             --verde-institucional: #0B5E2E;
             --verde-hover: #094D25;
             --dorado: #C9A227;
             --dorado-hover: #B89120;
-            --dorado-claro: #D4B13A;
             --blanco: #FFFFFF;
             --gris-50: #F9FAFB;
             --gris-100: #F3F4F6;
             --gris-200: #E5E7EB;
-            --gris-300: #D1D5DB;
-            --gris-400: #9CA3AF;
             --gris-600: #4B5563;
-            --gris-700: #374151;
             --gris-800: #1F2937;
             --gris-900: #111827;
-            --verde-success-50: #F0FDF4;
-            --verde-success-600: #16A34A;
-            --verde-success-700: #15803D;
-            --verde-success-800: #166534;
-            --verde-success-900: #14532D;
-            --rojo-error-50: #FEF2F2;
-            --rojo-error-600: #DC2626;
-            --azul-info-50: #EFF6FF;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--gris-50);
             color: var(--gris-900);
+            margin: 0;
+            padding: 0;
         }
 
-        .navbar {
-            background: linear-gradient(135deg, var(--verde-institucional) 0%, #0B5E2E 100%) !important;
+        .page-transition {
+            opacity: 1;
+            transition: opacity 0.2s ease;
         }
 
-        .navbar-brand, .nav-link {
-            color: white !important;
+        .page-loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .sidebar-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #0B5E2E 0%, #094525 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #0B5E2E;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .user-info {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .user-name {
+            font-size: 14px;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .nav-link:hover {
-            color: rgba(255,255,255,0.8) !important;
+        .sidebar-menu {
+            flex: 1;
+            padding: 16px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            border-left: 4px solid transparent;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            text-decoration: none;
+            padding-left: 24px;
+        }
+
+        .menu-item.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border-left-color: #C9A227;
+            padding-left: 24px;
+        }
+
+        .menu-item i {
+            width: 20px;
+            margin-right: 12px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .menu-item:hover i {
+            transform: scale(1.1);
+        }
+
+        .menu-item .badge {
+            margin-left: auto;
+            background: #C9A227;
+            color: #0B5E2E;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            min-height: 100vh;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .top-bar {
+            background: white;
+            padding: 16px 30px;
+            border-bottom: 1px solid var(--gris-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--gris-100);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .mobile-menu-btn:hover {
+            background: var(--gris-200);
+        }
+
+        .mobile-menu-btn i {
+            color: var(--gris-800);
+            font-size: 18px;
+        }
+
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--gris-600);
+        }
+
+        .breadcrumbs a {
+            color: var(--verde-institucional);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumbs a:hover {
+            color: var(--verde-hover);
+            text-decoration: underline;
+        }
+
+        .breadcrumbs i {
+            font-size: 10px;
+            color: var(--gris-400);
+        }
+
+        .top-bar-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gris-800);
+        }
+
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: var(--radius-md);
+            transition: background 0.2s;
+        }
+
+        .user-dropdown:hover {
+            background: var(--gris-100);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--verde-institucional);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(11, 94, 46, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .user-dropdown:hover .user-avatar {
+            transform: scale(1.05);
+        }
+
+        .page-content {
+            padding: 30px;
         }
 
         .btn-primary {
             background-color: var(--verde-institucional);
             border-color: var(--verde-institucional);
+            transition: all 0.2s;
         }
 
         .btn-primary:hover {
             background-color: var(--verde-hover);
             border-color: var(--verde-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-warning {
             background-color: var(--dorado);
             border-color: var(--dorado);
             color: white;
+            transition: all 0.2s;
         }
 
         .btn-warning:hover {
             background-color: var(--dorado-hover);
             border-color: var(--dorado-hover);
-            color: white;
-        }
-
-        .btn-outline-primary {
-            color: var(--verde-institucional);
-            border-color: var(--verde-institucional);
-        }
-
-        .btn-outline-primary:hover {
-            background-color: var(--verde-institucional);
-            border-color: var(--verde-institucional);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
         .card {
             border: none;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: var(--shadow-lg);
         }
 
-        .text-primary-custom {
-            color: var(--verde-institucional) !important;
+        .btn {
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .badge-dorado {
-            background-color: var(--dorado);
-            color: white;
+        .btn:active {
+            transform: scale(0.98);
         }
 
-        .bg-verde {
-            background-color: var(--verde-institucional) !important;
+        .btn.btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
         }
 
-        .text-verde {
-            color: var(--verde-institucional) !important;
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .top-bar {
+                padding: 12px 16px;
+            }
+
+            .page-content {
+                padding: 20px 16px;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+                opacity: 1;
+            }
         }
 
-        .border-dorado {
-            border-color: var(--dorado) !important;
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
         }
 
-        .bg-dorado {
-            background-color: var(--dorado) !important;
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-top: -8px;
+            margin-left: -8px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
         }
 
-        .text-dorado {
-            color: var(--dorado) !important;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .success-bg {
-            background-color: var(--verde-success-50);
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
-        .success-border {
-            border-color: var(--verde-success-600) !important;
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
         }
 
-        .error-bg {
-            background-color: var(--rojo-error-50);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .progress-bar {
-            background-color: var(--verde-institucional);
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
-        .nav-pills .nav-link.active {
-            background-color: var(--verde-institucional);
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border-radius: 8px;
-        }
-
-        .dropdown-item:hover {
-            background-color: var(--gris-100);
-        }
-
-        .page-header {
+        .toast {
             background: white;
-            border-bottom: 1px solid var(--gris-200);
-            padding: 1rem 0;
-            margin-bottom: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 450px;
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
         }
 
-        footer {
-            background-color: var(--gris-900);
+        .toast.toast-exit {
+            animation: slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .toast-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .toast-success .toast-icon {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .toast-error .toast-icon {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .toast-warning .toast-icon {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .toast-info .toast-icon {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--gris-900);
+            margin-bottom: 2px;
+        }
+
+        .toast-message {
+            font-size: 13px;
+            color: var(--gris-600);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--gris-400);
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .toast-close:hover {
+            color: var(--gris-600);
+        }
+
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gris-200);
+            z-index: 10001;
+            overflow: hidden;
+        }
+
+        .page-loader-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--verde-institucional), var(--dorado));
+            width: 0;
+            transition: width 0.3s;
+        }
+
+        .page-loader.active .page-loader-bar {
+            animation: loading 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loading {
+            0% { width: 0; margin-left: 0; }
+            50% { width: 70%; }
+            100% { width: 0; margin-left: 100%; }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--gris-200) 25%, var(--gris-100) 50%, var(--gris-200) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: var(--radius-md);
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-text {
+            height: 16px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-title {
+            height: 24px;
+            width: 60%;
+            margin-bottom: 12px;
+        }
+
+        .skeleton-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast {
+                min-width: auto;
+                max-width: 100%;
+            }
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--verde-institucional);
+            box-shadow: 0 0 0 3px rgba(11, 94, 46, 0.15);
+        }
+
+        .table-hover tbody tr {
+            transition: background-color 0.15s;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: var(--gris-50) !important;
+        }
+
+        a {
+            transition: color 0.2s;
         }
     </style>
 </head>
+@php
+    $userRole = Auth::user()->role ?? null;
+    $esAdmin = $userRole === 'admin';
+    $esDocente = $userRole === 'docente';
+@endphp
+
 <body>
-    <div id="app">
-        <nav class="navbar navbar-expand-md navbar-dark shadow-lg">
-            <div class="container">
-                <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
-                    <i class="fas fa-graduation-cap me-2"></i>
-                    <strong>SGD</strong> - Cursos
+    @auth
+    <div class="page-loader" id="pageLoader">
+        <div class="page-loader-bar"></div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar-layout">
+        @if($esAdmin)
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <div class="logo-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <span class="logo-text">UNAS</span>
+                </div>
+                <small style="color: rgba(255,255,255,0.7); font-size: 11px;">Universidad Nacional Agraria de la Selva</small>
+            </div>
+
+            <div class="user-info">
+                <div class="user-name">
+                    <i class="fas fa-user-circle"></i>
+                    {{ Auth::user()->name }}
+                </div>
+                <small style="color: #C9A227;">Administrador</small>
+            </div>
+
+            <nav class="sidebar-menu">
+                <a href="{{ route('home') }}" class="menu-item {{ request()->routeIs('home') ? 'active' : '' }}">
+                    <i class="fas fa-home"></i> Dashboard
                 </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+                <a href="{{ route('cursos.index') }}" class="menu-item {{ request()->routeIs('cursos.index') ? 'active' : '' }}">
+                    <i class="fas fa-book"></i> Gestión de Cursos
+                </a>
+                <a href="{{ route('admin.users.index') }}" class="menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <i class="fas fa-users"></i> Gestión de Usuarios
+                </a>
+            </nav>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto">
-                        @guest
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('login') }}">
-                                    <i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión
-                                </a>
-                            </li>
+            <div class="sidebar-footer">
+                <a href="{{ route('logout') }}" class="menu-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
+            </div>
+        </div>
+        @else
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <div class="logo-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <span class="logo-text">UNAS</span>
+                </div>
+                <small style="color: rgba(255,255,255,0.7); font-size: 11px;">Universidad Nacional Agraria de la Selva</small>
+            </div>
+
+            <div class="user-info">
+                <div class="user-name">
+                    <i class="fas fa-user-circle"></i>
+                    {{ Auth::user()->name }}
+                </div>
+                @if($esDocente)
+                    <small style="color: #C9A227;">Docente</small>
+                @else
+                    <small style="color: rgba(255,255,255,0.6);">Estudiante</small>
+                @endif
+            </div>
+
+            <nav class="sidebar-menu">
+                <a href="{{ route('home') }}" class="menu-item {{ request()->routeIs('home') ? 'active' : '' }}">
+                    <i class="fas fa-home"></i> Inicio
+                </a>
+                <a href="{{ route('cursos.index') }}" class="menu-item {{ request()->routeIs('cursos.index') ? 'active' : '' }}">
+                    <i class="fas fa-book"></i> Mis Cursos
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-certificate"></i> Certificados
+                </a>
+                <a href="{{ route('perfil') }}" class="menu-item {{ request()->routeIs('perfil') ? 'active' : '' }}">
+                    <i class="fas fa-user"></i> Perfil
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{{ route('logout') }}" class="menu-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
+            </div>
+        </div>
+        @endif
+
+        <div class="main-content" id="mainContent">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menú">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="breadcrumbs">
+                        <a href="{{ route('home') }}"><i class="fas fa-home"></i></a>
+                        @hasSection('breadcrumbs')
+                            @yield('breadcrumbs')
                         @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-user-circle me-2"></i>
-                                    {{ Auth::user()->name }}
-                                    @if(Auth::user()->role === 'admin')
-                                        <span class="badge bg-dorado text-dark ms-2">Admin</span>
-                                    @endif
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <div class="dropdown-header bg-light">
-                                        <strong>{{ Auth::user()->name }}</strong><br>
-                                        <small class="text-muted">{{ Auth::user()->email }}</small>
-                                    </div>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="{{ route('home') }}">
-                                        <i class="fas fa-home me-2"></i> Mi Panel
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
-                                    </a>
-
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endguest
-                    </ul>
+                            <span><i class="fas fa-chevron-right"></i></span>
+                            <span style="color: var(--gris-800);">@yield('page-title', 'Panel de Control')</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="user-avatar">
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    </div>
+                    <span style="font-weight: 500;">{{ Auth::user()->name }}</span>
+                    <i class="fas fa-chevron-down" style="font-size: 10px; color: var(--gris-400);"></i>
                 </div>
             </div>
-        </nav>
 
-        <main>
-            @yield('content')
-        </main>
-
-        <footer class="text-white py-4 mt-5">
-            <div class="container text-center">
-                <p class="mb-0">
-                    <small>&copy; {{ date('Y') }} Sistema de Gestión de Docencia - Todos los derechos reservados</small>
-                </p>
+            <div class="page-content" id="pageContent">
+                @yield('content')
             </div>
-        </footer>
+        </div>
     </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mainContent = document.getElementById('mainContent');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('show');
+            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        }
+
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', toggleSidebar);
+        }
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+        }
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+
+        document.addEventListener('showToast', function(e) {
+            const { type = 'info', title = '', message = '', duration = 5000 } = e.detail || {};
+            showToast(type, title, message, duration);
+        });
+
+        function showToast(type, title, message, duration = 5000) {
+            const container = document.getElementById('toastContainer');
+            const icons = {
+                success: 'fa-check',
+                error: 'fa-times',
+                warning: 'fa-exclamation',
+                info: 'fa-info'
+            };
+            const titles = {
+                success: 'Éxito',
+                error: 'Error',
+                warning: 'Advertencia',
+                info: 'Información'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas ${icons[type] || icons.info}"></i>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title || titles[type] || 'Notificación'}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="dismissToast(this.parentElement)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            if (duration > 0) {
+                setTimeout(() => dismissToast(toast), duration);
+            }
+
+            toast.style.animation = 'fadeIn 0.3s ease';
+        }
+
+        function dismissToast(toast) {
+            if (!toast || toast.classList.contains('toast-exit')) return;
+            toast.classList.add('toast-exit');
+            setTimeout(() => toast.remove(), 300);
+        }
+
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('a[href]') && !e.target.closest('a[href^="#"]')) {
+                const pageLoader = document.getElementById('pageLoader');
+                if (pageLoader) {
+                    pageLoader.classList.add('active');
+                }
+            }
+        });
+
+        window.addEventListener('load', function() {
+            const pageLoader = document.getElementById('pageLoader');
+            if (pageLoader) {
+                pageLoader.classList.remove('active');
+            }
+        });
+
+        document.addEventListener('livewire:load', function() {
+            const pageLoader = document.getElementById('pageLoader');
+            if (pageLoader) {
+                pageLoader.classList.remove('active');
+            }
+        });
+
+        Livewire.hook('message.sent', () => {
+            const pageLoader = document.getElementById('pageLoader');
+            if (pageLoader) {
+                pageLoader.classList.add('active');
+            }
+        });
+
+        Livewire.hook('message.processed', () => {
+            const pageLoader = document.getElementById('pageLoader');
+            if (pageLoader) {
+                pageLoader.classList.remove('active');
+            }
+        });
+    </script>
+    @else
+        @yield('content')
+    @endauth
     @livewireScripts
+
+    @if(session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            showToast('success', 'Operación exitosa', '{{ session('success') }}');
+        });
+    </script>
+    @endif
+
+    @if(session('error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            showToast('error', 'Error', '{{ session('error') }}');
+        });
+    </script>
+    @endif
 </body>
 </html>

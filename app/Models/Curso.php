@@ -19,6 +19,7 @@ class Curso extends Model
         'carga_horaria',
         'imagen_referencial',
         'user_id',
+        'categoria',
     ];
 
     /**

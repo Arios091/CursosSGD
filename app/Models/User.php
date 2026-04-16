@@ -19,9 +19,13 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'primer_nombre',
+        'segundo_nombre',
+        'primer_apellido',
+        'segundo_apellido',
         'email',
         'password',
-        'role', // Agregado para asignar el rol del usuario
+        'role',
     ];
 
     //Agregamos un método para verificar si el usuario es admin

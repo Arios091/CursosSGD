@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('page-title', 'Cuestionario - ' . $modulo->titulo)
+
 @section('content')
 <div class="container-fluid py-4">
     @php

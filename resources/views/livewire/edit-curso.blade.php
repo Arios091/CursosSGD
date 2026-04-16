@@ -159,29 +159,28 @@
                                         </h6>
                                         <small class="text-muted d-block mb-2">Cada módulo debe tener al menos un material (PDF o video)</small>
                                         
-                                        @foreach ($modulo['materiales'] as $mIndex => $material)
-                                            <div class="row g-2 mb-2 align-items-end">
+                                        @foreach ($modulos[$index]['materiales'] as $mIndex => $material)
+                                            <div class="row g-2 mb-2 align-items-end" x-data="{ tipo: '{{ $material['tipo'] }}' }">
                                                 <div class="col-md-4">
                                                     <input type="text" wire:model="modulos.{{ $index }}.materiales.{{ $mIndex }}.titulo" 
                                                            class="form-control form-control-sm" placeholder="Título del material" />
                                                 </div>
                                                 <div class="col-md-2">
-                                                    <select wire:model="modulos.{{ $index }}.materiales.{{ $mIndex }}.tipo" class="form-select form-select-sm">
+                                                    <select wire:model="modulos.{{ $index }}.materiales.{{ $mIndex }}.tipo" x-model="tipo" class="form-select form-select-sm">
                                                         <option value="pdf">PDF</option>
                                                         <option value="video">Video</option>
                                                     </select>
                                                 </div>
-                                                <div class="col-md-4">
-                                                    @if($material['tipo'] === 'video')
-                                                        <input type="url" wire:model="modulos.{{ $index }}.materiales.{{ $mIndex }}.url" 
-                                                               class="form-control form-control-sm" placeholder="URL del video" />
-                                                    @else
-                                                        <input type="file" wire:model="modulos.{{ $index }}.materiales.{{ $mIndex }}.archivo" 
-                                                               class="form-control form-control-sm" accept=".pdf" />
-                                                    @endif
+                                                <div class="col-md-4" x-show="tipo === 'video'" x-cloak>
+                                                    <input type="url" wire:model="modulos.{{ $index }}.materiales.{{ $mIndex }}.url" 
+                                                           class="form-control form-control-sm" placeholder="URL del video" />
+                                                </div>
+                                                <div class="col-md-4" x-show="tipo === 'pdf'" x-cloak>
+                                                    <input type="file" wire:model="modulos.{{ $index }}.materiales.{{ $mIndex }}.archivo" 
+                                                           class="form-control form-control-sm" accept=".pdf" />
                                                 </div>
                                                 <div class="col-md-2">
-                                                    @if (count($modulo['materiales']) > 1)
+                                                    @if (count($modulos[$index]['materiales']) > 1)
                                                         <button type="button" wire:click="removeMaterial({{ $index }}, {{ $mIndex }})" 
                                                                 class="btn btn-sm btn-outline-danger w-100">
                                                             <i class="fas fa-times"></i>
