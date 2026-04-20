@@ -17,7 +17,11 @@
                         <p class="text-muted mb-1">{{ $user->segundo_nombre }} {{ $user->segundo_apellido }}</p>
                     @endif
                     <span class="badge badge-primary px-3 py-2" style="background: #0B5E2E;">
-                        {{ $user->role === 'admin' ? 'Administrador' : ($user->role === 'docente' ? 'Docente' : 'Estudiante') }}
+                        @if($user->role === 'admin_global') Admin Global
+                        @elseif($user->role === 'admin') Administrador
+                        @elseif($user->role === 'docente') Docente
+                        @else Estudiante
+                        @endif
                     </span>
                     <p class="text-muted mt-2 mb-0"><small>Registrado {{ $user->created_at->diffForHumans() }}</small></p>
                 </div>
@@ -133,6 +137,7 @@
                                 <div class="form-group">
                                     <label for="role">Rol *</label>
                                     <select name="role" id="role" class="form-control @error('role') is-invalid @enderror" required>
+                                        <option value="admin_global" {{ old('role', $user->role) === 'admin_global' ? 'selected' : '' }}>Admin Global</option>
                                         <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Administrador</option>
                                         <option value="docente" {{ old('role', $user->role) === 'docente' ? 'selected' : '' }}>Docente</option>
                                         <option value="estudiante" {{ old('role', $user->role) === 'estudiante' ? 'selected' : '' }}>Estudiante</option>

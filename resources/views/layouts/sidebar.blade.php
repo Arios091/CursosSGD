@@ -241,8 +241,12 @@
                     <i class="fas fa-user-circle"></i>
                     {{ Auth::user()->name }}
                 </div>
-                @if(Auth::user()->role === 'admin')
+                @if(Auth::user()->isAdminGlobal())
+                    <small style="color: #C9A227;">Admin Global</small>
+                @elseif(Auth::user()->isAdmin())
                     <small style="color: #C9A227;">Administrador</small>
+                @elseif(Auth::user()->isDocente())
+                    <small style="color: #C9A227;">Docente</small>
                 @else
                     <small style="color: rgba(255,255,255,0.6);">Estudiante</small>
                 @endif
@@ -252,12 +256,31 @@
                 <a href="{{ route('home') }}" class="menu-item {{ request()->routeIs('home') ? 'active' : '' }}">
                     <i class="fas fa-home"></i> Inicio
                 </a>
+                
+                @if(Auth::user()->puedeGestionarUsuarios())
+                <a href="{{ route('admin.users.index') }}" class="menu-item {{ request()->routeIs('admin.*') ? 'active' : '' }}">
+                    <i class="fas fa-users-cog"></i> Gestión de Usuarios
+                </a>
+                @endif
+                
+                @if(Auth::user()->isAdmin())
+                <a href="{{ route('cursos.index') }}" class="menu-item {{ request()->routeIs('cursos.index') ? 'active' : '' }}">
+                    <i class="fas fa-book"></i> Gestión de Cursos
+                </a>
+                @endif
+                
+                @if(Auth::user()->isDocente())
+                <a href="{{ route('cursos.index') }}" class="menu-item {{ request()->routeIs('cursos.index') ? 'active' : '' }}">
+                    <i class="fas fa-book"></i> Mis Cursos
+                </a>
+                @endif
+                
+                @if(!Auth::user()->isAdmin() && !Auth::user()->isDocente())
                 <a href="{{ route('home') }}" class="menu-item {{ request()->routeIs('cursos.*') ? 'active' : '' }}">
                     <i class="fas fa-book"></i> Mis Cursos
                 </a>
-                <a href="#" class="menu-item">
-                    <i class="fas fa-certificate"></i> Certificados
-                </a>
+                @endif
+                
                 <a href="#" class="menu-item">
                     <i class="fas fa-user"></i> Perfil
                 </a>

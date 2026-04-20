@@ -28,10 +28,34 @@ class User extends Authenticatable
         'role',
     ];
 
-    //Agregamos un método para verificar si el usuario es admin
     public function isAdmin(): bool
     {
-    return $this->role === 'admin';
+        return in_array($this->role, ['admin', 'admin_global']);
+    }
+
+    public function isAdminGlobal(): bool
+    {
+        return $this->role === 'admin_global';
+    }
+
+    public function isDocente(): bool
+    {
+        return $this->role === 'docente';
+    }
+
+    public function isEstudiante(): bool
+    {
+        return $this->role === 'estudiante';
+    }
+
+    public function puedeGestionarUsuarios(): bool
+    {
+        return $this->role === 'admin_global';
+    }
+
+    public function puedeGestionarCursos(): bool
+    {
+        return in_array($this->role, ['admin', 'admin_global', 'docente']);
     }
 
     /**
@@ -58,7 +82,7 @@ class User extends Authenticatable
     */
     public function cursoEnProgreso()
     {
-    return $this->belongsTo(Curso::class, 'curso_en_progreso_id');
+        return $this->belongsTo(Curso::class, 'curso_en_progreso_id');
     }
 
     /**
@@ -66,7 +90,7 @@ class User extends Authenticatable
     */
     public function progresos()
     {
-    return $this->hasMany(ProgresoCurso::class);
+        return $this->hasMany(ProgresoCurso::class);
     }
 
 

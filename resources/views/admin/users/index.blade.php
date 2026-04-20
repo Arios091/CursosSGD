@@ -33,6 +33,7 @@
                             <label style="font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Rol</label>
                             <select id="roleSelect" class="form-select mt-1" style="height: 44px; border-radius: 8px;">
                                 <option value="">Todos</option>
+                                <option value="admin_global" {{ request('role') == 'admin_global' ? 'selected' : '' }}>Admin Global</option>
                                 <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Administrador</option>
                                 <option value="docente" {{ request('role') == 'docente' ? 'selected' : '' }}>Docente</option>
                                 <option value="estudiante" {{ request('role') == 'estudiante' ? 'selected' : '' }}>Estudiante</option>
@@ -128,7 +129,9 @@
                                         </td>
                                         <td style="color: #4b5563;">{{ $user->email }}</td>
                                         <td>
-                                            @if($user->role === 'admin')
+                                            @if($user->role === 'admin_global')
+                                                <span class="badge" style="background: #fef3c7; color: #d97706; padding: 4px 10px;">Admin Global</span>
+                                            @elseif($user->role === 'admin')
                                                 <span class="badge" style="background: #fee2e2; color: #dc2626; padding: 4px 10px;">Administrador</span>
                                             @elseif($user->role === 'docente')
                                                 <span class="badge" style="background: #dcfce7; color: #16a34a; padding: 4px 10px;">Docente</span>

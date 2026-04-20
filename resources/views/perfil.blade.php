@@ -5,7 +5,7 @@
 @section('content')
 @php
     $user = auth()->user();
-    $isAdmin = $user->role === 'admin';
+    $isAdmin = $user->isAdmin();
     
     // Obtener cursos completados para mostrar certificados
     $cursosCompletados = \App\Models\ProgresoCurso::where('user_id', $user->id)

@@ -193,8 +193,11 @@
             </div>
 
             <div class="completado-actions">
-                <a href="{{ route('certificado', $curso) }}" class="btn-certificado">
+                <a href="{{ route('certificado.descargar', $curso) }}" class="btn-certificado">
                     <i class="fas fa-download"></i> Descargar Certificado
+                </a>
+                <a href="{{ route('certificado.ver', $curso) }}" target="_blank" class="btn-certificado" style="background: #C9A227;">
+                    <i class="fas fa-eye"></i> Ver Certificado
                 </a>
                 <a href="{{ route('home') }}" class="btn-home">
                     <i class="fas fa-arrow-left"></i> Volver al Inicio

@@ -3,7 +3,7 @@
 @section('content')
 @php
     $user = auth()->user();
-    $isAdmin = $user && $user->role === 'admin';
+    $isAdmin = $user && $user->isAdmin();
     $esDocente = $user && $user->role === 'docente';
     $esEstudiante = !$isAdmin && !$esDocente;
     
@@ -128,6 +128,7 @@
     .cs-material-name { font-size: 13px; font-weight: 500; }
     .cs-viewer { background: #000; border-radius: 8px; overflow: hidden; }
     .cs-viewer iframe, .cs-viewer video { width: 100%; height: 480px; border: none; }
+    .cs-viewer iframe[src*="drive.google.com"] { height: 600px; }
     .cs-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .cs-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; }
     .cs-btn-primary { background: #0B5E2E; color: #fff; }
@@ -280,34 +281,39 @@
                 </div>
                 <div class="cs-card-body" style="padding: 0;">
                     <div class="cs-viewer">
-                        @if($materialSeleccionado->tipo == 'video' && $materialSeleccionado->url)
+                        @if($materialSeleccionado->tipo == 'video' && $materialSeleccionado->es_video_valido)
                             @php
-                                $url = trim($materialSeleccionado->url);
-                                $videoId = null;
-                                $isYoutube = str_contains($url, 'youtube.com') || str_contains($url, 'youtu.be');
-                                $isVimeo = str_contains($url, 'vimeo.com');
-                                
-                                if ($isYoutube) {
-                                    if (preg_match('/youtu\.be\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
-                                        $videoId = $matches[1];
-                                    } elseif (preg_match('/[?&]v=([^&]+)/', $url, $matches)) {
-                                        $videoId = trim($matches[1]);
-                                    } elseif (preg_match('/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
-                                        $videoId = $matches[1];
-                                    }
-                                } elseif ($isVimeo) {
-                                    if (preg_match('/vimeo\.com\/(\d+)/', $url, $matches)) {
-                                        $videoId = $matches[1];
-                                    }
-                                }
+                                $platform = $materialSeleccionado->video_platform;
                             @endphp
-                            @if($videoId && $isYoutube)
-                                <iframe src="https://www.youtube.com/embed/{{ $videoId }}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
-                            @elseif($videoId && $isVimeo)
-                                <iframe src="https://player.vimeo.com/video/{{ $videoId }}" allowfullscreen allow="autoplay; fullscreen; picture-in-picture"></iframe>
+                            
+                            @if($platform === 'google-drive')
+                                {{-- Google Drive --}}
+                                <iframe 
+                                    src="{{ $materialSeleccionado->video_embed_url }}" 
+                                    style="border:0;" 
+                                    allow="autoplay" 
+                                    referrerpolicy="strict-origin-when-cross-origin"
+                                    title="{{ $materialSeleccionado->titulo }}">
+                                </iframe>
                             @else
-                                <video controls><source src="{{ asset('storage/'.$url) }}" type="video/mp4">Tu navegador no soporta el video.</video>
+                                {{-- YouTube / Vimeo / otros --}}
+                                <iframe 
+                                    src="{{ $materialSeleccionado->video_embed_url }}" 
+                                    allowfullscreen 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    referrerpolicy="strict-origin-when-cross-origin"
+                                    title="{{ $materialSeleccionado->titulo }}">
+                                </iframe>
                             @endif
+                        @elseif($materialSeleccionado->tipo == 'video')
+                            <div style="padding: 40px; text-align: center; color: #dc2626; background: #fef2f2; border-radius: 8px; margin: 20px;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 12px;"></i>
+                                <p style="font-weight: 600;">Formato de video no soportado</p>
+                                <p style="font-size: 13px; color: #6b7280;">La URL ingresada no es válida o no se pudo procesar.</p>
+                                @if($materialSeleccionado->url)
+                                    <p style="font-size: 11px; color: #9ca3af; margin-top: 8px;">URL: {{ $materialSeleccionado->url }}</p>
+                                @endif
+                            </div>
                         @elseif($materialSeleccionado->tipo == 'pdf')
                             @php
                                 $url = $materialSeleccionado->url;

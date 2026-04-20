@@ -28,9 +28,15 @@
                                 <label for="primer_nombre" class="form-label fw-semibold">Primer Nombre <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white"><i class="fas fa-user text-muted"></i></span>
-                                    <input id="primer_nombre" type="text" class="form-control py-2 @error('primer_nombre') is-invalid @enderror" name="primer_nombre" value="{{ old('primer_nombre') }}" required autocomplete="primer_nombre" autofocus placeholder="Primer nombre" style="border-radius: 0 8px 8px 0;">
+                                    <input id="primer_nombre" type="text" class="form-control py-2 @error('primer_nombre') is-invalid @enderror" name="primer_nombre" value="{{ old('primer_nombre') }}" required autocomplete="primer_nombre" autofocus placeholder="Ej: Juan" style="border-radius: 0 8px 8px 0;">
                                 </div>
-                                <div class="invalid-feedback" id="primer_nombre_error"></div>
+                                @error('primer_nombre')
+                                    <span class="invalid-feedback d-block" style="animation: shake 0.5s ease;">
+                                        <strong><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</strong>
+                                    </span>
+                                @else
+                                    <div class="invalid-feedback" id="primer_nombre_error" style="display: none;"></div>
+                                @enderror
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -50,9 +56,15 @@
                                 <label for="primer_apellido" class="form-label fw-semibold">Primer Apellido <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white"><i class="fas fa-user text-muted"></i></span>
-                                    <input id="primer_apellido" type="text" class="form-control py-2 @error('primer_apellido') is-invalid @enderror" name="primer_apellido" value="{{ old('primer_apellido') }}" required autocomplete="primer_apellido" placeholder="Primer apellido" style="border-radius: 0 8px 8px 0;">
+                                    <input id="primer_apellido" type="text" class="form-control py-2 @error('primer_apellido') is-invalid @enderror" name="primer_apellido" value="{{ old('primer_apellido') }}" required autocomplete="primer_apellido" placeholder="Ej: Pérez" style="border-radius: 0 8px 8px 0;">
                                 </div>
-                                <div class="invalid-feedback" id="primer_apellido_error"></div>
+                                @error('primer_apellido')
+                                    <span class="invalid-feedback d-block" style="animation: shake 0.5s ease;">
+                                        <strong><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</strong>
+                                    </span>
+                                @else
+                                    <div class="invalid-feedback" id="primer_apellido_error" style="display: none;"></div>
+                                @enderror
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -60,9 +72,15 @@
                                 <label for="segundo_apellido" class="form-label fw-semibold">Segundo Apellido <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white"><i class="fas fa-user text-muted"></i></span>
-                                    <input id="segundo_apellido" type="text" class="form-control py-2" name="segundo_apellido" value="{{ old('segundo_apellido') }}" required autocomplete="segundo_apellido" placeholder="Segundo apellido" style="border-radius: 0 8px 8px 0;">
+                                    <input id="segundo_apellido" type="text" class="form-control py-2 @error('segundo_apellido') is-invalid @enderror" name="segundo_apellido" value="{{ old('segundo_apellido') }}" required autocomplete="segundo_apellido" placeholder="Ej: García" style="border-radius: 0 8px 8px 0;">
                                 </div>
-                                <div class="invalid-feedback" id="segundo_apellido_error"></div>
+                                @error('segundo_apellido')
+                                    <span class="invalid-feedback d-block" style="animation: shake 0.5s ease;">
+                                        <strong><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</strong>
+                                    </span>
+                                @else
+                                    <div class="invalid-feedback" id="segundo_apellido_error" style="display: none;"></div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -75,9 +93,15 @@
                         <label for="email" class="form-label fw-semibold">Correo Electrónico <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-white"><i class="fas fa-envelope text-muted"></i></span>
-                            <input id="email" type="email" class="form-control py-2 @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="juan.perez@unas.edu.pe" style="border-radius: 0 8px 8px 0;">
+                            <input id="email" type="email" class="form-control py-2 @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="Ej: juan.perez@unas.edu.pe" style="border-radius: 0 8px 8px 0;">
                         </div>
-                        <div class="invalid-feedback" id="email_error"></div>
+                        @error('email')
+                            <span class="invalid-feedback d-block" style="animation: shake 0.5s ease;">
+                                <strong><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</strong>
+                            </span>
+                        @else
+                            <div class="invalid-feedback" id="email_error" style="display: none;"></div>
+                        @enderror
                     </div>
 
                     <div class="row g-3">
@@ -85,25 +109,31 @@
                             <div class="form-group">
                                 <label for="password" class="form-label fw-semibold">Contraseña <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <input id="password" type="password" class="form-control py-2 @error('password') is-invalid @enderror" name="password" required autocomplete="new-password" placeholder="********" style="border-radius: 8px 0 0 8px;">
+                                    <input id="password" type="password" class="form-control py-2 @error('password') is-invalid @enderror" name="password" required autocomplete="new-password" placeholder="Mínimo 8 caracteres" style="border-radius: 8px 0 0 8px;">
                                     <button class="btn btn-outline-secondary toggle-password" type="button" onclick="togglePassword('password', this)" style="border-radius: 0 8px 8px 0;">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
-                                <div class="form-text text-muted small mt-1">Mínimo 8 caracteres, una mayúscula y un número</div>
-                                <div class="invalid-feedback" id="password_error"></div>
+                                @error('password')
+                                    <span class="invalid-feedback d-block" style="animation: shake 0.5s ease;">
+                                        <strong><i class="fas fa-exclamation-circle me-1"></i>{{ $message }}</strong>
+                                    </span>
+                                @else
+                                    <div class="form-text text-muted small">Mínimo 8 caracteres, una mayúscula y un número</div>
+                                    <div class="invalid-feedback" id="password_error" style="display: none;"></div>
+                                @endif
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="password-confirm" class="form-label fw-semibold">Confirmar Contraseña <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <input id="password-confirm" type="password" class="form-control py-2" name="password_confirmation" required autocomplete="new-password" placeholder="********" style="border-radius: 8px 0 0 8px;">
+                                    <input id="password-confirm" type="password" class="form-control py-2" name="password_confirmation" required autocomplete="new-password" placeholder="Repite tu contraseña" style="border-radius: 8px 0 0 8px;">
                                     <button class="btn btn-outline-secondary toggle-password" type="button" onclick="togglePassword('password-confirm', this)" style="border-radius: 0 8px 8px 0;">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
-                                <div class="invalid-feedback" id="password_confirm_error"></div>
+                                <div class="invalid-feedback" id="password_confirm_error" style="display: none;"></div>
                             </div>
                         </div>
                     </div>
@@ -203,17 +233,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var errorMsg = '';
             if (fieldName === 'primer_nombre') {
-                errorMsg = 'El primer nombre es requerido';
+                errorMsg = 'El primer nombre es obligatorio. Ejemplo: Juan';
             } else if (fieldName === 'primer_apellido') {
-                errorMsg = 'El primer apellido es requerido';
+                errorMsg = 'El primer apellido es obligatorio. Ejemplo: Pérez';
             } else if (fieldName === 'segundo_apellido') {
-                errorMsg = 'El segundo apellido es requerido';
+                errorMsg = 'El segundo apellido es obligatorio. Ejemplo: García';
             } else if (fieldName === 'email') {
-                errorMsg = 'Ingrese un correo electrónico válido';
+                errorMsg = 'Ingresa un correo electrónico válido. Ejemplo: juan.perez@unas.edu.pe';
             } else if (fieldName === 'password') {
-                errorMsg = 'Mínimo 8 caracteres, una mayúscula y un número';
+                if (value.length < 8) {
+                    errorMsg = 'La contraseña debe tener al menos 8 caracteres';
+                } else if (!/[A-Z]/.test(value)) {
+                    errorMsg = 'La contraseña debe contener al menos una letra mayúscula (A-Z)';
+                } else if (!/[0-9]/.test(value)) {
+                    errorMsg = 'La contraseña debe contener al menos un número (0-9)';
+                } else {
+                    errorMsg = 'La contraseña no cumple los requisitos de seguridad';
+                }
             } else if (fieldName === 'password_confirmation') {
-                errorMsg = 'Las contraseñas no coinciden';
+                errorMsg = 'Las contraseñas no coinciden. Asegúrate de escribir la misma contraseña en ambos campos';
             }
             field.errorElement.textContent = errorMsg;
             field.errorElement.style.display = 'block';
@@ -384,9 +422,37 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .auth-wrapper .form-label {
-    color: #495057;
-    margin-bottom: 6px;
-}
+        color: #495057;
+        margin-bottom: 6px;
+    }
+
+    .auth-wrapper .form-text {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .auth-wrapper .is-valid {
+        border-color: #28a745 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        padding-right: calc(1.5em + 0.75rem);
+    }
+
+    .auth-wrapper .is-invalid {
+        border-color: #dc3545 !important;
+        animation: shake 0.5s ease;
+    }
+
+    .auth-wrapper .invalid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875em;
+        color: #dc3545;
+        animation: fadeIn 0.3s ease;
+    }
 
 .auth-wrapper .is-valid {
     border-color: #28a745 !important;

@@ -10,13 +10,16 @@
 @section('content')
 @php
     $user = auth()->user();
-    $isAdmin = $user->role === 'admin';
-    $esDocente = $user->role === 'docente';
+    $isAdmin = $user->isAdmin();
+    $isAdminGlobal = $user->isAdminGlobal();
+    $esDocente = $user->isDocente();
 
-    if ($isAdmin) {
+    if ($isAdmin || $isAdminGlobal) {
         $totalUsuarios = \App\Models\User::count();
         $totalDocentes = \App\Models\User::where('role', 'docente')->count();
         $totalEstudiantes = \App\Models\User::where('role', 'estudiante')->count();
+        $totalAdminsGlobales = \App\Models\User::where('role', 'admin_global')->count();
+        $totalAdmins = \App\Models\User::where('role', 'admin')->count();
         $totalCursos = \App\Models\Curso::count();
         
         $totalInscripciones = \App\Models\ProgresoCurso::count();

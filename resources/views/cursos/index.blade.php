@@ -10,7 +10,7 @@
 @section('content')
 @php
     $user = auth()->user();
-    $isAdmin = $user->role === 'admin';
+    $isAdmin = $user->isAdmin();
 @endphp
 
 @if($isAdmin)

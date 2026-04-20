@@ -12,7 +12,7 @@ class UserController extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            if (auth()->user()->role !== 'admin') {
+            if (!auth()->user()->puedeGestionarUsuarios()) {
                 return redirect()->route('home')->with('error', 'No tienes permiso para acceder a esta sección.');
             }
             return $next($request);
@@ -68,7 +68,7 @@ class UserController extends Controller
             'primer_apellido' => 'required|string|max:255',
             'segundo_apellido' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:admin,docente,estudiante',
+            'role' => 'required|in:admin_global,admin,docente,estudiante',
         ]);
 
         $user->update([

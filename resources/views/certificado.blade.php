@@ -1,105 +1,375 @@
-@extends('layouts.app')
-
-@section('page-title', 'Certificado - ' . $curso->titulo)
-
-@section('content')
-<style>
-    .cert-preview-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
-    .cert-preview-header { text-align: center; margin-bottom: 30px; }
-    .cert-preview-header h2 { font-size: 24px; font-weight: 700; color: #1f2937; margin-bottom: 4px; }
-    .cert-preview-header p { color: #6b7280; margin: 0; }
-    .cert-preview-actions { display: flex; justify-content: center; gap: 16px; margin-bottom: 30px; }
-    .cert-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; }
-    .cert-btn-download { background: #0B5E2E; color: white; }
-    .cert-btn-download:hover { background: #0d7a3f; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(11,94,46,0.3); }
-    .cert-btn-back { background: white; color: #374151; border: 2px solid #e5e7eb; }
-    .cert-btn-back:hover { border-color: #0B5E2E; color: #0B5E2E; transform: translateY(-2px); }
-    .cert-preview-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    .cert-preview-inner { padding: 40px; position: relative; border: 6px solid #0B5E2E; margin: 20px; }
-    .cert-preview-inner::before { content: ''; position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px; border: 2px solid #C9A227; pointer-events: none; }
-    .cert-preview-logo { text-align: center; margin-bottom: 20px; }
-    .cert-preview-logo h3 { font-size: 22px; font-weight: 700; color: #0B5E2E; letter-spacing: 4px; margin: 0; }
-    .cert-preview-logo p { font-size: 11px; color: #6b7280; margin: 4px 0 0; letter-spacing: 2px; }
-    .cert-preview-divider { width: 50px; height: 3px; background: #C9A227; margin: 16px auto; }
-    .cert-preview-title { text-align: center; font-size: 26px; font-weight: 700; color: #0B5E2E; letter-spacing: 6px; margin-bottom: 4px; text-transform: uppercase; }
-    .cert-preview-subtitle { text-align: center; font-size: 12px; color: #6b7280; letter-spacing: 2px; margin-bottom: 20px; }
-    .cert-preview-name { text-align: center; font-size: 28px; font-weight: 700; color: #1f2937; margin: 16px 0; padding-bottom: 8px; border-bottom: 2px solid #C9A227; display: inline-block; width: 100%; }
-    .cert-preview-course { text-align: center; font-size: 16px; font-weight: 600; color: #0B5E2E; margin: 12px 0 8px; }
-    .cert-preview-hours { text-align: center; font-size: 12px; color: #6b7280; margin-bottom: 16px; }
-    .cert-preview-meta { display: flex; justify-content: center; gap: 40px; margin-bottom: 20px; }
-    .cert-preview-meta-item { text-align: center; }
-    .cert-preview-meta-label { font-size: 10px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; }
-    .cert-preview-meta-value { font-size: 13px; color: #374151; font-weight: 500; }
-    .cert-preview-number { text-align: center; font-size: 9px; color: #9ca3af; letter-spacing: 1px; margin-bottom: 20px; }
-    .cert-preview-signatures { display: flex; justify-content: center; gap: 80px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
-    .cert-preview-sign { text-align: center; width: 150px; }
-    .cert-preview-sign-line { width: 120px; height: 1px; background: #374151; margin: 0 auto 6px; }
-    .cert-preview-sign-name { font-size: 11px; font-weight: 600; color: #1f2937; }
-    .cert-preview-sign-title { font-size: 9px; color: #6b7280; }
-</style>
-
-<div class="cert-preview-container">
-    <div class="cert-preview-header">
-        <h2><i class="fas fa-certificate" style="color: #C9A227; margin-right: 8px;"></i>Tu Certificado</h2>
-        <p>Curso: {{ $curso->titulo }}</p>
-    </div>
-
-    <div class="cert-preview-actions">
-        <a href="{{ route('certificado.descargar', $curso) }}" class="cert-btn cert-btn-download">
-            <i class="fas fa-download"></i> Descargar PDF
-        </a>
-        <a href="{{ route('cursos.completado', $curso) }}" class="cert-btn cert-btn-back">
-            <i class="fas fa-arrow-left"></i> Volver
-        </a>
-    </div>
-
-    <div class="cert-preview-card">
-        <div class="cert-preview-inner">
-            <div class="cert-preview-logo">
-                <h3>UNAS</h3>
-                <p>UNIVERSIDAD NACIONAL AGRARIA DE LA SELVA</p>
-            </div>
-            <div class="cert-preview-divider"></div>
-            <div class="cert-preview-title">Certificado</div>
-            <div class="cert-preview-subtitle">DE APROBACIÓN DE CURSO</div>
-            
-            <p style="text-align: center; font-size: 12px; color: #4b5563; margin-bottom: 8px;">Se otorga el presente certificado a:</p>
-            
-            <div class="cert-preview-name">{{ strtoupper($user->name) }}</div>
-            
-            <p style="text-align: center; font-size: 11px; color: #4b5563; line-height: 1.5; max-width: 500px; margin: 0 auto;">
-                Por haber completado y aprobado satisfactoriamente todas las actividades académicas, evaluaciones parciales y evaluación final del curso:
-            </p>
-            
-            <div class="cert-preview-course">{{ $curso->titulo }}</div>
-            <div class="cert-preview-hours"><strong>Carga Horaria:</strong> {{ $curso->carga_horaria }} horas académicas</div>
-            
-            <div class="cert-preview-meta">
-                <div class="cert-preview-meta-item">
-                    <div class="cert-preview-meta-label">Lugar</div>
-                    <div class="cert-preview-meta-value">Tingo María</div>
-                </div>
-                <div class="cert-preview-meta-item">
-                    <div class="cert-preview-meta-label">Fecha</div>
-                    <div class="cert-preview-meta-value">{{ $fechaCompletado }}</div>
-                </div>
-            </div>
-            
-            <div class="cert-preview-number">N° {{ $numeroCertificado }}</div>
-            
-            <div class="cert-preview-signatures">
-                <div class="cert-preview-sign">
-                    <div class="cert-preview-sign-line"></div>
-                    <div class="cert-preview-sign-name">Rector(a)</div>
-                    <div class="cert-preview-sign-title">Universidad Nacional Agraria de la Selva</div>
-                </div>
-                <div class="cert-preview-sign">
-                    <div class="cert-preview-sign-line"></div>
-                    <div class="cert-preview-sign-name">Encargado(a) de LMS</div>
-                    <div class="cert-preview-sign-title">Sistema de Gestión de Docencia</div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Certificado - {{ $curso->titulo }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html, body {
+            width: 297mm;
+            height: 210mm;
+            font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .cert-page {
+            width: 297mm;
+            height: 210mm;
+            background: white;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .cert-wrapper {
+            width: 277mm;
+            height: 190mm;
+            border: 6px solid #0B5E2E;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .cert-inner {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 3px solid #C9A227;
+            border-radius: 6px;
+        }
+        
+        .cert-corner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #C9A227;
+        }
+        
+        .cert-corner-tl { top: 3px; left: 3px; border-right: none; border-bottom: none; }
+        .cert-corner-tr { top: 3px; right: 3px; border-left: none; border-bottom: none; }
+        .cert-corner-bl { bottom: 3px; left: 3px; border-right: none; border-top: none; }
+        .cert-corner-br { bottom: 3px; right: 3px; border-left: none; border-top: none; }
+        
+        .cert-content {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            right: 30px;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            align-items: center;
+        }
+        
+        .cert-header {
+            margin-bottom: 12px;
+        }
+        
+        .cert-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 8px;
+        }
+        
+        .cert-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .cert-university {
+            font-size: 26px;
+            font-weight: bold;
+            color: #0B5E2E;
+            letter-spacing: 6px;
+            margin-bottom: 4px;
+        }
+        
+        .cert-university-sub {
+            font-size: 12px;
+            color: #6b7280;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        
+        .cert-divider {
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #0B5E2E, #C9A227);
+            margin: 12px auto;
+            border-radius: 2px;
+        }
+        
+        .cert-title {
+            font-size: 38px;
+            font-weight: bold;
+            color: #0B5E2E;
+            letter-spacing: 10px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        
+        .cert-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        
+        .cert-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+        
+        .cert-name {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 4px solid #C9A227;
+            display: inline-block;
+            min-width: 300px;
+        }
+        
+        .cert-description {
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.8;
+            text-align: center;
+            margin-bottom: 16px;
+            max-width: 320px;
+        }
+        
+        .cert-course {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0B5E2E;
+            margin-bottom: 4px;
+        }
+        
+        .cert-hours {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+        
+        .cert-meta {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .cert-meta-item {
+            text-align: center;
+        }
+        
+        .cert-meta-label {
+            font-size: 11px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+        
+        .cert-meta-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .cert-footer {
+            display: flex;
+            align-items: flex-end;
+            width: 100%;
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 2px solid #e5e7eb;
+        }
+        
+        .cert-qr {
+            text-align: center;
+            flex-shrink: 0;
+            margin-right: auto;
+        }
+        
+        .cert-qr-box {
+            width: 70px;
+            height: 70px;
+            border: 3px solid #0B5E2E;
+            border-radius: 6px;
+            padding: 4px;
+            background: white;
+        }
+        
+        .cert-qr-box img {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .cert-qr-label {
+            font-size: 8px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 6px;
+        }
+        
+        .cert-signatures {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .cert-signatures-row {
+            display: flex;
+            gap: 120px;
+            justify-content: center;
+        }
+        
+        .cert-sign {
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .cert-sign-line {
+            width: 100px;
+            height: 2px;
+            background: #374151;
+            margin: 0 auto 6px;
+        }
+        
+        .cert-sign-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 3px;
+        }
+        
+        .cert-sign-title {
+            font-size: 10px;
+            color: #6b7280;
+        }
+        
+        .cert-number {
+            text-align: center;
+            font-size: 11px;
+            color: #9ca3af;
+            letter-spacing: 1px;
+            margin-top: 16px;
+        }
+        
+        .cert-number code {
+            background: #f3f4f6;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        @media print {
+            body {
+                background: white !important;
+            }
+            .cert-page {
+                width: 100%;
+                height: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cert-page">
+        <div class="cert-wrapper">
+            <div class="cert-inner">
+                <div class="cert-corner cert-corner-tl"></div>
+                <div class="cert-corner cert-corner-tr"></div>
+                <div class="cert-corner cert-corner-bl"></div>
+                <div class="cert-corner cert-corner-br"></div>
+                
+                <div class="cert-content">
+                    <div class="cert-header">
+                        <div class="cert-logo">
+                            <img src="{{ asset('assets/unasicono.png') }}" alt="UNAS">
+                        </div>
+                        <div class="cert-university">UNAS</div>
+                        <div class="cert-university-sub">Universidad Nacional Agraria de la Selva</div>
+                    </div>
+                    
+                    <div class="cert-divider"></div>
+                    
+                    <div class="cert-title">Certificado</div>
+                    <div class="cert-subtitle">De Aprobación de Curso</div>
+                    
+                    <div class="cert-label">Se otorga el presente certificado a:</div>
+                    <div class="certName">{{ strtoupper($user->name) }}</div>
+                    
+                    <div class="cert-description">
+                        Por haber completado y aprobado satisfactoriamente todas las actividades académicas, 
+                        evaluaciones parciales y evaluación final del curso:
+                    </div>
+                    
+                    <div class="cert-course">{{ $curso->titulo }}</div>
+                    <div class="cert-hours"><strong>Carga Horaria:</strong> {{ $curso->carga_horaria }} horas académicas</div>
+                    
+                    <div class="cert-meta">
+                        <div class="cert-meta-item">
+                            <div class="cert-meta-label">Lugar</div>
+                            <div class="cert-meta-value">Tingo María, Perú</div>
+                        </div>
+                        <div class="cert-meta-item">
+                            <div class="cert-meta-label">Fecha de Emisión</div>
+                            <div class="cert-meta-value">{{ $fechaCompletado }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="cert-footer">
+                        <div class="cert-qr">
+                            <div class="cert-qr-box">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=62x62&data={{ urlencode(route('certificado.verificar', $numeroCertificado)) }}&format=svg" alt="QR">
+                            </div>
+                            <div class="cert-qr-label">Verificar</div>
+                        </div>
+                        
+                        <div class="cert-signatures">
+                            <div class="cert-signatures-row">
+                                <div class="cert-sign">
+                                    <div class="cert-sign-line"></div>
+                                    <div class="cert-sign-name">Rector(a) UNAS</div>
+                                    <div class="cert-sign-title">Universidad Nacional Agraria de la Selva</div>
+                                </div>
+                                <div class="cert-sign">
+                                    <div class="cert-sign-line"></div>
+                                    <div class="cert-sign-name">Director(a) de OTI</div>
+                                    <div class="cert-sign-title">Oficina de Tecnología e Información</div>
+                                </div>
+                            </div>
+                            <div class="cert-number">
+                                <code>{{ $numeroCertificado }}</code>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-@endsection
+</body>
+</html>

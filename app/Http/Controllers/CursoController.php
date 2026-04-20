@@ -643,6 +643,23 @@ class CursoController extends Controller
                 ->with('error', 'No puedes acceder a este certificado.');
         }
         
+        return redirect()->route('cursos.completado', $curso);
+    }
+
+    public function verCertificadoView(Curso $curso)
+    {
+        $user = auth()->user();
+        
+        $progreso = \App\Models\ProgresoCurso::where('user_id', $user->id)
+            ->where('curso_id', $curso->id)
+            ->whereIn('estado', ['completado', 'terminado'])
+            ->first();
+            
+        if (!$progreso) {
+            return redirect()->route('home')
+                ->with('error', 'No puedes acceder a este certificado.');
+        }
+        
         $fechaCompletado = $progreso->completado_at 
             ? $progreso->completado_at->format('d') . ' de ' . $progreso->completado_at->locale('es')->monthName . ' del ' . $progreso->completado_at->format('Y') 
             : now()->format('d/m/Y');
@@ -695,4 +712,30 @@ class CursoController extends Controller
         return view('cursos.completado', compact('curso', 'progreso'));
     }
 
+    public function verificarCertificado($codigo)
+    {
+        $progreso = ProgresoCurso::whereHas('curso', function($q) use ($codigo) {
+            $q->whereRaw("CONCAT('UNAS-CERT-', UPPER(SUBSTRING(titulo, 1, 4)), '-', LPAD(progreso_cursos.id, 6, '0'), '-', YEAR(progreso_cursos.completado_at)) = ?", [$codigo]);
+        })->with(['user', 'curso'])->first();
+
+        if (!$progreso) {
+            return response()->json([
+                'valido' => false,
+                'mensaje' => 'Certificado no encontrado'
+            ]);
+        }
+
+        return response()->json([
+            'valido' => true,
+            'mensaje' => 'Certificado autenticado',
+            'datos' => [
+                'nombre' => $progreso->user->name,
+                'email' => $progreso->user->email,
+                'curso' => $progreso->curso->titulo,
+                'carga_horaria' => $progreso->curso->carga_horaria,
+                'fecha_completado' => $progreso->completado_at ? $progreso->completado_at->format('d/m/Y') : null,
+                'codigo' => $codigo
+            ]
+        ]);
+    }
 }

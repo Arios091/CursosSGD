@@ -130,6 +130,25 @@ class CreateCurso extends Component
         }
     }
 
+    protected function extractYouTubeId($url)
+    {
+        $patterns = [
+            '/youtu\.be\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/watch\?.*[&]v=([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/v\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $url, $matches)) {
+                return $matches[1];
+            }
+        }
+
+        return null;
+    }
+
     public function agregarModulo()
     {
         $numero = count($this->modulos) + 1;
@@ -354,15 +373,18 @@ class CreateCurso extends Component
                     // Para videos - procesar y validar URL externa
                     if ($tipo === 'video' && !empty(trim($material['url'] ?? ''))) {
                         $rawUrl = trim($material['url']);
-                        // Limpiar URLs de YouTube - extraer solo el video ID
-                        if (preg_match('/youtu\.be\/([a-zA-Z0-9_-]{11})/', $rawUrl, $matches)) {
-                            $materialUrl = 'https://youtu.be/' . $matches[1];
-                        } elseif (preg_match('/[?&]v=([a-zA-Z0-9_-]{11})/', $rawUrl, $matches)) {
-                            $materialUrl = 'https://youtu.be/' . $matches[1];
-                        } elseif (preg_match('/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/', $rawUrl, $matches)) {
-                            $materialUrl = 'https://youtu.be/' . $matches[1];
+                        
+                        // Extraer ID de YouTube y guardar en formato embed
+                        $youtubeId = $this->extractYouTubeId($rawUrl);
+                        if ($youtubeId) {
+                            $materialUrl = 'https://www.youtube.com/embed/' . $youtubeId;
                         } elseif (str_contains($rawUrl, 'vimeo.com')) {
-                            $materialUrl = $rawUrl; // Guardar URL de Vimeo tal cual
+                            // Extraer ID de Vimeo
+                            if (preg_match('/vimeo\.com\/(\d+)/', $rawUrl, $matches)) {
+                                $materialUrl = 'https://player.vimeo.com/video/' . $matches[1];
+                            } else {
+                                $materialUrl = $rawUrl;
+                            }
                         } else {
                             // Si no es YouTube ni Vimeo, guardar tal cual
                             $materialUrl = $rawUrl;

@@ -21,7 +21,13 @@ Route::middleware(['auth'])->group(function () {
     
     // Certificado de curso completado
     Route::get('/certificado/{curso}', [CursoController::class, 'verCertificado'])->name('certificado');
+    Route::get('/certificado/{curso}/ver', [CursoController::class, 'verCertificadoView'])->name('certificado.ver');
     Route::get('/certificado/{curso}/descargar', [CursoController::class, 'descargarCertificado'])->name('certificado.descargar');
+    
+    // Verificación de certificado público (sin auth)
+    Route::get('/verificar/{codigo}', function($codigo) {
+        return view('certificado-verificar', compact('codigo'));
+    })->name('certificado.verificar');
 
     // Página de felicitaciones al completar el curso
     Route::get('/cursos/{curso}/completado', [CursoController::class, 'cursoCompletado'])->name('cursos.completado');

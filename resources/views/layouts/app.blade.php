@@ -644,9 +644,11 @@
     </style>
 </head>
 @php
-    $userRole = Auth::user()->role ?? null;
-    $esAdmin = $userRole === 'admin';
-    $esDocente = $userRole === 'docente';
+    $user = Auth::user();
+    $userRole = $user->role ?? null;
+    $esAdminGlobal = $user && $user->isAdminGlobal();
+    $esAdmin = $user && $user->isAdmin();
+    $esDocente = $user && $user->isDocente();
 @endphp
 
 <body>
@@ -660,7 +662,7 @@
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <div class="sidebar-layout">
-        @if($esAdmin)
+        @if($esAdmin || $esAdminGlobal)
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo-container">
@@ -677,19 +679,25 @@
                     <i class="fas fa-user-circle"></i>
                     {{ Auth::user()->name }}
                 </div>
-                <small style="color: #C9A227;">Administrador</small>
+                @if($esAdminGlobal)
+                    <small style="color: #C9A227;">Admin Global</small>
+                @else
+                    <small style="color: #C9A227;">Administrador</small>
+                @endif
             </div>
 
             <nav class="sidebar-menu">
                 <a href="{{ route('home') }}" class="menu-item {{ request()->routeIs('home') ? 'active' : '' }}">
                     <i class="fas fa-home"></i> Dashboard
                 </a>
-                <a href="{{ route('cursos.index') }}" class="menu-item {{ request()->routeIs('cursos.index') ? 'active' : '' }}">
+                <a href="{{ route('cursos.index') }}" class="menu-item {{ request()->routeIs('cursos.index') || request()->routeIs('crear.curso') || request()->routeIs('cursos.edit') ? 'active' : '' }}">
                     <i class="fas fa-book"></i> Gestión de Cursos
                 </a>
+                @if($esAdminGlobal)
                 <a href="{{ route('admin.users.index') }}" class="menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                    <i class="fas fa-users"></i> Gestión de Usuarios
+                    <i class="fas fa-users-cog"></i> Gestión de Usuarios
                 </a>
+                @endif
             </nav>
 
             <div class="sidebar-footer">
