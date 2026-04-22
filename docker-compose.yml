@@ -1,0 +1,100 @@
+# ============================================
+# Docker Compose - CursosSGD
+# ============================================
+# Uso: docker-compose up -d
+# ============================================
+
+version: '3.8'
+
+services:
+  # Aplicación Laravel
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cursos_sgd_app
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_KEY=base64:QcgKWpQm4gyHhAjsl/wrD4kd0tFgf7/uISkbDNl+BRc=
+    volumes:
+      - ./:/var/www/html
+      - ./storage:/var/www/html/storage
+    networks:
+      - cursos_sgd_network
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: cursos_sgd_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=cursos_sgd_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cursos_sgd_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Servidor de correo (Mailhog para desarrollo)
+  mail:
+    image: mailhog/mailhog:latest
+    container_name: cursos_sgd_mail
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+    networks:
+      - cursos_sgd_network
+
+  # Composer (para instalar dependencias)
+  composer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cursos_sgd_composer
+    volumes:
+      - ./:/var/www/html
+    working_dir: /var/www/html
+    command: composer install --no-interaction
+    networks:
+      - cursos_sgd_network
+
+  # Artisan CLI
+  artisan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cursos_sgd_artisan
+    volumes:
+      - ./:/var/www/html
+    working_dir: /var/www/html
+    entrypoint: ["php", "artisan"]
+    networks:
+      - cursos_sgd_network
+
+networks:
+  cursos_sgd_network:
+    driver: bridge
+
+volumes:
+  postgres_data:

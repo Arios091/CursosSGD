@@ -1,0 +1,56 @@
+# ============================================
+# Docker Ignore
+# ============================================
+
+# Git
+.git
+.gitignore
+
+# Node_modules
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Vendor (se instala en build)
+vendor
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Laravel
+/storage/*.key
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn.lock
+
+# Docker
+docker-compose.override.yml
+Dockerfile~
+.docker
+
+# Testing
+.phpunit.result.cache
+coverage
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+storage/logs/*.log
+
+# Bootstrap cache
+bootstrap/cache/*.php
+
+# Cache
+bootstrap/cache/*.php
+cache/*
