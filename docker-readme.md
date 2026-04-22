@@ -1,143 +1,110 @@
 # ============================================
-# CursosSGD - Docker Setup
+# CursosSGD - Despliegue en Docker/Render
 # ============================================
 
-## Requisitos previos
+## Problema solucionado
 
-- Docker instalado
-- Docker Compose instalado
+Si ves la interfaz mal acomodada o sin CSS/JS, sigue estos pasos:
 
-## Estructura de archivos
+---
 
-```
-CursosSGD/
-├── Dockerfile           # Imagen de la aplicación
-├── docker-compose.yml   # Orquestación de servicios
-├── .env.docker       # Variables de entorno para Docker
-└── .dockerignore    # Archivos excluidos del build
-```
-
-## quickstart
-
-### 1. Configurar variables de entorno
+## Paso 1: Compilar assets LOCALMENTE
 
 ```bash
-# Copiar variables de entorno
-cp .env.docker .env
-
-# Generar nueva clave (opcional)
-php artisan key:generate
-```
-
-### 2. Construir e iniciar servicios
-
-```bash
-# Construir e iniciar todos los servicios
-docker-compose up -d --build
-
-# Ver logs
-docker-compose logs -f app
-```
-
-### 3. Instalar dependencias
-
-```bash
-# Instalar dependencias de PHP
-docker-compose exec app composer install
+# En tu máquina local (NO en el contenedor)
+cd CursosSGD
 
 # Instalar dependencias de Node
-docker-compose exec app npm install
+npm install
+
+# Compilar para producción
+npm run prod
 ```
 
-### 4. Configurar base de datos
+Esto creará `public/css/` y `public/js/`
+
+---
+
+## Paso 2: Verificar que existe
 
 ```bash
-# Crear tablas
-docker-compose exec app php artisan migrate
-
-# Crear usuario admin (opcional)
-docker-compose exec app php artisan db:seed
+ls public/
+# Debe existir: css/  js/  index.php  storage -> storage/app/public
 ```
 
-### 5. Compilar assets
+Si no existe, ejecuta `npm run prod` localmente.
+
+---
+
+## Paso 3: Desplegar
 
 ```bash
-# Desarrollo
-docker-compose exec app npm run dev
-
-# Producción
-docker-compose exec app npm run prod
+# Rebuild con assets incluidos
+docker-compose build --no-cache
+docker-compose up -d
 ```
 
-## Servicios disponibles
+---
 
-| Servicio | Puerto | Descripción |
-|----------|--------|----------|
-| app      | 8000   | Aplicación Laravel |
-| db       | 5432   | PostgreSQL |
-| mail     | 8025   | Mailhog Web UI |
-| SMTP     | 1025   | Servidor de correo |
-
-## Comandos útiles
+## Paso 4: Verificar en el contenedor
 
 ```bash
-# Ver estado de contenedores
-docker-compose ps
+# Entrar al contenedor
+docker exec -it cursos_sgd_app bash
 
-# Reiniciar servicios
-docker-compose restart
+# Verificar estructura
+ls -la public/
 
-# Detener servicios
-docker-compose stop
+# Verificar CSS/JS
+ls public/css/
+ls public/js/
 
-# Eliminar contenedores
-docker-compose down
-
-# Eliminar contenedores y volúmenes
-docker-compose down -v
-
-# Acceso a shell del contenedor
-docker-compose exec app bash
-
-# Ejecutar comandos artisan
-docker-compose exec app php artisan
-
-# Ver logs de un servicio
-docker-compose logs -f db
+# Verificar enlace storage
+readlink public/storage
 ```
 
-## Desarrollo
+---
 
-Para desarrollo local, usa `http://localhost:8000`
+## Archivos editados
 
-## Producción
+| Archivo | Cambio |
+|---------|--------|
+| `app/Providers/AppServiceProvider.php` | `URL::forceScheme('https')` en producción |
+| `app/Http/Middleware/TrustProxies.php` | `$proxies = '*'` para Render |
+| `Dockerfile` | DocumentRoot a `/public`, permisos correctos |
+| `render-build.sh` | Script para compilar assets |
 
-Para producción, considera:
-- Usar `APP_ENV=production`
-- Configurar HTTPS
-- Usar base de datos externa (RDS, etc.)
-- Configurar cache Redis
-- Usar cola de trabajos con Redis
-- Configurar S3 para archivos
-- Usar Cloudflare o similar
+---
 
-## Problemas comunes
+## Checklist de despliegue
 
-### Error de permisos
+- [ ] `npm run prod` ejecutado localmente
+- [ ] `public/css/` y `public/js/` existen
+- [ ] Enlace simbólico `public/storage` existe
+- [ ] `APP_ENV=production` en .env
+- [ ] `APP_DEBUG=false` en .env
 
-```bash
-docker-compose exec app chown -R www-data:www-data /var/www/html/storage
-docker-compose exec app chown -R www-data:www-data /var/www/html/bootstrap/cache
-```
+---
 
-### Migraciones fallidas
-
-```bash
-docker-compose exec app php artisan migrate:fresh --seed
-```
-
-### Instalar composer
+## Solución rápida si ya desplegaste
 
 ```bash
-docker-compose run --rm composer install
+# En el contenedor
+docker exec -it cursos_sgd_app bash
+
+# Compilar assets (si hay npm)
+npm install
+npm run prod
+
+# O copiar manualmente desde local
+docker cp ./public/css cursos_sgd_app:/var/www/html/public/
+docker cp ./public/js cursos_sgd_app:/var/www/html/public/
+
+# Recreate storage link
+rm -f public/storage
+ln -s ../storage/app/public public/storage
+
+# Fix permissions
+chown -R www-data:www-data public storage bootstrap/cache
+chmod -R 775 public storage bootstrap/cache
 ```
