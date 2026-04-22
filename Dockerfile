@@ -2,7 +2,6 @@
 # Dockerfile - CursosSGD Laravel Application
 # ============================================
 
-# Usar imagen oficial de PHP con Apache
 FROM php:8.1-apache
 
 # Instalar dependencias del sistema
@@ -19,21 +18,17 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar extensiones de PHP
+# Instalar extensiones de PHP (Añadí bcmath y dom que Laravel suele pedir)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd pdo pdo_pgsql pgsql zip
+    && docker-php-ext-install -j$(nproc) gd pdo pdo_pgsql pgsql zip bcmath xml
 
 # Habilitar módulos de Apache
-RUN a2enmod rewrite headers ssl
+RUN a2enmod rewrite headers
 
-# Configurar PHP
-RUN echo "file_uploads = On" >> /usr/local/etc/php/conf.d/uploads.ini \
-    && echo "max_execution_time = 300" >> /usr/local/etc/php/conf.d/php.ini \
-    && echo "post_max_size = 64M" >> /usr/local/etc/php/conf.d/php.ini \
-    && echo "upload_max_filesize = 64M" >> /usr/local/etc/php/conf.d/php.ini \
-    && echo "memory_limit = 512M" >> /usr/local/etc/php/conf.d/php.ini \
-    && echo "display_errors = Off" >> /usr/local/etc/php/conf.d/php.ini \
-    && echo "log_errors = On" >> /usr/local/etc/php/conf.d/php.ini
+# Configurar el DocumentRoot de Apache para que apunte a /public
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -44,23 +39,17 @@ WORKDIR /var/www/html
 # Copiar archivos de la aplicación
 COPY . /var/www/html/
 
-# Instalar dependencias de PHP
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+# --- SOLUCIÓN AL ERROR: exit code 2 ---
+# Usamos --no-scripts para evitar que Laravel intente ejecutar Artisan durante el build
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts
 
-# Establecer permisos correctos
-RUN chown -R www-data:www-data /var/www/html/storage \
-    && chown -R www-data:www-data /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
+# Establecer permisos
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Crear enlace simbólico para storage
-RUN ln -s /var/www/html/storage/app/public /var/www/html/public/storage 2>/dev/null || true
+RUN php artisan storage:link || true
 
-# Exponer puerto 80
 EXPOSE 80
 
-# Puerto 443 para HTTPS
-EXPOSE 443
-
-# Iniciar Apache
 CMD ["apache2-foreground"]
