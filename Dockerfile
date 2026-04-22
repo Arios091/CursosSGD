@@ -109,12 +109,14 @@ RUN chown -R www-data:www-data /var/www/html/storage \
     && chmod -R 775 /var/www/html/public
 
 # ============================================
-# Limpiar cache
+# Limpiar cache de Laravel y Livewire
 # ============================================
 RUN php artisan config:clear \
     && php artisan cache:clear \
     && php artisan view:clear \
-    && php artisan route:clear
+    && php artisan route:clear \
+    && php artisan livewire:publish --assets \
+    && echo "✓ Cache limpiado y Livewire configurado"
 
 EXPOSE 80
 
