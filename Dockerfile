@@ -47,20 +47,14 @@ RUN echo "file_uploads = On" > /usr/local/etc/php/conf.d/uploads.ini && \
     echo "log_errors = On" >> /usr/local/etc/php/conf.d/php.ini
 
 # ============================================
-# Composer 2.x (CRÍTICO - Corregido)
+# ServerName para evitar warnings
 # ============================================
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # ============================================
-# Configurar Apache DocumentRoot hacia public
+# Composer 2.x
 # ============================================
-RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf && \
-    sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf && \
-    echo '<Directory "/var/www/html/public">' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '    Options Indexes FollowSymLinks MultiViews' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '    AllowOverride All' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '    Require all granted' >> /etc/apache2/sites-available/000-default.conf && \
-    echo '</Directory>' >> /etc/apache2/sites-available/000-default.conf
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # ============================================
 # Directorio de trabajo
@@ -68,54 +62,60 @@ RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /e
 WORKDIR /var/www/html
 
 # ============================================
-# Copiar archivos de aplicación
+# Copiar archivos
 # ============================================
 COPY . /var/www/html/
 
 # ============================================
+# Reescribir configuración de Apache CORRECTAMENTE
+# ============================================
+RUN echo 'DocumentRoot /var/www/html/public' > /etc/apache2/sites-available/000-default.conf && \
+    echo '<Directory /var/www/html/public>' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    Options Indexes FollowSymLinks MultiViews' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    AllowOverride All' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    Require all granted' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '</Directory>' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    ErrorLog ${APACHE_LOG_DIR}/error.log' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    CustomLog ${APACHE_LOG_DIR}/access.log combined' >> /etc/apache2/sites-available/000-default.conf
+
+# ============================================
 # Instalar dependencias PHP
-# --ignore-platform-reqs evita bloqueos por librerías del SO
 # ============================================
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --ignore-platform-reqs
 
 # ============================================
-# Crear estructura de directorios necesaria
+# Crear estructura de directorios
 # ============================================
 RUN mkdir -p storage/logs \
     && mkdir -p storage/framework/cache \
     && mkdir -p storage/framework/views \
     && mkdir -p storage/framework/sessions \
-    && mkdir -p bootstrap/cache \
-    && echo "✓ Directorios creados"
+    && mkdir -p bootstrap/cache
 
 # ============================================
-# Enlace simbólico storage (CRÍTICO para assets)
+# Enlace simbólico storage
 # ============================================
-RUN if [ -d "storage/app/public" ]; then \
-        rm -f public/storage && \
-        ln -s ../storage/app/public public/storage && \
-        echo "✓ Storage link creado"; \
-    fi
+RUN rm -f public/storage && \
+    ln -s ../storage/app/public public/storage
 
 # ============================================
-# Permisos correctos para www-data
+# Permisos correctos
 # ============================================
-RUN chown -R www-data:www-data storage bootstrap/cache public && \
-    chmod -R 775 storage bootstrap/cache public && \
-    echo "✓ Permisos establecidos"
+RUN chown -R www-data:www-data /var/www/html/storage \
+    && chown -R www-data:www-data /var/www/html/bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html/public \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/public
 
 # ============================================
-# Limpiar cache de Laravel
+# Limpiar cache
 # ============================================
 RUN php artisan config:clear \
     && php artisan cache:clear \
     && php artisan view:clear \
-    && php artisan route:clear \
-    && echo "✓ Cache limpiado"
+    && php artisan route:clear
 
-# ============================================
-# Exponer puerto
-# ============================================
 EXPOSE 80
 
 CMD ["apache2-foreground"]
