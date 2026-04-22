@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: cursos-sgd
+    env: php
+    plan: free
+    buildCommand: composer install --optimize-autoloader --no-dev
+    startCommand: heroku-php-apache2 public/
+    envVars:
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: SESSION_DRIVER
+        value: cookie
+
+  - type: pgsql
+    name: cursos-sgd-db
+    plan: free
