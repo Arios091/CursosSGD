@@ -75,7 +75,13 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => 'require',
+            'options' => [
+                PDO::getAvailableDrivers()[0] => [ // Esto asegura compatibilidad
+                PDO::ATTR_EMULATE_PREPARES => true,
+                ],
+            ],
+
         ],
 
         'sqlsrv' => [
