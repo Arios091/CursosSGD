@@ -116,6 +116,4 @@ RUN php artisan config:clear && php artisan view:clear && php artisan route:clea
 
 EXPOSE 80
 
-RUN php artisan migrate --force
-
-CMD ["apache2-foreground"]
+CMD [php artisan migrate --force && "apache2-foreground"]
