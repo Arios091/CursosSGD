@@ -3,42 +3,45 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use App\Mail\PasswordResetMail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 class ForgotPasswordController extends Controller
 {
-    use SendsPasswordResetEmails;
-
-    protected $redirectTo = '/home';
-
-    public function __construct()
-    {
-        $this->middleware('guest');
-    }
-
+    // Mostrar formulario de recuperación
     public function showLinkRequestForm()
     {
         return view('auth.passwords.email');
     }
 
+    // Enviar correo de recuperación
     public function sendResetLinkEmail(Request $request)
     {
-        $this->validateEmail($request);
+        $validated = $request->validate([
+            'email' => 'required|email|exists:users,email'
+        ], [
+            'email.required' => 'El correo electrónico es requerido.',
+            'email.email' => 'Ingresa un correo electrónico válido.',
+            'email.exists' => 'No encontramos una cuenta con este correo electrónico.'
+        ]);
 
+        // Buscar usuario
         $user = \App\Models\User::where('email', $request->email)->first();
 
         if (!$user) {
-            return back()->withInput($request->only('email'))
+            return back()->withInput()
                 ->withErrors(['email' => 'No encontramos una cuenta con este correo electrónico.']);
         }
 
-        $token = Str::random(60);
+        // Generar token único
+        $token = Str::random(64);
 
+        // Guardar token en base de datos
         DB::table('password_resets')->updateOrInsert(
             ['email' => $user->email],
             [
@@ -47,30 +50,19 @@ class ForgotPasswordController extends Controller
             ]
         );
 
-        $resetUrl = route('password.reset', [
-            'token' => $token,
-            'email' => $user->email,
-        ], false);
+        // Generar URL de recuperación
+        // Usamos la URL del proyecto desde config
+        $baseUrl = config('app.url', 'http://localhost:8000');
+        $resetUrl = $baseUrl . '/password/reset?token=' . $token . '&email=' . urlencode($user->email);
 
         try {
-            \Mail::to($user->email)->send(new \App\Mail\ResetPasswordMail($user, $resetUrl));
+            Mail::to($user->email)->send(new PasswordResetMail($user, $resetUrl));
         } catch (\Exception $e) {
             \Log::error('Error sending password reset email: ' . $e->getMessage());
-            return back()->withInput($request->only('email'))
+            return back()->withInput()
                 ->withErrors(['email' => 'Error al enviar el correo. Por favor, intenta más tarde.']);
         }
 
-        return back()->with('status', 'Te hemos enviado un correo con el enlace para restablecer tu contraseña. Revisa tu bandeja de entrada (y spam).');
-    }
-
-    protected function validateEmail(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email|exists:users,email'
-        ], [
-            'email.required' => 'El correo electrónico es requerido.',
-            'email.email' => 'Ingresa un correo electrónico válido.',
-            'email.exists' => 'No encontramos una cuenta con este correo electrónico.'
-        ]);
+        return back()->with('status', 'Te hemos enviado un correo con el enlace para restablecer tu contraseña. Revisa tu bandeja de entrada (incluyendo spam).');
     }
 }

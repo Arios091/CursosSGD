@@ -4,14 +4,28 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CursoController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
-Auth::routes();
+// Rutas de autenticación
+Route::get('/login', '\App\Http\Controllers\Auth\LoginController@showLoginForm')->name('login');
+Route::post('/login', '\App\Http\Controllers\Auth\LoginController@login');
+Route::post('/logout', '\App\Http\Controllers\Auth\LoginController@logout')->name('logout');
 
-Route::get('/home', [App\Http\Controllers\CursoController::class, 'home'])->name('home');
+Route::get('/register', '\App\Http\Controllers\Auth\RegisterController@showRegistrationForm')->name('register');
+Route::post('/register', '\App\Http\Controllers\Auth\RegisterController@register');
+
+// Rutas de recuperación de contraseña
+Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/password/reset', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/password/reset/verify', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/password/reset/verify', [ResetPasswordController::class, 'reset'])->name('password.update');
+
+Route::get('/home', [CursoController::class, 'home'])->name('home');
 
 Route::middleware(['auth'])->group(function () {
     // Perfil

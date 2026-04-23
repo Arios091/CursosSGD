@@ -3,7 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Livewire Styles - Use CDN -->
+    @if(app()->environment('production'))
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/livewire@2.12.1/dist/livewire.css">
+    @else
     @livewireStyles
+    @endif
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -908,7 +914,13 @@
     @else
         @yield('content')
     @endauth
-    @livewireScripts
+    
+    <!-- Livewire Scripts - Use CDN in production -->
+    @if(app()->environment('production'))
+        <script src="https://cdn.jsdelivr.net/npm/livewire@2.12.1/dist/livewire.js"></script>
+    @else
+        @livewireScripts
+    @endif
 
     @if(session('success'))
     <script>
