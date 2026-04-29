@@ -466,5 +466,156 @@
         @endif
     </div>
 </div>
+
+@section('scripts')
+<script>
+let videoInterval = null;
+let tiempoVisto = 0;
+let videoCompletado = false;
+
+// Detectar cuando se carga un video
+function initVideoTracking() {
+    const iframe = document.querySelector('iframe');
+    if (!iframe || iframe.src.indexOf('youtube') === -1) return;
+    
+    // YouTube API
+    if (!window.YT) {
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+    
+    window.onYouTubeIframeAPIReady = function() {
+        const player = new YT.Player(iframe, {
+            events: {
+                'onStateChange': onPlayerStateChange
+            }
+        });
+        
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.PLAYING && !videoCompletado) {
+                // Iniciar contador
+                videoInterval = setInterval(function() {
+                    tiempoVisto++;
+                    
+                    // Enviar progreso cada 10 segundos
+                    if (tiempoVisto % 10 === 0) {
+                        updateVideoProgress();
+                    }
+                    
+                    // Si llegó a 2 minutos (120 segundos), marcar como completado
+                    if (tiempoVisto >= 120) {
+                        videoCompletado = true;
+                        clearInterval(videoInterval);
+                        // Mostrar mensaje de éxito
+                        showMaterialComplete('video');
+                    }
+                }, 1000);
+            } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+                if (videoInterval) {
+                    clearInterval(videoInterval);
+                }
+            }
+        }
+    };
+}
+
+// Actualizar progreso de video en servidor
+function updateVideoProgress() {
+    const materialId = {{ $materialSeleccionado ? $materialSeleccionado->id : 0 }};
+    if (!materialId) return;
+    
+    fetch('/material/' + materialId + '/video-progress', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ tiempo_visto: tiempoVisto })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.video_completado) {
+            videoCompletado = true;
+        }
+    });
+}
+
+// Detectar scroll en PDF
+function initPdfScrollTracking() {
+    const embed = document.querySelector('embed[type="application/pdf"]');
+    if (!embed) return;
+    
+    let scrollTimeout = null;
+    let scrollCompletado = false;
+    
+    // Usar un contenedor padre para detectar scroll
+    const container = embed.parentElement;
+    if (!container) return;
+    
+    // Verificar cuando el PDF está visible completamente
+    container.addEventListener('scroll', function() {
+        if (scrollCompletado) return;
+        
+        const scrollTop = container.scrollTop;
+        const scrollHeight = container.scrollHeight - container.clientHeight;
+        
+        // Si el usuario hizo scroll hasta el 90% del contenido
+        if (scrollHeight > 0 && (scrollTop / scrollHeight) >= 0.9) {
+            scrollCompletado = true;
+            
+            if (scrollTimeout) clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(function() {
+                marcarPdfCompletado();
+            }, 1000); // Esperar 1 segundo para confirmar
+        }
+    });
+}
+
+function marcarPdfCompletado() {
+    const materialId = {{ $materialSeleccionado ? $materialSeleccionado->id : 0 }};
+    if (!materialId) return;
+    
+    fetch('/material/' + materialId + '/pdf-scroll', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.scroll_completado) {
+            showMaterialComplete('pdf');
+        }
+    });
+}
+
+// Mostrar mensaje de material completado
+function showMaterialComplete(tipo) {
+    const tipoTexto = tipo === 'video' ? 'Video completado' : 'PDF leído';
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-success';
+    alert.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;animation:slideIn 0.3s;';
+    alert.innerHTML = '<i class="fas fa-check-circle"></i> ¡' + tipoTexto + '! Puedes continuar con el siguiente material.';
+    document.body.appendChild(alert);
+    
+    setTimeout(function() {
+        alert.remove();
+    }, 3000);
+}
+
+// Inicializar cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    @if($materialSeleccionado && $materialSeleccionado->tipo == 'video')
+        setTimeout(initVideoTracking, 1000);
+    @elseif($materialSeleccionado && $materialSeleccionado->tipo == 'pdf')
+        initPdfScrollTracking();
+    @endif
+});
+</script>
+@endsection
+
 @endif
 @endsection

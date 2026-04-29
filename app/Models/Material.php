@@ -19,6 +19,11 @@ class Material extends Model
         return $this->belongsTo(Modulo::class);
     }
 
+    public function progresos()
+    {
+        return $this->hasMany(ProgresoMaterial::class);
+    }
+
     public function getVideoEmbedUrlAttribute()
     {
         $url = $this->url;

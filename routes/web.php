@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CursoController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 
@@ -93,7 +94,12 @@ Route::middleware(['auth'])->group(function () {
     
     // Archivos privados (PDF) - requiere auth
     Route::get('/archivo/pdf/{filename}', [FileController::class, 'verPdf'])->name('archivo.pdf');
-    Route::get('/archivo/pdf/{filename}/descargar', [FileController::class, 'descargarPdf'])->name('archivo.pdf.descargar');
+    Route::post('/archivo/pdf/{filename}/descargar', [FileController::class, 'descargarPdf'])->name('archivo.pdf.descargar');
+
+    // Progreso de materiales (videos y PDFs)
+    Route::post('/material/{material}/video-progress', [MaterialController::class, 'updateVideoProgress'])->name('material.video.progress');
+    Route::post('/material/{material}/pdf-scroll', [MaterialController::class, 'updatePdfScroll'])->name('material.pdf.scroll');
+    Route::get('/material/{material}/progress', [MaterialController::class, 'getProgress'])->name('material.progress');
 });
 
 // Rutas exclusivas para ADMIN
