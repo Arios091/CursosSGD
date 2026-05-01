@@ -12,10 +12,14 @@ class MaterialController extends Controller
     public function updateVideoProgress(Request $request, $material)
     {
         $request->validate([
-            'tiempo_visto' => 'required|integer|min:0'
+            'tiempo_visto' => 'required|integer|min:0',
+            'duracion_total' => 'sometimes|integer|min:0'
         ]);
 
         $material = \App\Models\Material::findOrFail($material);
+        
+        $tiempoVisto = $request->tiempo_visto;
+        $duracionTotal = $request->duracion_total ?? 0;
         
         $progreso = ProgresoMaterial::updateOrCreate(
             [
@@ -23,12 +27,20 @@ class MaterialController extends Controller
                 'material_id' => $material->id
             ],
             [
-                'tiempo_visto' => $request->tiempo_visto
+                'tiempo_visto' => $tiempoVisto
             ]
         );
 
-        // Verificar si alcanzó el tiempo mínimo (2 minutos = 120 segundos)
-        if ($request->tiempo_visto >= 120) {
+        // Calcular 90% de la duración
+        $requiredTime = $duracionTotal * 0.9;
+        
+        // Verificar si alcanzó el 90% de la duración
+        if ($duracionTotal > 0 && $tiempoVisto >= $requiredTime) {
+            $progreso->video_completado = true;
+            $progreso->material_completado = true;
+            $progreso->save();
+        } elseif ($request->completado) {
+            // Si se envió explicitamente como completado
             $progreso->video_completado = true;
             $progreso->material_completado = true;
             $progreso->save();
@@ -36,7 +48,10 @@ class MaterialController extends Controller
 
         return response()->json([
             'success' => true,
-            'video_completado' => $progreso->video_completado
+            'video_completado' => $progreso->video_completado,
+            'tiempo_visto' => $tiempoVisto,
+            'duracion_total' => $duracionTotal,
+            'required_time' => $requiredTime
         ]);
     }
 

@@ -472,6 +472,8 @@
 let videoInterval = null;
 let tiempoVisto = 0;
 let videoCompletado = false;
+let videoDuration = 0;
+let requiredTime = 0;
 
 // Detectar cuando se carga un video
 function initVideoTracking() {
@@ -489,9 +491,17 @@ function initVideoTracking() {
     window.onYouTubeIframeAPIReady = function() {
         const player = new YT.Player(iframe, {
             events: {
-                'onStateChange': onPlayerStateChange
+                'onStateChange': onPlayerStateChange,
+                'onReady': onPlayerReady
             }
         });
+        
+        function onPlayerReady(event) {
+            // Obtener duración total del video
+            videoDuration = player.getDuration();
+            // Calcular 90% de la duración
+            requiredTime = videoDuration * 0.9;
+        }
         
         function onPlayerStateChange(event) {
             if (event.data === YT.PlayerState.PLAYING && !videoCompletado) {
@@ -504,10 +514,12 @@ function initVideoTracking() {
                         updateVideoProgress();
                     }
                     
-                    // Si llegó a 2 minutos (120 segundos), marcar como completado
-                    if (tiempoVisto >= 120) {
+                    // Si llegó al 90% de la duración, marcar como completado
+                    if (requiredTime > 0 && tiempoVisto >= requiredTime) {
                         videoCompletado = true;
                         clearInterval(videoInterval);
+                        // Enviar marcado final
+                        updateVideoProgressFinal();
                         // Mostrar mensaje de éxito
                         showMaterialComplete('video');
                     }
@@ -532,13 +544,35 @@ function updateVideoProgress() {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        body: JSON.stringify({ tiempo_visto: tiempoVisto })
+        body: JSON.stringify({ 
+            tiempo_visto: tiempoVisto,
+            duracion_total: Math.round(videoDuration)
+        })
     })
     .then(response => response.json())
     .then(data => {
         if (data.video_completado) {
             videoCompletado = true;
         }
+    });
+}
+
+// Marcar video como completado final
+function updateVideoProgressFinal() {
+    const materialId = {{ $materialSeleccionado ? $materialSeleccionado->id : 0 }};
+    if (!materialId) return;
+    
+    fetch('/material/' + materialId + '/video-progress', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ 
+            tiempo_visto: tiempoVisto,
+            duracion_total: Math.round(videoDuration),
+            completado: true
+        })
     });
 }
 
