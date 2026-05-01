@@ -370,7 +370,7 @@ class CreateCurso extends Component
                     $materialUrl = null;
                     $tipo = $material['tipo'] ?? 'pdf';
                     
-                    // Para videos - procesar y validar URL externa
+                    // Para videos - SOLO YouTube permitido
                     if ($tipo === 'video' && !empty(trim($material['url'] ?? ''))) {
                         $rawUrl = trim($material['url']);
                         
@@ -378,16 +378,11 @@ class CreateCurso extends Component
                         $youtubeId = $this->extractYouTubeId($rawUrl);
                         if ($youtubeId) {
                             $materialUrl = 'https://www.youtube.com/embed/' . $youtubeId;
-                        } elseif (str_contains($rawUrl, 'vimeo.com')) {
-                            // Extraer ID de Vimeo
-                            if (preg_match('/vimeo\.com\/(\d+)/', $rawUrl, $matches)) {
-                                $materialUrl = 'https://player.vimeo.com/video/' . $matches[1];
-                            } else {
-                                $materialUrl = $rawUrl;
-                            }
                         } else {
-                            // Si no es YouTube ni Vimeo, guardar tal cual
-                            $materialUrl = $rawUrl;
+                            // No es YouTube - rechazar
+                            session()->flash('error', 'Solo se permiten videos de YouTube. URL inválida: ' . $rawUrl);
+                            DB::rollBack();
+                            return;
                         }
                     }
                     // Para PDFs - verificar que el archivo temporal exista antes de mover
