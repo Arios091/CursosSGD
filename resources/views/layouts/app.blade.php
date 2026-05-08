@@ -663,7 +663,7 @@
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                     <div class="logo-container">
-                        <img src="{{ $sidebarLogo ? asset('storage/' . $sidebarLogo) : asset('assets/unasicono.png') }}" alt="UNAS" style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                        <img src="{{ $sidebarLogo ? asset('storage/' . $sidebarLogo) : asset('assets/unasicono.png') }}" alt="UNAS" style="height: 44px; width: 44px; object-fit: contain; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                         <span class="logo-text">UNAS</span>
                     </div>
                     <small style="color: rgba(255,255,255,0.7); font-size: 11px;">Universidad Nacional Agraria de la Selva</small>
@@ -711,7 +711,7 @@
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                     <div class="logo-container">
-                        <img src="{{ $sidebarLogo ? asset('storage/' . $sidebarLogo) : asset('assets/unasicono.png') }}" alt="UNAS" style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                        <img src="{{ $sidebarLogo ? asset('storage/' . $sidebarLogo) : asset('assets/unasicono.png') }}" alt="UNAS" style="height: 44px; width: 44px; object-fit: contain; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                         <span class="logo-text">UNAS</span>
                     </div>
                 <small style="color: rgba(255,255,255,0.7); font-size: 11px;">Universidad Nacional Agraria de la Selva</small>

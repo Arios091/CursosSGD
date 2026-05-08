@@ -49,7 +49,7 @@
             display: flex; align-items: center; gap: 12px;
             text-decoration: none;
         }
-        .nav-logo img { height: 44px; }
+        .nav-logo img { height: 44px; object-fit: contain; }
         .nav-logo span {
             font-size: 18px; font-weight: 700; color: {{ $primaryColor }};
         }
@@ -184,7 +184,7 @@
             display: flex; justify-content: space-between; align-items: center;
         }
         .footer-logo { display: flex; align-items: center; gap: 10px; }
-        .footer-logo img { height: 36px; }
+        .footer-logo img { height: 36px; object-fit: contain; }
         .footer-logo span { color: white; font-weight: 700; }
 
         @media (max-width: 768px) {

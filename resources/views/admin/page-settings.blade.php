@@ -77,7 +77,7 @@
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Logo actual</label>
                     <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 12px;">
-                        <img src="{{ isset($settings['logo']) ? asset('storage/' . $settings['logo']) : asset('assets/unasicono.png') }}" style="height: 80px;">
+                        <img src="{{ isset($settings['logo']) ? asset('storage/' . $settings['logo']) : asset('assets/unasicono.png') }}" style="height: 80px; object-fit: contain;">
                     </div>
                     <input type="file" name="logo" class="form-control" accept="image/png,image/jpeg,image/svg+xml">
                 </div>
@@ -99,7 +99,7 @@
                         <div style="background: #f9fafb; border-radius: 12px; padding: 16px; text-align: center; border: 2px dashed #e5e7eb;">
                             <div style="height: 140px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; background: #f3f4f6; border-radius: 8px; overflow: hidden;">
                                 @if(isset($settings[$key]) && $settings[$key])
-                                    <img src="{{ asset('storage/' . $settings[$key]) }}" style="max-width: 100%; max-height: 100%; object-fit: cover;">
+                                    <img src="{{ asset('storage/' . $settings[$key]) }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                                 @else
                                     <i class="fas fa-image" style="font-size: 40px; color: #d1d5db;"></i>
                                 @endif

@@ -229,7 +229,7 @@
             <div class="sidebar-header">
                 <div class="logo-container">
                     <div class="logo-icon">
-                        <img src="{{ \App\Models\PageSetting::getValue('logo') ? asset('storage/' . \App\Models\PageSetting::getValue('logo')) : asset('assets/unasicono.png') }}" alt="UNAS" style="height: 60px;">
+                        <img src="{{ \App\Models\PageSetting::getValue('logo') ? asset('storage/' . \App\Models\PageSetting::getValue('logo')) : asset('assets/unasicono.png') }}" alt="UNAS" style="height: 60px; object-fit: contain;">
                     </div>
                     <span class="logo-text">UNAS</span>
                 </div>
