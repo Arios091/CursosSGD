@@ -1,9 +1,10 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+@php $sidebarLogo = \App\Models\PageSetting::getValue('logo'); @endphp
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/png" href="{{ asset('assets/unasicono.png') }}">
+    <link rel="icon" type="image/png" href="{{ $sidebarLogo ? asset('storage/' . $sidebarLogo) : asset('assets/unasicono.png') }}">
     
     <!-- Livewire Styles - Use CDN -->
     @if(app()->environment('production'))
@@ -289,14 +290,8 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            cursor: pointer;
             padding: 8px 12px;
             border-radius: var(--radius-md);
-            transition: background 0.2s;
-        }
-
-        .user-dropdown:hover {
-            background: var(--gris-100);
         }
 
         .user-avatar {
@@ -311,11 +306,6 @@
             font-weight: 600;
             font-size: 14px;
             box-shadow: 0 2px 8px rgba(11, 94, 46, 0.3);
-            transition: transform 0.2s;
-        }
-
-        .user-dropdown:hover .user-avatar {
-            transform: scale(1.05);
         }
 
         .page-content {
@@ -672,28 +662,26 @@
         @if($esAdmin || $esAdminGlobal)
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="logo-container">
-                    <div class="logo-icon">
-                        <i class="fas fa-university"></i>
+                    <div class="logo-container">
+                        <img src="{{ $sidebarLogo ? asset('storage/' . $sidebarLogo) : asset('assets/unasicono.png') }}" alt="UNAS" style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                        <span class="logo-text">UNAS</span>
                     </div>
-                    <span class="logo-text">UNAS</span>
+                    <small style="color: rgba(255,255,255,0.7); font-size: 11px;">Universidad Nacional Agraria de la Selva</small>
                 </div>
-                <small style="color: rgba(255,255,255,0.7); font-size: 11px;">Universidad Nacional Agraria de la Selva</small>
-            </div>
 
-            <div class="user-info">
-                <div class="user-name">
-                    <i class="fas fa-user-circle"></i>
-                    {{ Auth::user()->name }}
+                <div class="user-info">
+                    <div class="user-name">
+                        <i class="fas fa-user-circle"></i>
+                        {{ Auth::user()->name }}
+                    </div>
+                    @if($esAdminGlobal)
+                        <small style="color: #C9A227;">Admin Global</small>
+                    @else
+                        <small style="color: #C9A227;">Administrador</small>
+                    @endif
                 </div>
-                @if($esAdminGlobal)
-                    <small style="color: #C9A227;">Admin Global</small>
-                @else
-                    <small style="color: #C9A227;">Administrador</small>
-                @endif
-            </div>
 
-            <nav class="sidebar-menu">
+                <nav class="sidebar-menu">
                 <a href="{{ route('home') }}" class="menu-item {{ request()->routeIs('home') ? 'active' : '' }}">
                     <i class="fas fa-home"></i> Dashboard
                 </a>
@@ -722,12 +710,10 @@
         @else
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="logo-container">
-                    <div class="logo-icon">
-                        <i class="fas fa-university"></i>
+                    <div class="logo-container">
+                        <img src="{{ $sidebarLogo ? asset('storage/' . $sidebarLogo) : asset('assets/unasicono.png') }}" alt="UNAS" style="height: 44px; width: 44px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                        <span class="logo-text">UNAS</span>
                     </div>
-                    <span class="logo-text">UNAS</span>
-                </div>
                 <small style="color: rgba(255,255,255,0.7); font-size: 11px;">Universidad Nacional Agraria de la Selva</small>
             </div>
 
@@ -782,12 +768,11 @@
                         @endif
                     </div>
                 </div>
-                <div class="user-dropdown" id="userDropdown">
+                <div class="user-dropdown">
                     <div class="user-avatar">
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     </div>
                     <span style="font-weight: 500;">{{ Auth::user()->name }}</span>
-                    <i class="fas fa-chevron-down" style="font-size: 10px; color: var(--gris-400);"></i>
                 </div>
             </div>
 

@@ -113,12 +113,12 @@
         .hero-buttons .btn-secondary:hover { background: rgba(255,255,255,0.2); }
 
         .hero-carousel {
-            flex: 0 0 420px;
+            flex: 0 0 540px;
             position: relative;
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 12px 32px rgba(0,0,0,0.2);
-            aspect-ratio: 16/10;
+            aspect-ratio: 16/9;
         }
         .hero-carousel img {
             width: 100%; height: 100%; object-fit: cover;
@@ -192,7 +192,7 @@
             .hero-content h1 { font-size: 28px; }
             .hero-content p { margin: 0 auto 24px; }
             .hero-buttons { justify-content: center; flex-wrap: wrap; }
-            .hero-carousel { flex: none; width: 100%; max-width: 420px; }
+            .hero-carousel { flex: none; width: 100%; max-width: 100%; }
             .features-grid { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .footer .container { flex-direction: column; gap: 16px; text-align: center; }

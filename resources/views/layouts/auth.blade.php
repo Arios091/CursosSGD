@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
+@php $authLogo = \App\Models\PageSetting::getValue('logo'); @endphp
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/png" href="{{ asset('assets/unasicono.png') }}">
+    <link rel="icon" type="image/png" href="{{ $authLogo ? asset('storage/' . $authLogo) : asset('assets/unasicono.png') }}">
     <title>@yield('page-title', 'Sistema de Gestión de Docencia')</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">

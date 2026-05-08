@@ -114,7 +114,4 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Configuración de página (solo admin_global)
     Route::get('/page-settings', [PageSettingsController::class, 'index'])->name('page-settings');
     Route::post('/page-settings', [PageSettingsController::class, 'update'])->name('page-settings.update');
-
-    // Hacer admin a un usuario (solo admin_global)
-    Route::post('/users/{user}/make-admin', [UserController::class, 'makeAdmin'])->name('users.make-admin');
 });

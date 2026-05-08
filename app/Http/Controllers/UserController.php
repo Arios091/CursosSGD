@@ -106,19 +106,4 @@ class UserController extends Controller
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'Usuario eliminado correctamente.');
     }
-
-    public function makeAdmin(Request $request, User $user)
-    {
-        if (!auth()->user()->isAdminGlobal()) {
-            return response()->json(['success' => false, 'message' => 'No tienes permiso.'], 403);
-        }
-
-        if (in_array($user->role, ['admin', 'admin_global'])) {
-            return response()->json(['success' => false, 'message' => 'El usuario ya es administrador.']);
-        }
-
-        $user->update(['role' => 'admin']);
-
-        return response()->json(['success' => true, 'message' => 'Usuario ascendido a administrador.']);
-    }
 }
