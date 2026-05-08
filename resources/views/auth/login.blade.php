@@ -15,7 +15,7 @@
             </div>
 
             <div class="card-body p-4 p-lg-5">
-                <form method="POST" action="{{ route('login') }}" id="loginForm">
+                <form method="POST" action="{{ route('login') }}" id="loginForm" novalidate>
                     @csrf
 
                     <div class="form-group mb-4">

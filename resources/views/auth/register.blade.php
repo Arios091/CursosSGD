@@ -15,7 +15,7 @@
             </div>
 
             <div class="card-body p-4 p-lg-5">
-                <form method="POST" action="{{ route('register') }}" id="registerForm">
+                <form method="POST" action="{{ route('register') }}" id="registerForm" novalidate>
                     @csrf
 
                     <h5 class="text-muted mb-4 pb-3 border-bottom d-flex align-items-center" style="color: #0B5E2E !important;">
