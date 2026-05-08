@@ -198,14 +198,14 @@
                     </div>
                     <h5 class="modal-title" style="color: #dc2626;">Confirmar eliminación</h5>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="background: none; border: none; font-size: 24px;">&times;</button>
             </div>
             <div class="modal-body text-center py-4">
                 <p style="font-size: 16px; color: #374151;">¿Estás seguro de eliminar al usuario <strong id="deleteUserName"></strong>?</p>
                 <p style="color: #6b7280; font-size: 14px;">Esta acción no se puede deshacer.</p>
             </div>
             <div class="modal-footer justify-content-center" style="border-top: 1px solid #e5e7eb; padding: 16px;">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 10px 24px;">Cancelar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius: 8px; padding: 10px 24px;">Cancelar</button>
                 <form id="deleteForm" method="POST" style="display: inline;">
                     @csrf
                     @method('DELETE')
@@ -221,7 +221,6 @@
 <style>
     .user-row:hover {
         background-color: #f9fafb !important;
-        transform: scale(1.01);
     }
 
     .user-row td {
@@ -398,8 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const userName = this.getAttribute('data-user-name');
                 document.getElementById('deleteUserName').textContent = userName;
                 document.getElementById('deleteForm').action = '/admin/usuarios/' + userId;
-                var modal = new bootstrap.Modal(deleteModal);
-                modal.show();
+                $('#deleteModal').modal('show');
             });
         });
     }
@@ -432,8 +430,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.addEventListener('submit', function(e) {
         if (e.target.id === 'deleteForm') {
-            const modal = bootstrap.Modal.getInstance(deleteModal);
-            if (modal) modal.hide();
+            $('#deleteModal').modal('hide');
         }
     });
 

@@ -53,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
     
     // Crear curso - solo admin
     Route::get('/crear.curso', function () { 
-        if (auth()->user()->role !== 'admin') {
+        if (!in_array(auth()->user()->role, ['admin', 'admin_global'])) {
             return redirect()->route('home')->with('error', 'No tienes permiso para crear cursos.');
         }
         return view('cursos.create-livewire'); 
