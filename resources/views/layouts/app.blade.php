@@ -6,12 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ $sidebarLogo ? asset('storage/' . $sidebarLogo) : asset('assets/unasicono.png') }}">
     
-    <!-- Livewire Styles - Use CDN -->
-    @if(app()->environment('production'))
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/livewire@2.12.1/dist/livewire.css">
-    @else
+    <!-- Livewire Styles -->
     @livewireStyles
-    @endif
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -901,12 +897,8 @@
         @yield('content')
     @endauth
     
-    <!-- Livewire Scripts - Use CDN in production -->
-    @if(app()->environment('production'))
-        <script src="https://cdn.jsdelivr.net/npm/livewire@2.12.1/dist/livewire.js"></script>
-    @else
-        @livewireScripts
-    @endif
+    <!-- Livewire Scripts -->
+    @livewireScripts
 
     @if(session('success'))
     <script>
