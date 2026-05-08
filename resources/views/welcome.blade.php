@@ -8,15 +8,26 @@
     <title>Bienvenido - Sistema de Gestión de Docencia</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    @php
+        $settings = \App\Models\PageSetting::getAll();
+        $primaryColor = $settings['primary_color'] ?? '#0B5E2E';
+        $secondaryColor = $settings['secondary_color'] ?? '#C9A227';
+        $heroTitle = $settings['hero_title'] ?? 'Sistema de <span>Gestión de Docencia</span> UNAS';
+        $heroSubtitle = $settings['hero_subtitle'] ?? 'Plataforma oficial de educación continua de la Universidad Nacional Agraria de la Selva. Accede a cursos especializados, gestiona tu progreso y obtén certificaciones con validez académica.';
+        $logo = isset($settings['logo']) ? asset('storage/' . $settings['logo']) : asset('assets/unasicono.png');
+        $contactPhone = $settings['contact_phone'] ?? '(062) 562341';
+        $contactEmail = $settings['contact_email'] ?? 'mesadepartes@unas.edu.pe';
+        $contactAddress = $settings['contact_address'] ?? 'Carretera Central Km. 1.21, Tingo María, Huánuco';
+    @endphp
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #fff; color: #1f2937; }
 
         .top-bar {
-            background: #0B5E2E;
+            background: {{ $primaryColor }};
             padding: 8px 0;
             font-size: 13px;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.85);
         }
         .top-bar .container {
             max-width: 1200px; margin: 0 auto; padding: 0 24px;
@@ -40,7 +51,7 @@
         }
         .nav-logo img { height: 44px; }
         .nav-logo span {
-            font-size: 18px; font-weight: 700; color: #0B5E2E;
+            font-size: 18px; font-weight: 700; color: {{ $primaryColor }};
         }
         .nav-links { display: flex; align-items: center; gap: 12px; }
         .nav-links a {
@@ -48,16 +59,16 @@
             padding: 10px 20px; border-radius: 8px; transition: all 0.2s;
         }
         .nav-links .btn-outline {
-            color: #0B5E2E; border: 1px solid #0B5E2E;
+            color: {{ $primaryColor }}; border: 1px solid {{ $primaryColor }};
         }
-        .nav-links .btn-outline:hover { background: #f0fdf4; }
+        .nav-links .btn-outline:hover { background: rgba(11,94,46,0.05); }
         .nav-links .btn-solid {
-            background: #0B5E2E; color: white;
+            background: {{ $primaryColor }}; color: white;
         }
-        .nav-links .btn-solid:hover { background: #094525; }
+        .nav-links .btn-solid:hover { filter: brightness(0.9); }
 
         .hero {
-            background: linear-gradient(135deg, #0B5E2E 0%, #06582a 50%, #0a4e28 100%);
+            background: linear-gradient(135deg, {{ $primaryColor }} 0%, #06582a 50%, #0a4e28 100%);
             min-height: 520px;
             display: flex; align-items: center;
             position: relative; overflow: hidden;
@@ -65,12 +76,12 @@
         .hero::before {
             content: ''; position: absolute; top: -50%; right: -20%;
             width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(201,162,39,0.08) 0%, transparent 70%);
+            background: radial-gradient(circle, {{ $secondaryColor }}08 0%, transparent 70%);
             border-radius: 50%;
         }
         .hero::after {
             content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-            height: 4px; background: linear-gradient(90deg, #C9A227, #0B5E2E, #C9A227);
+            height: 4px; background: linear-gradient(90deg, {{ $secondaryColor }}, {{ $primaryColor }}, {{ $secondaryColor }});
         }
         .hero .container {
             max-width: 1200px; margin: 0 auto; padding: 60px 24px;
@@ -81,7 +92,7 @@
         .hero-content h1 {
             color: white; font-size: 42px; font-weight: 800; line-height: 1.2; margin-bottom: 16px;
         }
-        .hero-content h1 span { color: #C9A227; }
+        .hero-content h1 span { color: {{ $secondaryColor }}; }
         .hero-content p {
             color: rgba(255,255,255,0.8); font-size: 17px; line-height: 1.7; margin-bottom: 32px;
             max-width: 540px;
@@ -93,21 +104,46 @@
             display: inline-flex; align-items: center; gap: 8px;
         }
         .hero-buttons .btn-primary {
-            background: #C9A227; color: white;
+            background: {{ $secondaryColor }}; color: white;
         }
-        .hero-buttons .btn-primary:hover { background: #b89120; transform: translateY(-1px); }
+        .hero-buttons .btn-primary:hover { filter: brightness(0.9); transform: translateY(-1px); }
         .hero-buttons .btn-secondary {
             background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.25);
         }
         .hero-buttons .btn-secondary:hover { background: rgba(255,255,255,0.2); }
-        .hero-image {
-            flex: 0 0 380px; height: 320px;
-            background: rgba(255,255,255,0.08);
+
+        .hero-carousel {
+            flex: 0 0 420px;
+            position: relative;
             border-radius: 16px;
-            display: flex; align-items: center; justify-content: center;
-            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+            aspect-ratio: 16/10;
         }
-        .hero-image i { font-size: 100px; color: rgba(255,255,255,0.2); }
+        .hero-carousel img {
+            width: 100%; height: 100%; object-fit: cover;
+            position: absolute; top: 0; left: 0;
+            opacity: 0;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            transform: scale(1.05);
+        }
+        .hero-carousel img.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .carousel-dots {
+            position: absolute; bottom: 12px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 8px;
+        }
+        .carousel-dots span {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            cursor: pointer; transition: all 0.3s;
+        }
+        .carousel-dots span.active {
+            background: white; transform: scale(1.2);
+        }
 
         section { padding: 80px 0; }
         section .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
@@ -115,7 +151,7 @@
             text-align: center; margin-bottom: 56px;
         }
         .section-title h2 {
-            font-size: 32px; font-weight: 700; color: #0B5E2E; margin-bottom: 12px;
+            font-size: 32px; font-weight: 700; color: {{ $primaryColor }}; margin-bottom: 12px;
         }
         .section-title p { color: #6b7280; font-size: 16px; max-width: 600px; margin: 0 auto; }
 
@@ -128,7 +164,7 @@
         .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
         .feature-icon {
             width: 72px; height: 72px; border-radius: 50%;
-            background: linear-gradient(135deg, #0B5E2E, #0d7a3f);
+            background: linear-gradient(135deg, {{ $primaryColor }}, #0d7a3f);
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto 20px; font-size: 28px; color: white;
         }
@@ -137,11 +173,11 @@
 
         .stats { background: #f9fafb; }
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; text-align: center; }
-        .stat-number { font-size: 36px; font-weight: 800; color: #0B5E2E; }
+        .stat-number { font-size: 36px; font-weight: 800; color: {{ $primaryColor }}; }
         .stat-label { color: #6b7280; font-size: 14px; margin-top: 4px; }
 
         .footer {
-            background: #0B5E2E; padding: 40px 0; color: rgba(255,255,255,0.7); font-size: 14px;
+            background: {{ $primaryColor }}; padding: 40px 0; color: rgba(255,255,255,0.7); font-size: 14px;
         }
         .footer .container {
             max-width: 1200px; margin: 0 auto; padding: 0 24px;
@@ -156,7 +192,7 @@
             .hero-content h1 { font-size: 28px; }
             .hero-content p { margin: 0 auto 24px; }
             .hero-buttons { justify-content: center; flex-wrap: wrap; }
-            .hero-image { display: none; }
+            .hero-carousel { flex: none; width: 100%; max-width: 420px; }
             .features-grid { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .footer .container { flex-direction: column; gap: 16px; text-align: center; }
@@ -166,15 +202,15 @@
 <body>
     <div class="top-bar">
         <div class="container">
-            <span><i class="fas fa-phone"></i> (062) 562341</span>
-            <span><i class="fas fa-envelope"></i> mesadepartes@unas.edu.pe</span>
+            <span><i class="fas fa-phone"></i> {{ $contactPhone }}</span>
+            <span><i class="fas fa-envelope"></i> {{ $contactEmail }}</span>
         </div>
     </div>
 
     <nav>
         <div class="container">
             <a href="/" class="nav-logo">
-                <img src="{{ asset('assets/unasicono.png') }}" alt="UNAS">
+                <img src="{{ $logo }}" alt="UNAS">
                 <span>Cursos SGD</span>
             </a>
             <div class="nav-links">
@@ -187,15 +223,38 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1>Sistema de <span>Gestión de Docencia</span> UNAS</h1>
-                <p>Plataforma oficial de educación continua de la Universidad Nacional Agraria de la Selva. Accede a cursos especializados, gestiona tu progreso y obtén certificaciones con validez académica.</p>
+                <h1>{!! $heroTitle !!}</h1>
+                <p>{{ $heroSubtitle }}</p>
                 <div class="hero-buttons">
                     <a href="{{ route('register') }}" class="btn-primary"><i class="fas fa-graduation-cap"></i> Comenzar Ahora</a>
                     <a href="{{ route('login') }}" class="btn-secondary"><i class="fas fa-sign-in-alt"></i> Ya tengo cuenta</a>
                 </div>
             </div>
-            <div class="hero-image">
-                <i class="fas fa-university"></i>
+            <div class="hero-carousel" id="heroCarousel">
+                @php
+                    $hasCarousel = false;
+                    for($i = 1; $i <= 4; $i++) {
+                        if(!empty($settings['carousel_' . $i])) { $hasCarousel = true; break; }
+                    }
+                @endphp
+                @if($hasCarousel)
+                    @for($i = 1; $i <= 4; $i++)
+                        @if(!empty($settings['carousel_' . $i]))
+                            <img src="{{ asset('storage/' . $settings['carousel_' . $i]) }}" class="{{ $i === 1 ? 'active' : '' }}" data-index="{{ $i - 1 }}">
+                        @endif
+                    @endfor
+                    <div class="carousel-dots">
+                        @for($i = 1; $i <= 4; $i++)
+                            @if(!empty($settings['carousel_' . $i]))
+                                <span class="{{ $i === 1 ? 'active' : '' }}" data-index="{{ $i - 1 }}"></span>
+                            @endif
+                        @endfor
+                    </div>
+                @else
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.08);border-radius:16px;border:1px solid rgba(255,255,255,0.1);">
+                        <i class="fas fa-university" style="font-size: 80px; color: rgba(255,255,255,0.2);"></i>
+                    </div>
+                @endif
             </div>
         </div>
     </section>
@@ -252,14 +311,45 @@
     <div class="footer">
         <div class="container">
             <div class="footer-logo">
-                <img src="{{ asset('assets/unasicono.png') }}" alt="UNAS">
+                <img src="{{ $logo }}" alt="UNAS">
                 <span>Universidad Nacional Agraria de la Selva</span>
             </div>
             <div>
                 <i class="fas fa-copyright"></i> {{ date('Y') }} UNAS - Todos los derechos reservados<br>
-                Carretera Central Km. 1.21, Tingo María, Huánuco
+                {{ $contactAddress }}
             </div>
         </div>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var carousel = document.getElementById('heroCarousel');
+        if (!carousel) return;
+        var images = carousel.querySelectorAll('img');
+        var dots = carousel.querySelectorAll('.carousel-dots span');
+        if (images.length <= 1) return;
+        
+        var current = 0;
+        var interval = setInterval(function() {
+            images[current].classList.remove('active');
+            if (dots[current]) dots[current].classList.remove('active');
+            current = (current + 1) % images.length;
+            images[current].classList.add('active');
+            if (dots[current]) dots[current].classList.add('active');
+        }, 4000);
+        
+        dots.forEach(function(dot) {
+            dot.addEventListener('click', function() {
+                clearInterval(interval);
+                var idx = parseInt(this.getAttribute('data-index'));
+                images[current].classList.remove('active');
+                dots[current].classList.remove('active');
+                current = idx;
+                images[current].classList.add('active');
+                dots[current].classList.add('active');
+            });
+        });
+    });
+    </script>
 </body>
 </html>

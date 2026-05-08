@@ -704,6 +704,9 @@
                 <a href="{{ route('admin.users.index') }}" class="menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <i class="fas fa-users-cog"></i> Gestión de Usuarios
                 </a>
+                <a href="{{ route('admin.page-settings') }}" class="menu-item {{ request()->routeIs('admin.page-settings') ? 'active' : '' }}">
+                    <i class="fas fa-paint-brush"></i> Personalizar Página
+                </a>
                 @endif
             </nav>
 

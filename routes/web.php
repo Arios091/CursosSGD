@@ -5,6 +5,7 @@ use App\Http\Controllers\CursoController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\PageSettingsController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 
@@ -109,4 +110,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::put('/usuarios/{user}', [UserController::class, 'update'])->name('users.update');
     Route::post('/usuarios/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
     Route::delete('/usuarios/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    // Configuración de página (solo admin_global)
+    Route::get('/page-settings', [PageSettingsController::class, 'index'])->name('page-settings');
+    Route::post('/page-settings', [PageSettingsController::class, 'update'])->name('page-settings.update');
 });
