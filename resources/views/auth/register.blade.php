@@ -280,13 +280,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 checkFormValidity();
             };
         }(fieldName));
-
-        fields[fieldName].element.addEventListener('blur', function(fieldName) {
-            return function() {
-                validateField(fieldName);
-                checkFormValidity();
-            };
-        }(fieldName));
     }
 
     form.addEventListener('submit', function(e) {
