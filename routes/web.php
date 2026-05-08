@@ -21,41 +21,6 @@ Route::post('/logout', '\App\Http\Controllers\Auth\LoginController@logout')->nam
 Route::get('/register', '\App\Http\Controllers\Auth\RegisterController@showRegistrationForm')->name('register');
 Route::post('/register', '\App\Http\Controllers\Auth\RegisterController@register');
 
-// 🔴 RUTA TEMPORAL - Eliminar después de crear el admin global
-// Accede a: https://sistemasdemo.unas.edu.pe/setup-admin/UNAS2026Admin
-Route::get('/setup-admin/{token}', function($token) {
-    if ($token !== 'UNAS2026Admin') {
-        abort(404);
-    }
-    
-    if (\App\Models\User::where('role', 'admin_global')->exists()) {
-        return response()->json(['message' => 'Ya existe un administrador global. Ruta desactivada.', 'success' => false]);
-    }
-
-    $email = 'admin@unas.edu.pe';
-    $password = 'AdminUNAS2026#';
-
-    $user = \App\Models\User::create([
-        'name' => 'Administrador Global',
-        'primer_nombre' => 'Administrador',
-        'segundo_nombre' => '',
-        'primer_apellido' => 'Global',
-        'segundo_apellido' => 'UNAS',
-        'email' => $email,
-        'password' => \Illuminate\Support\Facades\Hash::make($password),
-        'role' => 'admin_global',
-    ]);
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Admin global creado exitosamente',
-        'email' => $email,
-        'password' => $password,
-        'warning' => '⚠️ ELIMINA ESTA RUTA DEL ARCHIVO routes/web.php DESPUÉS DE USARLA'
-    ]);
-});
-// 🔴 FIN RUTA TEMPORAL
-
 // Rutas de recuperación de contraseña
 Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/password/reset', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
@@ -149,4 +114,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Configuración de página (solo admin_global)
     Route::get('/page-settings', [PageSettingsController::class, 'index'])->name('page-settings');
     Route::post('/page-settings', [PageSettingsController::class, 'update'])->name('page-settings.update');
+
+    // Hacer admin a un usuario (solo admin_global)
+    Route::post('/users/{user}/make-admin', [UserController::class, 'makeAdmin'])->name('users.make-admin');
 });

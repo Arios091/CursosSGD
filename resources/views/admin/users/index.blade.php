@@ -148,10 +148,15 @@
                                         </td>
                                         <td>
                                             <div class="btn-group btn-group-sm" role="group">
-                                                <a href="{{ route('admin.users.show', $user) }}" class="btn btn-outline-primary" title="Ver usuario" style="border-radius: 6px;">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                @if($user->id !== auth()->id())
+                                                    <a href="{{ route('admin.users.show', $user) }}" class="btn btn-outline-primary" title="Ver usuario" style="border-radius: 6px;">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    @if(auth()->user()->isAdminGlobal() && !in_array($user->role, ['admin', 'admin_global']) && $user->id !== auth()->id())
+                                                        <button type="button" class="btn btn-outline-success btn-make-admin" title="Hacer administrador" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" style="border-radius: 6px;">
+                                                            <i class="fas fa-user-shield"></i>
+                                                        </button>
+                                                    @endif
+                                                    @if($user->id !== auth()->id())
                                                     <button type="button" class="btn btn-outline-danger btn-delete" title="Eliminar usuario" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" style="border-radius: 6px;">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
@@ -403,6 +408,37 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    function initMakeAdminButtons() {
+        document.querySelectorAll('.btn-make-admin').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const userId = this.getAttribute('data-user-id');
+                const userName = this.getAttribute('data-user-name');
+                if (confirm('¿Estás seguro de hacer a "' + userName + '" administrador?\nPodrá gestionar cursos pero no usuarios.')) {
+                    fetch('/admin/users/' + userId + '/make-admin', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('success', 'Éxito', userName + ' ahora es administrador');
+                            fetchUsers();
+                        } else {
+                            showToast('error', 'Error', data.message || 'No se pudo cambiar el rol');
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    // Init on page load
+    initDeleteButtons();
+    initMakeAdminButtons();
 
     if (searchInput) searchInput.addEventListener('input', () => fetchUsers());
     if (roleSelect) roleSelect.addEventListener('change', () => fetchUsers());
