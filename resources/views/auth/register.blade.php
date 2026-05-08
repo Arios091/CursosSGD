@@ -139,7 +139,7 @@
                     </div>
 
                     <div class="form-group mt-5 mb-0">
-                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 shadow-sm" id="submitBtn" disabled style="background: #0B5E2E; border-color: #0B5E2E; font-weight: 600; border-radius: 8px; position: relative;">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 shadow-sm" id="submitBtn" style="background: #0B5E2E; border-color: #0B5E2E; font-weight: 600; border-radius: 8px; position: relative;">
                             <span class="btn-text">
                                 <i class="fas fa-user-plus me-2"></i>Crear Cuenta
                             </span>
@@ -268,18 +268,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         submitBtn.disabled = !allValid;
-    }
-
-    for (var fieldName in fields) {
-        fields[fieldName].element.addEventListener('input', function(fieldName) {
-            return function() {
-                validateField(fieldName);
-                if (fieldName === 'password') {
-                    validateField('password_confirmation');
-                }
-                checkFormValidity();
-            };
-        }(fieldName));
     }
 
     form.addEventListener('submit', function(e) {
