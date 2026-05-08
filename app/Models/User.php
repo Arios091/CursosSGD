@@ -26,6 +26,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'curso_en_progreso_id',
     ];
 
     public function isAdmin(): bool

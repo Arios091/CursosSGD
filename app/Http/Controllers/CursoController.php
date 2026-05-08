@@ -21,7 +21,7 @@ class CursoController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $isAdmin = $user->role === 'admin';
+        $isAdmin = in_array($user->role, ['admin', 'admin_global']);
         
         if ($isAdmin) {
             $query = Curso::with(['docente', 'modulos', 'progresos']);
@@ -185,6 +185,7 @@ class CursoController extends Controller
     public function comenzar(Curso $curso)
     {
         $user = auth()->user();
+        $isJson = request()->ajax() || request()->wantsJson();
 
         // Verificar si el usuario tiene algún curso en progreso
         $cursoEnProgreso = ProgresoCurso::where('user_id', $user->id)
@@ -195,7 +196,7 @@ class CursoController extends Controller
             $cursoActual = Curso::find($cursoEnProgreso->curso_id);
             $mensaje = 'Solo puedes llevar un curso a la vez. Estás llevando "' . ($cursoActual ? $cursoActual->titulo : 'un curso') . '". Termínalo primero.';
             
-            if (request()->ajax() || request()->wantsJson()) {
+            if ($isJson) {
                 return response()->json(['error' => $mensaje]);
             }
             
@@ -208,10 +209,10 @@ class CursoController extends Controller
             ->first();
 
         if ($progresoExistente) {
-            if (in_array($progresoExistente->estado, ['completado', 'terminado'])) {
-                return redirect()->route('cursos.completado', $curso);
-            }
-            return redirect()->route('cursos.ver', $curso);
+            $url = in_array($progresoExistente->estado, ['completado', 'terminado'])
+                ? route('cursos.completado', $curso)
+                : route('cursos.ver', $curso);
+            return $isJson ? response()->json(['redirect' => $url]) : redirect($url);
         }
 
         ProgresoCurso::create([
@@ -224,14 +225,14 @@ class CursoController extends Controller
 
         $user->update(['curso_en_progreso_id' => $curso->id]);
 
-        return redirect(route('cursos.ver', $curso) . '?modulo=0&material=0')
-            ->with('success', '¡Has comenzado el curso ' . $curso->titulo . '! Explora los materiales del primer módulo.');
+        $url = route('cursos.ver', $curso) . '?modulo=0&material=0';
+        return $isJson ? response()->json(['redirect' => $url]) : redirect($url)->with('success', '¡Has comenzado el curso ' . $curso->titulo . '! Explora los materiales del primer módulo.');
     }
 
     public function verCurso(Curso $curso)
     {
         $user = auth()->user();
-        $isAdmin = $user->role === 'admin';
+        $isAdmin = in_array($user->role, ['admin', 'admin_global']);
 
         if ($isAdmin) {
             $progreso = null;
