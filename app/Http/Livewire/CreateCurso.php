@@ -39,7 +39,7 @@ class CreateCurso extends Component
 
     public function mount()
     {
-        if (auth()->user()->role !== 'admin') {
+        if (!in_array(auth()->user()->role, ['admin', 'admin_global'])) {
             abort(403, 'No tienes permiso para crear cursos.');
         }
         

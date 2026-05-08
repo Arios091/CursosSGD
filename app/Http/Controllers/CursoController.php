@@ -149,7 +149,7 @@ class CursoController extends Controller
         $user = auth()->user();
         
         // Solo admin puede reiniciar
-        if ($user->role !== 'admin') {
+        if (!in_array($user->role, ['admin', 'admin_global'])) {
             abort(403, 'No tienes permiso para esta acción');
         }
         
