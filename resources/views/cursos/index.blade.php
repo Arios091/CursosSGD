@@ -58,7 +58,7 @@
         </div>
         <div class="col-6 col-md-2">
             <div class="text-muted mt-1" id="resultsCount" style="font-size: 13px;">
-                <i class="fas fa-book me-1"></i> <span class="count-number">{{ $cursos->total() }}</span> cursos
+                <i class="fas fa-book me-1"></i> <span class="count-number">{{ count($cursos) }}</span> cursos
             </div>
         </div>
     </div>
@@ -88,7 +88,7 @@
 
     <div id="cursosContent">
         @if($cursos->count() > 0)
-        <p style="color: #6b7280; margin-bottom: 16px;">{{ $cursos->total() }} cursos encontrados</p>
+        <p style="color: #6b7280; margin-bottom: 16px;">{{ count($cursos) }} cursos encontrados</p>
         <div style="display: grid; gap: 16px;">
             @foreach($cursos as $curso)
             <div class="course-item" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: white; border-radius: 12px; box-shadow: var(--shadow-md); border: 1px solid #e5e7eb; transition: all 0.3s;">
