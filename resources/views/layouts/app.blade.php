@@ -746,9 +746,6 @@
                 <a href="{{ route('cursos.index') }}" class="menu-item {{ request()->routeIs('cursos.index') ? 'active' : '' }}">
                     <i class="fas fa-book"></i> Mis Cursos
                 </a>
-                <a href="#" class="menu-item">
-                    <i class="fas fa-certificate"></i> Certificados
-                </a>
                 <a href="{{ route('perfil') }}" class="menu-item {{ request()->routeIs('perfil') ? 'active' : '' }}">
                     <i class="fas fa-user"></i> Perfil
                 </a>
