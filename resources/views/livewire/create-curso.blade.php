@@ -6,11 +6,11 @@
     .cc-steps { display: flex; justify-content: center; gap: 0; margin-bottom: 30px; position: relative; }
     .cc-step { display: flex; align-items: center; gap: 10px; padding: 12px 20px; position: relative; z-index: 1; }
     .cc-step-num { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
-    .cc-step-num.active { background: #0B5E2E; color: white; }
+    .cc-step-num.active { background: var(--verde-institucional); color: white; }
     .cc-step-num.completed { background: #22c55e; color: white; }
     .cc-step-num.pending { background: #e5e7eb; color: #9ca3af; }
     .cc-step-label { font-size: 13px; font-weight: 500; }
-    .cc-step-label.active { color: #0B5E2E; }
+    .cc-step-label.active { color: var(--verde-institucional); }
     .cc-step-label.completed { color: #22c55e; }
     .cc-step-label.pending { color: #9ca3af; }
     .cc-step-line { width: 60px; height: 2px; background: #e5e7eb; align-self: center; }
@@ -24,7 +24,7 @@
     .cc-label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; }
     .cc-label .req { color: #ef4444; }
     .cc-input { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px; color: #111827; transition: all 0.2s; background: #fff; }
-    .cc-input:focus { border-color: #0B5E2E; outline: none; box-shadow: 0 0 0 3px rgba(11,94,46,0.1); }
+    .cc-input:focus { border-color: var(--verde-institucional); outline: none; box-shadow: 0 0 0 3px rgba(11,94,46,0.1); }
     .cc-input::placeholder { color: #9ca3af; }
     .cc-textarea { resize: vertical; min-height: 100px; }
     .cc-error { font-size: 12px; color: #ef4444; margin-top: 6px; }
@@ -33,30 +33,30 @@
     .cc-module-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
     .cc-module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .cc-module-title { font-size: 15px; font-weight: 600; color: #111827; }
-    .cc-module-num { background: #0B5E2E; color: white; padding: 2px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-right: 8px; }
+    .cc-module-num { background: var(--verde-institucional); color: white; padding: 2px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-right: 8px; }
     .cc-material-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 10px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #e5e7eb; }
     .cc-material-row .cc-field { margin-bottom: 0; flex: 1; }
     .cc-material-row select { padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 13px; background: white; }
     .cc-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; text-decoration: none; }
-    .cc-btn-primary { background: #0B5E2E; color: white; }
+    .cc-btn-primary { background: var(--verde-institucional); color: white; }
     .cc-btn-primary:hover { background: #0d7a3f; color: white; }
     .cc-btn-secondary { background: white; color: #374151; border: 2px solid #e5e7eb; }
-    .cc-btn-secondary:hover { border-color: #0B5E2E; color: #0B5E2E; }
+    .cc-btn-secondary:hover { border-color: var(--verde-institucional); color: var(--verde-institucional); }
     .cc-btn-success { background: #22c55e; color: white; }
     .cc-btn-success:hover { background: #16a34a; color: white; }
     .cc-btn-danger { background: white; color: #ef4444; border: 1px solid #fecaca; padding: 8px 12px; font-size: 12px; }
     .cc-btn-danger:hover { background: #fef2f2; }
-    .cc-btn-gold { background: #C9A227; color: white; }
+    .cc-btn-gold { background: var(--dorado); color: white; }
     .cc-btn-gold:hover { background: #b8911f; color: white; }
     .cc-btn-sm { padding: 8px 16px; font-size: 13px; }
-    .cc-btn-add { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: #f0fdf4; color: #0B5E2E; border: 1px dashed #86efac; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .cc-btn-add { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: #f0fdf4; color: var(--verde-institucional); border: 1px dashed #86efac; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
     .cc-btn-add:hover { background: #dcfce7; border-color: #22c55e; }
     .cc-question-card { background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
     .cc-question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .cc-option-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .cc-option-radio { width: 18px; height: 18px; accent-color: #0B5E2E; cursor: pointer; }
+    .cc-option-radio { width: 18px; height: 18px; accent-color: var(--verde-institucional); cursor: pointer; }
     .cc-option-input { flex: 1; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 13px; }
-    .cc-option-input:focus { border-color: #0B5E2E; outline: none; }
+    .cc-option-input:focus { border-color: var(--verde-institucional); outline: none; }
     .cc-summary { background: #f9fafb; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
     .cc-summary h4 { font-size: 15px; font-weight: 600; color: #111827; margin-bottom: 12px; }
     .cc-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -76,7 +76,7 @@
 </style>
 
 <div class="cc-container">
-    <div class="cc-title"><i class="fas fa-plus-circle" style="color: #0B5E2E; margin-right: 8px;"></i>Crear Nuevo Curso</div>
+    <div class="cc-title"><i class="fas fa-plus-circle" style="color: var(--verde-institucional); margin-right: 8px;"></i>Crear Nuevo Curso</div>
     <div class="cc-subtitle">Completa los 3 pasos para crear un curso completo con módulos, materiales y evaluación</div>
 
     {{-- Step Indicator --}}
@@ -111,7 +111,7 @@
     @if ($step == 1)
     <div class="cc-card">
         <div class="cc-card-header">
-            <h3><i class="fas fa-info-circle" style="color: #0B5E2E; margin-right: 8px;"></i>Información del Curso</h3>
+            <h3><i class="fas fa-info-circle" style="color: var(--verde-institucional); margin-right: 8px;"></i>Información del Curso</h3>
             <p>Ingresa los datos generales del curso</p>
         </div>
         <div class="cc-card-body">
@@ -141,8 +141,8 @@
                         <div class="cc-file-preview" id="imagePreview">
                             @if(is_object($imagen_referencial) && method_exists($imagen_referencial, 'getClientOriginalName'))
                                 <div style="text-align: center;">
-                                    <i class="fas fa-image" style="font-size: 48px; color: #0B5E2E; margin-bottom: 8px;"></i>
-                                    <p style="font-size: 13px; color: #0B5E2E; margin: 0;">{{ $imagen_referencial->getClientOriginalName() }}</p>
+                                    <i class="fas fa-image" style="font-size: 48px; color: var(--verde-institucional); margin-bottom: 8px;"></i>
+                                    <p style="font-size: 13px; color: var(--verde-institucional); margin: 0;">{{ $imagen_referencial->getClientOriginalName() }}</p>
                                     <p style="font-size: 11px; color: #9ca3af; margin: 4px 0 0;">{{ number_format($imagen_referencial->getSize() / 1024, 1) }} KB</p>
                                 </div>
                             @endif
@@ -166,7 +166,7 @@
     @elseif ($step == 2)
     <div class="cc-card">
         <div class="cc-card-header">
-            <h3><i class="fas fa-layer-group" style="color: #0B5E2E; margin-right: 8px;"></i>Módulos y Materiales</h3>
+            <h3><i class="fas fa-layer-group" style="color: var(--verde-institucional); margin-right: 8px;"></i>Módulos y Materiales</h3>
             <p>Define los módulos del curso. Cada módulo debe tener al menos un material.</p>
         </div>
         <div class="cc-card-body">
@@ -207,7 +207,7 @@
                         <div class="cc-field" style="flex: 3;" x-show="tipo === 'pdf'" x-cloak>
                             <input type="file" wire:model="modulos.{{ $modIndex }}.materiales.{{ $matIndex }}.archivo" class="cc-input" accept=".pdf" style="padding: 8px 12px; font-size: 13px;" />
                             @if(!empty($material['original_name']))
-                                <div style="font-size: 11px; color: #0B5E2E; margin-top: 4px;">
+                                <div style="font-size: 11px; color: var(--verde-institucional); margin-top: 4px;">
                                     <i class="fas fa-check-circle"></i> {{ $material['original_name'] }}
                                 </div>
                             @endif
@@ -228,7 +228,7 @@
                 {{-- Cuestionario del Módulo --}}
                 <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
                     <div class="cc-module-header">
-                        <div class="cc-module-title"><i class="fas fa-clipboard-list" style="color: #C9A227; margin-right: 8px;"></i>Cuestionario del Módulo</div>
+                        <div class="cc-module-title"><i class="fas fa-clipboard-list" style="color: var(--dorado); margin-right: 8px;"></i>Cuestionario del Módulo</div>
                     </div>
                     
                     @foreach ($modulo['cuestionario']['preguntas'] as $pIdx => $pregunta)
@@ -283,7 +283,7 @@
     @elseif ($step == 3)
     <div class="cc-card">
         <div class="cc-card-header">
-            <h3><i class="fas fa-graduation-cap" style="color: #C9A227; margin-right: 8px;"></i>Evaluación Final y Resumen</h3>
+            <h3><i class="fas fa-graduation-cap" style="color: var(--dorado); margin-right: 8px;"></i>Evaluación Final y Resumen</h3>
             <p>Configura la evaluación final y revisa el resumen del curso</p>
         </div>
         <div class="cc-card-body">
@@ -296,7 +296,7 @@
             <div class="cc-hint" style="margin-bottom: 12px;">Selecciona la respuesta correcta marcando el radio button</div>
             
             @foreach ($evaluacion_final_preguntas as $pIdx => $pregunta)
-            <div class="cc-question-card" style="border-left: 3px solid #0B5E2E;">
+            <div class="cc-question-card" style="border-left: 3px solid var(--verde-institucional);">
                 <div class="cc-question-header">
                     <span class="cc-module-num">{{ $pIdx + 1 }}</span>
                     @if (count($evaluacion_final_preguntas) > 1)
@@ -330,7 +330,7 @@
 
             {{-- Resumen --}}
             <div class="cc-summary">
-                <h4><i class="fas fa-list-check" style="color: #0B5E2E; margin-right: 8px;"></i>Resumen del Curso</h4>
+                <h4><i class="fas fa-list-check" style="color: var(--verde-institucional); margin-right: 8px;"></i>Resumen del Curso</h4>
                 <div class="cc-summary-grid">
                     <div class="cc-summary-item"><strong>Título:</strong> {{ $titulo ?: 'Sin título' }}</div>
                     <div class="cc-summary-item"><strong>Carga Horaria:</strong> {{ $carga_horaria }} horas</div>

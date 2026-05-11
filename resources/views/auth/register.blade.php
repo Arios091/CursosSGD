@@ -6,7 +6,7 @@
 <div class="auth-wrapper d-flex align-items-center justify-content-center min-vh-100 py-4">
     <div class="col-lg-7 col-xl-6 px-3">
         <div class="card border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
-            <div class="card-header text-white py-4 text-center" style="background: linear-gradient(135deg, #0B5E2E 0%, #094525 100%); border-radius: 16px 16px 0 0;">
+            <div class="card-header text-white py-4 text-center" style="background: var(--verde-institucional); border-radius: 16px 16px 0 0;">
                 <div class="mb-2">
                     <img src="{{ asset('assets/unasicono.png') }}" alt="UNAS" style="height: 60px;">
                 </div>
@@ -18,7 +18,7 @@
                 <form method="POST" action="{{ route('register') }}" id="registerForm" novalidate>
                     @csrf
 
-                    <h5 class="text-muted mb-4 pb-3 border-bottom d-flex align-items-center" style="color: #0B5E2E !important;">
+                    <h5 class="text-muted mb-4 pb-3 border-bottom d-flex align-items-center" style="color: var(--verde-institucional) !important;">
                         <i class="fas fa-id-card-alt me-2"></i>Información Personal
                     </h5>
 
@@ -85,7 +85,7 @@
                         </div>
                     </div>
 
-                    <h5 class="text-muted mb-4 mt-4 pb-3 border-bottom d-flex align-items-center" style="color: #0B5E2E !important;">
+                    <h5 class="text-muted mb-4 mt-4 pb-3 border-bottom d-flex align-items-center" style="color: var(--verde-institucional) !important;">
                         <i class="fas fa-lock me-2"></i>Credenciales de Acceso
                     </h5>
 
@@ -139,7 +139,7 @@
                     </div>
 
                     <div class="form-group mt-5 mb-0">
-                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 shadow-sm" id="submitBtn" style="background: #0B5E2E; border-color: #0B5E2E; font-weight: 600; border-radius: 8px; position: relative;">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 shadow-sm" id="submitBtn" style="font-weight: 600; border-radius: 8px; position: relative;">
                             <span class="btn-text">
                                 <i class="fas fa-user-plus me-2"></i>Crear Cuenta
                             </span>
@@ -151,7 +151,7 @@
 
                     <div class="text-center mt-4 pt-3" style="border-top: 1px solid #e5e7eb;">
                         <p class="text-muted mb-0">¿Ya tienes una cuenta?
-                            <a href="{{ route('login') }}" class="text-decoration-none fw-semibold" style="color: #0B5E2E;">
+                            <a href="{{ route('login') }}" class="text-decoration-none fw-semibold" style="color: var(--verde-institucional);">
                                 Iniciar Sesión <i class="fas fa-arrow-right ms-1"></i>
                             </a>
                         </p>
@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .auth-wrapper .card-header {
-    background: linear-gradient(135deg, #0B5E2E 0%, #094525 100%) !important;
+    background: var(--verde-institucional) !important;
     position: relative;
     overflow: hidden;
 }
@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #C9A227, #0B5E2E, #C9A227);
+    background: linear-gradient(90deg, var(--dorado), var(--verde-institucional), var(--dorado));
 }
 
 .auth-wrapper .form-control {
@@ -329,13 +329,13 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .auth-wrapper .form-control:focus {
-    border-color: #0B5E2E;
-    box-shadow: 0 0 0 3px rgba(11, 94, 46, 0.15);
+    border-color: var(--verde-institucional);
+    box-shadow: 0 0 0 3px var(--verde-institucional)22;
     transform: translateY(-1px);
 }
 
 .auth-wrapper .input-group:focus-within {
-    box-shadow: 0 0 0 3px rgba(11, 94, 46, 0.15);
+    box-shadow: 0 0 0 3px var(--verde-institucional)22;
     border-radius: 8px;
 }
 
@@ -348,13 +348,13 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .auth-wrapper .input-group:focus-within .input-group-text {
-    border-color: #0B5E2E;
-    background: #f0fdf4;
+    border-color: var(--verde-institucional);
+    background: var(--verde-institucional)11;
 }
 
 .auth-wrapper .input-group:focus-within .input-group-text .fa-user,
 .auth-wrapper .input-group:focus-within .input-group-text .fa-envelope {
-    color: #0B5E2E !important;
+    color: var(--verde-institucional) !important;
 }
 
 .auth-wrapper .toggle-password {
@@ -368,13 +368,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .auth-wrapper .toggle-password:hover {
     background: #f8f9fa;
-    color: #0B5E2E;
-    border-color: #0B5E2E;
+    color: var(--verde-institucional);
+    border-color: var(--verde-institucional);
 }
 
 .auth-wrapper .btn-primary {
-    background: #0B5E2E;
-    border-color: #0B5E2E;
+    background: var(--verde-institucional);
+    border-color: var(--verde-institucional);
     border-radius: 8px;
     font-weight: 600;
     transition: all 0.3s ease;
@@ -382,10 +382,9 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .auth-wrapper .btn-primary:not(:disabled):hover {
-    background: #094D25;
-    border-color: #094D25;
+    filter: brightness(0.85);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(11, 94, 46, 0.4);
+    box-shadow: 0 4px 12px var(--verde-institucional)55;
 }
 
 .auth-wrapper .btn-primary:active {
@@ -466,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .auth-wrapper a:hover {
-    color: #094D25 !important;
+    filter: brightness(0.8);
 }
 
 @media (max-width: 768px) {

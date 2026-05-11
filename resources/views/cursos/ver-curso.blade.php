@@ -38,7 +38,7 @@
 {{-- VISTA ADMIN - Lista simple de cursos --}}
 <div class="container-fluid py-4">
     <div class="mb-4">
-        <a href="{{ route('home') }}" style="color: #0B5E2E; text-decoration: none;">
+        <a href="{{ route('home') }}" style="color: var(--verde-institucional); text-decoration: none;">
             <i class="fas fa-arrow-left me-1"></i> Volver al Dashboard
         </a>
     </div>
@@ -95,14 +95,14 @@
 <style>
     .cs-container { display: flex; min-height: calc(100vh - 56px); }
     .cs-sidebar { width: 300px; background: #fff; border-right: 1px solid #e5e7eb; flex-shrink: 0; overflow-y: auto; }
-    .cs-sidebar-header { background: linear-gradient(135deg, #0B5E2E 0%, #0d7a3f 100%); padding: 20px; color: #fff; }
+    .cs-sidebar-header { background: linear-gradient(135deg, var(--verde-institucional) 0%, #0d7a3f 100%); padding: 20px; color: #fff; }
     .cs-sidebar-header h4 { font-size: 15px; font-weight: 600; margin: 0 0 10px; }
     .cs-progress { height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; overflow: hidden; }
-    .cs-progress-bar { height: 100%; background: #C9A227; transition: width 0.3s; }
+    .cs-progress-bar { height: 100%; background: var(--dorado); transition: width 0.3s; }
     .cs-progress-text { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 4px; }
     .cs-module-link { display: block; padding: 12px 16px; text-decoration: none; color: #374151; border-left: 3px solid transparent; transition: all 0.2s; }
     .cs-module-link:hover { background: #f9fafb; }
-    .cs-module-link.active { background: #f0fdf4; border-left-color: #0B5E2E; }
+    .cs-module-link.active { background: #f0fdf4; border-left-color: var(--verde-institucional); }
     .cs-module-link.completed { background: #f0fdf4; }
     .cs-module-title { font-size: 13px; font-weight: 500; }
     .cs-module-meta { font-size: 11px; color: #6b7280; margin-top: 2px; }
@@ -112,13 +112,13 @@
     .cs-card-header { padding: 20px 24px; border-bottom: 1px solid #e5e7eb; }
     .cs-card-body { padding: 24px; }
     .cs-breadcrumb { font-size: 13px; color: #6b7280; margin-bottom: 4px; }
-    .cs-breadcrumb a { color: #0B5E2E; text-decoration: none; }
+    .cs-breadcrumb a { color: var(--verde-institucional); text-decoration: none; }
     .cs-breadcrumb a:hover { text-decoration: underline; }
     .cs-module-name { font-size: 20px; font-weight: 700; color: #111827; margin: 0; }
     .cs-materials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
     .cs-material-item { display: flex; align-items: center; gap: 12px; padding: 14px; background: #f9fafb; border-radius: 10px; text-decoration: none; color: #374151; border: 2px solid transparent; transition: all 0.2s; cursor: pointer; }
-    .cs-material-item:hover { border-color: #0B5E2E; background: #f0fdf4; }
-    .cs-material-item.active { background: #0B5E2E; color: #fff; border-color: #0B5E2E; }
+    .cs-material-item:hover { border-color: var(--verde-institucional); background: #f0fdf4; }
+    .cs-material-item.active { background: var(--verde-institucional); color: #fff; border-color: var(--verde-institucional); }
     .cs-material-item.completed { background: #f0fdf4; border-color: #22c55e; }
     .cs-material-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
     .cs-material-icon.video { background: #fef3c7; color: #f59e0b; }
@@ -131,11 +131,11 @@
     .cs-viewer iframe[src*="drive.google.com"] { height: 600px; }
     .cs-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .cs-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; }
-    .cs-btn-primary { background: #0B5E2E; color: #fff; }
+    .cs-btn-primary { background: var(--verde-institucional); color: #fff; }
     .cs-btn-primary:hover { background: #0d7a3f; color: #fff; }
-    .cs-btn-outline { background: #fff; color: #0B5E2E; border: 2px solid #0B5E2E; }
-    .cs-btn-outline:hover { background: #0B5E2E; color: #fff; }
-    .cs-btn-gold { background: #C9A227; color: #fff; }
+    .cs-btn-outline { background: #fff; color: var(--verde-institucional); border: 2px solid var(--verde-institucional); }
+    .cs-btn-outline:hover { background: var(--verde-institucional); color: #fff; }
+    .cs-btn-gold { background: var(--dorado); color: #fff; }
     .cs-btn-gold:hover { background: #b8911f; color: #fff; }
     .cs-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; }
     .cs-badge-success { background: #dcfce7; color: #166534; }
@@ -144,10 +144,10 @@
     .cs-empty-icon { font-size: 64px; margin-bottom: 16px; }
     .cs-empty-title { font-size: 20px; font-weight: 600; color: #374151; margin-bottom: 8px; }
     .cs-empty-text { color: #6b7280; }
-    .cs-quiz-banner { background: linear-gradient(135deg, #C9A227 0%, #d4af37 100%); color: #fff; padding: 20px 24px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+    .cs-quiz-banner { background: linear-gradient(135deg, var(--dorado) 0%, #d4af37 100%); color: #fff; padding: 20px 24px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
     .cs-quiz-banner h4 { margin: 0; font-size: 16px; }
     .cs-quiz-banner p { margin: 4px 0 0; font-size: 13px; opacity: 0.9; }
-    .cs-eval-banner { background: linear-gradient(135deg, #0B5E2E 0%, #0d7a3f 100%); color: #fff; padding: 20px 24px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+    .cs-eval-banner { background: linear-gradient(135deg, var(--verde-institucional) 0%, #0d7a3f 100%); color: #fff; padding: 20px 24px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
     .cs-eval-banner h4 { margin: 0; font-size: 16px; }
     .cs-eval-banner p { margin: 4px 0 0; font-size: 13px; opacity: 0.9; }
     @media (max-width: 768px) { .cs-container { flex-direction: column; } .cs-sidebar { width: 100%; } }
@@ -332,7 +332,7 @@
                                     <embed src="{{ $pdfUrl }}" type="application/pdf" style="width: 100%; height: 100%;">
                                 </div>
                                 <div style="padding: 12px; text-align: center; background: #f9fafb; border-top: 1px solid #e5e7eb;">
-                                    <a href="{{ route('archivo.pdf.descargar', $filename) }}" target="_blank" style="color: #0B5E2E; font-size: 13px; text-decoration: none;">
+                                    <a href="{{ route('archivo.pdf.descargar', $filename) }}" target="_blank" style="color: var(--verde-institucional); font-size: 13px; text-decoration: none;">
                                         <i class="fas fa-download"></i> Descargar PDF
                                     </a>
                                 </div>
@@ -450,7 +450,7 @@
                         <h4><i class="fas fa-graduation-cap me-2"></i>Evaluación Final</h4>
                         <p>¡Has completado todo el curso! Realiza la evaluación final para obtener tu certificado.</p>
                     </div>
-                    <a href="{{ route('cursos.evaluacion-final', $curso) }}" class="cs-btn" style="background: #fff; color: #0B5E2E; flex-shrink: 0;">
+                    <a href="{{ route('cursos.evaluacion-final', $curso) }}" class="cs-btn" style="background: #fff; color: var(--verde-institucional); flex-shrink: 0;">
                         <i class="fas fa-play"></i> Iniciar Evaluación
                     </a>
                 </div>

@@ -26,7 +26,7 @@
     {{-- Hero Section --}}
     <div class="col-12">
         <div class="card">
-            <div class="card-header" style="background: #0B5E2E; color: white; padding: 16px 20px; border-radius: 12px 12px 0 0;">
+            <div class="card-header" style="background: var(--verde-institucional); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0;">
                 <h5 class="mb-0"><i class="fas fa-home me-2"></i>Sección Hero (Inicio)</h5>
             </div>
             <div class="card-body" style="padding: 24px;">
@@ -45,7 +45,7 @@
     {{-- Colors --}}
     <div class="col-12 col-md-6">
         <div class="card h-100">
-            <div class="card-header" style="background: #0B5E2E; color: white; padding: 16px 20px; border-radius: 12px 12px 0 0;">
+            <div class="card-header" style="background: var(--verde-institucional); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0;">
                 <h5 class="mb-0"><i class="fas fa-palette me-2"></i>Colores</h5>
             </div>
             <div class="card-body" style="padding: 24px;">
@@ -70,7 +70,7 @@
     {{-- Logo --}}
     <div class="col-12 col-md-6">
         <div class="card h-100">
-            <div class="card-header" style="background: #0B5E2E; color: white; padding: 16px 20px; border-radius: 12px 12px 0 0;">
+            <div class="card-header" style="background: var(--verde-institucional); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0;">
                 <h5 class="mb-0"><i class="fas fa-image me-2"></i>Logo</h5>
             </div>
             <div class="card-body" style="padding: 24px;">
@@ -88,7 +88,7 @@
     {{-- Carousel --}}
     <div class="col-12">
         <div class="card">
-            <div class="card-header" style="background: #0B5E2E; color: white; padding: 16px 20px; border-radius: 12px 12px 0 0;">
+            <div class="card-header" style="background: var(--verde-institucional); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0;">
                 <h5 class="mb-0"><i class="fas fa-images me-2"></i>Carrusel de Fotos (Inicio)</h5>
             </div>
             <div class="card-body" style="padding: 24px;">
@@ -117,7 +117,7 @@
     {{-- Contacto --}}
     <div class="col-12">
         <div class="card">
-            <div class="card-header" style="background: #0B5E2E; color: white; padding: 16px 20px; border-radius: 12px 12px 0 0;">
+            <div class="card-header" style="background: var(--verde-institucional); color: white; padding: 16px 20px; border-radius: 12px 12px 0 0;">
                 <h5 class="mb-0"><i class="fas fa-address-card me-2"></i>Información de Contacto</h5>
             </div>
             <div class="card-body" style="padding: 24px;">
@@ -141,7 +141,7 @@
 </div>
 
 <div style="text-align: right; margin-top: 24px;">
-    <button type="submit" class="btn" style="background: #0B5E2E; color: white; padding: 12px 32px; font-weight: 600; border-radius: 8px;">
+    <button type="submit" class="btn" style="background: var(--verde-institucional); color: white; padding: 12px 32px; font-weight: 600; border-radius: 8px;">
         <i class="fas fa-save me-2"></i>Guardar Configuración
     </button>
 </div>

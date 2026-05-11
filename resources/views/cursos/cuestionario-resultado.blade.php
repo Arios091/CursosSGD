@@ -5,7 +5,7 @@
     .result-container { max-width: 750px; margin: 40px auto; padding: 0 20px; }
     .result-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
     .result-header { padding: 30px; text-align: center; color: white; }
-    .result-header.aprobado { background: linear-gradient(135deg, #0B5E2E 0%, #0d7a3f 100%); }
+    .result-header.aprobado { background: linear-gradient(135deg, var(--verde-institucional) 0%, #0d7a3f 100%); }
     .result-header.reprobado { background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); }
     .result-icon { font-size: 48px; margin-bottom: 12px; }
     .result-header h2 { margin: 0 0 8px; font-size: 24px; }
@@ -28,12 +28,12 @@
     .result-option.neutral { background: #f9fafb; color: #6b7280; }
     .result-footer { padding: 20px 30px; border-top: 1px solid #e5e7eb; text-align: center; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     .result-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; }
-    .result-btn-primary { background: #0B5E2E; color: white; }
+    .result-btn-primary { background: var(--verde-institucional); color: white; }
     .result-btn-primary:hover { background: #0d7a3f; color: white; }
-    .result-btn-gold { background: #C9A227; color: white; }
+    .result-btn-gold { background: var(--dorado); color: white; }
     .result-btn-gold:hover { background: #b8911f; color: white; }
     .result-btn-outline { background: white; color: #374151; border: 2px solid #e5e7eb; }
-    .result-btn-outline:hover { border-color: #0B5E2E; color: #0B5E2E; }
+    .result-btn-outline:hover { border-color: var(--verde-institucional); color: var(--verde-institucional); }
 </style>
 
 <div class="result-container">

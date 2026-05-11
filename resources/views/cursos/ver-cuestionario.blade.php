@@ -12,7 +12,7 @@
         <div class="col-lg-8 mx-auto">
             <div class="card border-0 shadow-sm">
                 <div class="card-header text-white d-flex justify-content-between align-items-center" 
-                     style="background: linear-gradient(135deg, #C9A227 0%, #C9A227 100%);">
+                     style="background: linear-gradient(135deg, var(--dorado) 0%, var(--dorado) 100%);">
                     <h4 class="mb-0">
                         <i class="fas fa-question-circle me-2"></i>
                         {{ $cuestionario->titulo }}
@@ -51,7 +51,7 @@
                             @endphp
                             
                             @if($esUltimoModulo && $tieneEvaluacionFinal)
-                                <a href="{{ route('cursos.ver', $curso) }}#evaluacion" class="btn btn-success btn-lg" style="background: #C9A227; border-color: #C9A227;">
+                                <a href="{{ route('cursos.ver', $curso) }}#evaluacion" class="btn btn-success btn-lg" style="background: var(--dorado); border-color: var(--dorado);">
                                     <i class="fas fa-graduation-cap me-2"></i> Realizar Evaluación Final
                                 </a>
                             @elseif(isset($siguienteModuloIndex) && $siguienteModuloIndex < $curso->modulos->count())
@@ -74,7 +74,7 @@
                             @foreach($cuestionario->preguntas as $pIndex => $pregunta)
                                 <div class="mb-4 p-3 border rounded" style="background: #F9FAFB;">
                                     <h6 class="mb-3 text-dark">
-                                        <span class="badge" style="background: #C9A227;">{{ $pIndex + 1 }}</span>
+                                        <span class="badge" style="background: var(--dorado);">{{ $pIndex + 1 }}</span>
                                         {{ $pregunta->pregunta }}
                                     </h6>
                                     @foreach($pregunta->opciones as $opcion)
@@ -102,7 +102,7 @@
                             @foreach($cuestionario->preguntas as $pIndex => $pregunta)
                                 <div class="mb-4 p-3 border rounded" style="background: #F9FAFB;">
                                     <h6 class="mb-3 text-dark">
-                                        <span class="badge" style="background: #C9A227;">{{ $pIndex + 1 }}</span>
+                                        <span class="badge" style="background: var(--dorado);">{{ $pIndex + 1 }}</span>
                                         {{ $pregunta->pregunta }}
                                     </h6>
                                     @foreach($pregunta->opciones as $opcion)

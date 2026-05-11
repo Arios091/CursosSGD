@@ -16,7 +16,7 @@
         box-shadow: 0 8px 30px rgba(0,0,0,0.08);
     }
     .completado-header {
-        background: linear-gradient(135deg, #0B5E2E 0%, #0d7a3f 100%);
+        background: linear-gradient(135deg, var(--verde-institucional) 0%, #0d7a3f 100%);
         padding: 40px;
         text-align: center;
         color: white;
@@ -88,7 +88,7 @@
     .completado-stat-value {
         font-size: 24px;
         font-weight: 700;
-        color: #0B5E2E;
+        color: var(--verde-institucional);
     }
     .completado-stat-label {
         font-size: 12px;
@@ -106,7 +106,7 @@
         align-items: center;
         gap: 10px;
         padding: 14px 28px;
-        background: #0B5E2E;
+        background: var(--verde-institucional);
         color: white;
         border-radius: 10px;
         font-size: 16px;
@@ -137,8 +137,8 @@
         transition: all 0.2s;
     }
     .btn-home:hover {
-        border-color: #0B5E2E;
-        color: #0B5E2E;
+        border-color: var(--verde-institucional);
+        color: var(--verde-institucional);
         transform: translateY(-2px);
     }
     .completado-footer {
@@ -149,7 +149,7 @@
         font-size: 14px;
     }
     .completado-footer a {
-        color: #0B5E2E;
+        color: var(--verde-institucional);
         text-decoration: none;
         font-weight: 500;
     }
@@ -196,7 +196,7 @@
                 <a href="{{ route('certificado.descargar', $curso) }}" class="btn-certificado">
                     <i class="fas fa-download"></i> Descargar Certificado
                 </a>
-                <a href="{{ route('certificado.ver', $curso) }}" target="_blank" class="btn-certificado" style="background: #C9A227;">
+                <a href="{{ route('certificado.ver', $curso) }}" target="_blank" class="btn-certificado" style="background: var(--dorado);">
                     <i class="fas fa-eye"></i> Ver Certificado
                 </a>
                 <a href="{{ route('home') }}" class="btn-home">

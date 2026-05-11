@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
-@php $authLogo = \App\Models\PageSetting::getValue('logo'); @endphp
+@php
+    $authLogo = \App\Models\PageSetting::getValue('logo');
+    $pageSettings = \App\Models\PageSetting::getAll();
+    $primaryColor = $pageSettings['primary_color'] ?? '#0B5E2E';
+    $secondaryColor = $pageSettings['secondary_color'] ?? '#C9A227';
+@endphp
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -49,10 +54,18 @@
         }
         
         .auth-header {
-            background: linear-gradient(135deg, #0B5E2E 0%, #094525 100%);
+            background: {{ $primaryColor }};
+            position: relative;
             padding: 30px 20px;
             text-align: center;
             color: white;
+        }
+        .auth-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, {{ $secondaryColor }}, {{ $primaryColor }}, {{ $secondaryColor }});
         }
         
         .auth-header img {
@@ -107,14 +120,14 @@
         }
         
         .form-control:focus {
-            border-color: #0B5E2E;
-            box-shadow: 0 0 0 3px rgba(11, 94, 46, 0.1);
+            border-color: {{ $primaryColor }};
+            box-shadow: 0 0 0 3px {{ $primaryColor }}22;
         }
         
         .btn-primary {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #0B5E2E 0%, #094525 100%);
+            background: {{ $primaryColor }};
             color: white;
             border: none;
             border-radius: 8px;
@@ -126,17 +139,18 @@
         
         .btn-primary:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(11, 94, 46, 0.3);
+            filter: brightness(0.85);
+            box-shadow: 0 4px 12px {{ $primaryColor }}55;
         }
         
         .input-group:focus-within {
-            box-shadow: 0 0 0 3px rgba(11, 94, 46, 0.1);
+            box-shadow: 0 0 0 3px {{ $primaryColor }}22;
             border-radius: 8px;
         }
         
         .input-group:focus-within .input-group-text,
         .input-group:focus-within .form-control {
-            border-color: #0B5E2E;
+            border-color: {{ $primaryColor }};
         }
         
         .invalid-feedback {
@@ -169,13 +183,13 @@
         }
         
         .auth-footer a {
-            color: #0B5E2E;
+            color: {{ $primaryColor }};
             text-decoration: none;
             font-weight: 600;
         }
         
         .auth-footer a:hover {
-            color: #094525;
+            filter: brightness(0.8);
             text-decoration: underline;
         }
     </style>

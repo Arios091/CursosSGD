@@ -1,6 +1,11 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
+    @php
+        $pageSettings = \App\Models\PageSetting::getAll();
+        $primaryColor = $pageSettings['primary_color'] ?? '#0B5E2E';
+        $secondaryColor = $pageSettings['secondary_color'] ?? '#C9A227';
+    @endphp
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @livewireStyles
@@ -19,10 +24,10 @@
 
     <style>
         :root {
-            --verde-institucional: #0B5E2E;
-            --verde-hover: #094D25;
-            --dorado: #C9A227;
-            --dorado-hover: #B89120;
+            --verde-institucional: {{ $primaryColor }};
+            --verde-hover: {{ $primaryColor }};
+            --dorado: {{ $secondaryColor }};
+            --dorado-hover: {{ $secondaryColor }};
             --blanco: #FFFFFF;
             --gris-50: #F9FAFB;
             --gris-100: #F3F4F6;
@@ -45,13 +50,27 @@
 
         .sidebar {
             width: 280px;
-            background: linear-gradient(180deg, #0B5E2E 0%, #094525 100%);
+            background: {{ $primaryColor }};
             color: white;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.2) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .sidebar > * {
+            position: relative;
+            z-index: 1;
         }
 
         .sidebar-header {
@@ -77,7 +96,7 @@
             align-items: center;
             justify-content: center;
             font-size: 24px;
-            color: #0B5E2E;
+            color: var(--verde-institucional);
         }
 
         .logo-text {
@@ -125,7 +144,7 @@
         .menu-item.active {
             background: rgba(255,255,255,0.15);
             color: white;
-            border-left-color: #C9A227;
+            border-left-color: var(--dorado);
         }
 
         .menu-item i {
@@ -136,8 +155,8 @@
 
         .menu-item .badge {
             float: right;
-            background: #C9A227;
-            color: #0B5E2E;
+            background: var(--dorado);
+            color: var(--verde-institucional);
             font-size: 11px;
             padding: 2px 8px;
             border-radius: 10px;
@@ -209,10 +228,18 @@
             border-color: var(--verde-institucional);
         }
 
+        .btn-primary:hover {
+            filter: brightness(0.85);
+        }
+
         .btn-warning {
             background-color: var(--dorado);
             border-color: var(--dorado);
             color: white;
+        }
+
+        .btn-warning:hover {
+            filter: brightness(0.85);
         }
 
         .card {
@@ -242,11 +269,11 @@
                     {{ Auth::user()->name }}
                 </div>
                 @if(Auth::user()->isAdminGlobal())
-                    <small style="color: #C9A227;">Admin Global</small>
+                    <small style="color: var(--dorado);">Admin Global</small>
                 @elseif(Auth::user()->isAdmin())
-                    <small style="color: #C9A227;">Administrador</small>
+                    <small style="color: var(--dorado);">Administrador</small>
                 @elseif(Auth::user()->isDocente())
-                    <small style="color: #C9A227;">Docente</small>
+                    <small style="color: var(--dorado);">Docente</small>
                 @else
                     <small style="color: rgba(255,255,255,0.6);">Estudiante</small>
                 @endif

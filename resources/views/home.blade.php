@@ -65,7 +65,7 @@
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
     <div class="stat-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s;">
         <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #0B5E2E, #0d7a3f); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--verde-institucional), #0d7a3f); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                 <i class="fas fa-book" style="color: white; font-size: 20px;"></i>
             </div>
             <div>
@@ -153,7 +153,7 @@
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px; margin-bottom: 24px;">
     <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
         <h3 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-chart-pie" style="color: #0B5E2E;"></i>
+            <i class="fas fa-chart-pie" style="color: var(--verde-institucional);"></i>
             Progreso de Estudiantes
         </h3>
         <div style="position: relative; height: 250px;">
@@ -163,7 +163,7 @@
 
     <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
         <h3 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-trophy" style="color: #C9A227;"></i>
+            <i class="fas fa-trophy" style="color: var(--dorado);"></i>
             Cursos Más Populares
         </h3>
         <div style="position: relative; height: 250px;">
@@ -174,7 +174,7 @@
 
 <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
     <h3 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-list" style="color: #0B5E2E;"></i>
+        <i class="fas fa-list" style="color: var(--verde-institucional);"></i>
         Detalle de Cursos
     </h3>
     <div style="overflow-x: auto;">
@@ -384,19 +384,19 @@ document.addEventListener('DOMContentLoaded', function() {
         ->count();
     $porcentajeProgreso = $totalMateriales > 0 ? round(($materialesCompletados / $totalMateriales) * 100) : 0;
 @endphp
-<div style="background: linear-gradient(135deg, #0B5E2E 0%, #0d7a3f 100%); border-radius: 16px; padding: 24px; margin-bottom: 30px; color: white;" class="continue-course-card">
+<div style="background: linear-gradient(135deg, var(--verde-institucional) 0%, #0d7a3f 100%); border-radius: 16px; padding: 24px; margin-bottom: 30px; color: white;" class="continue-course-card">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
         <div>
             <div style="font-size: 14px; opacity: 0.8; margin-bottom: 4px;">CONTINUAR CURSO</div>
             <div style="font-size: 20px; font-weight: 600;">{{ $cursoEnProgresoActual->titulo }}</div>
             <div style="font-size: 14px; opacity: 0.8; margin-top: 4px;">{{ $porcentajeProgreso }}% completado</div>
         </div>
-        <a href="{{ route('cursos.ver', $cursoEnProgresoActual) }}" style="background: #C9A227; color: #0B5E2E; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
+        <a href="{{ route('cursos.ver', $cursoEnProgresoActual) }}" style="background: var(--dorado); color: var(--verde-institucional); padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
             <i class="fas fa-play"></i> Continuar
         </a>
     </div>
     <div style="margin-top: 16px; background: rgba(255,255,255,0.2); border-radius: 8px; height: 8px; overflow: hidden;">
-        <div style="background: #C9A227; height: 100%; width: {{ $porcentajeProgreso }}%; transition: width 0.5s ease;"></div>
+        <div style="background: var(--dorado); height: 100%; width: {{ $porcentajeProgreso }}%; transition: width 0.5s ease;"></div>
     </div>
 </div>
 @endif
@@ -404,7 +404,7 @@ document.addEventListener('DOMContentLoaded', function() {
 @if($cursosDisponibles->count() > 0)
 <div style="margin-bottom: 30px;">
     <h3 style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-book" style="color: #0B5E2E;"></i> Cursos Disponibles
+        <i class="fas fa-book" style="color: var(--verde-institucional);"></i> Cursos Disponibles
     </h3>
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
         @foreach($cursosDisponibles as $curso)
@@ -412,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
             @if($curso->imagen_referencial)
             <img src="{{ asset('storage/'.$curso->imagen_referencial) }}" style="width: 100%; height: 160px; object-fit: cover;" alt="{{ $curso->titulo }}">
             @else
-            <div style="width: 100%; height: 160px; background: linear-gradient(135deg, #0B5E2E 0%, #0d7a3f 100%); display: flex; align-items: center; justify-content: center;">
+            <div style="width: 100%; height: 160px; background: linear-gradient(135deg, var(--verde-institucional) 0%, #0d7a3f 100%); display: flex; align-items: center; justify-content: center;">
                 <i class="fas fa-book" style="color: white; font-size: 48px;"></i>
             </div>
             @endif
@@ -420,14 +420,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h4 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 8px;">{{ $curso->titulo }}</h4>
                 <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px; line-height: 1.5;">{{ Str::limit($curso->descripcion, 100) }}</p>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <span style="font-size: 13px; color: #0B5E2E; font-weight: 500;">
+                    <span style="font-size: 13px; color: var(--verde-institucional); font-weight: 500;">
                         <i class="fas fa-clock" style="margin-right: 4px;"></i>{{ $curso->carga_horaria }} horas
                     </span>
                     <span style="font-size: 13px; color: #6b7280;">
                         <i class="fas fa-layer-group" style="margin-right: 4px;"></i>{{ $curso->modulos->count() }} módulos
                     </span>
                 </div>
-                <button type="button" onclick="inscribirse(this)" data-curso-id="{{ $curso->id }}" data-curso-titulo="{{ $curso->titulo }}" class="btn-enroll" style="width: 100%; background: #0B5E2E; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
+                <button type="button" onclick="inscribirse(this)" data-curso-id="{{ $curso->id }}" data-curso-titulo="{{ $curso->titulo }}" class="btn-enroll" style="width: 100%; background: var(--verde-institucional); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
                     <i class="fas fa-plus"></i> Inscribirse
                 </button>
             </div>

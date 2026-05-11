@@ -13,10 +13,10 @@
         <div class="col-12">
             <div class="card shadow-sm" style="border-radius: var(--radius-lg);">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center" style="border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
-                    <h2 class="h4 mb-0" style="color: #0B5E2E;">
+                    <h2 class="h4 mb-0" style="color: var(--verde-institucional);">
                         <i class="fas fa-users mr-2"></i>Gestión de Usuarios
                     </h2>
-                    <span class="badge" style="background: #0B5E2E; color: white; padding: 6px 12px;">{{ $users->total() }} usuarios</span>
+                    <span class="badge" style="background: var(--verde-institucional); color: white; padding: 6px 12px;">{{ $users->total() }} usuarios</span>
                 </div>
                 <div class="card-body">
 
@@ -116,7 +116,7 @@
                                     <tr class="user-row" style="transition: all 0.2s;">
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <div class="rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 40px; height: 40px; font-size: 14px; font-weight: 600; background: linear-gradient(135deg, #0B5E2E, #0d7a3f); color: white;">
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 40px; height: 40px; font-size: 14px; font-weight: 600; background: var(--verde-institucional); color: white;">
                                                     {{ substr($user->primer_nombre ?? 'U', 0, 1) }}{{ substr($user->primer_apellido ?? '', 0, 1) }}
                                                 </div>
                                                 <div>
@@ -228,13 +228,13 @@
     }
 
     .btn-outline-primary {
-        color: #0B5E2E;
-        border-color: #0B5E2E;
+        color: var(--verde-institucional);
+        border-color: var(--verde-institucional);
     }
 
     .btn-outline-primary:hover {
-        background-color: #0B5E2E;
-        border-color: #0B5E2E;
+        background-color: var(--verde-institucional);
+        border-color: var(--verde-institucional);
         color: white;
     }
 
@@ -284,7 +284,7 @@
 
     .form-control:focus, .form-select:focus {
         border-color: var(--verde-institucional);
-        box-shadow: 0 0 0 3px rgba(11, 94, 46, 0.15);
+        box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
     }
 
     .pagination {
@@ -292,20 +292,20 @@
     }
 
     .pagination .page-link {
-        color: #0B5E2E;
+        color: var(--verde-institucional);
         border-radius: 8px;
         margin: 0 2px;
     }
 
     .pagination .page-item.active .page-link {
-        background-color: #0B5E2E;
-        border-color: #0B5E2E;
+        background-color: var(--verde-institucional);
+        border-color: var(--verde-institucional);
     }
 
     .pagination .page-link:hover {
-        background-color: #f0fdf4;
-        border-color: #0B5E2E;
-        color: #0B5E2E;
+        background-color: var(--verde-institucional)11;
+        border-color: var(--verde-institucional);
+        color: var(--verde-institucional);
     }
 
     .search-input-wrapper {

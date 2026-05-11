@@ -1,6 +1,11 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-@php $sidebarLogo = \App\Models\PageSetting::getValue('logo'); @endphp
+@php
+    $sidebarLogo = \App\Models\PageSetting::getValue('logo');
+    $pageSettings = \App\Models\PageSetting::getAll();
+    $primaryColor = $pageSettings['primary_color'] ?? '#0B5E2E';
+    $secondaryColor = $pageSettings['secondary_color'] ?? '#C9A227';
+@endphp
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,10 +31,10 @@
         [x-cloak] { display: none !important; }
 
         :root {
-            --verde-institucional: #0B5E2E;
-            --verde-hover: #094D25;
-            --dorado: #C9A227;
-            --dorado-hover: #B89120;
+            --verde-institucional: {{ $primaryColor }};
+            --verde-hover: {{ $primaryColor }};
+            --dorado: {{ $secondaryColor }};
+            --dorado-hover: {{ $secondaryColor }};
             --blanco: #FFFFFF;
             --gris-50: #F9FAFB;
             --gris-100: #F3F4F6;
@@ -75,7 +80,7 @@
 
         .sidebar {
             width: 280px;
-            background: linear-gradient(180deg, #0B5E2E 0%, #094525 100%);
+            background: {{ $primaryColor }};
             color: white;
             position: fixed;
             height: 100vh;
@@ -84,6 +89,20 @@
             flex-direction: column;
             z-index: 1000;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.2) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .sidebar > * {
+            position: relative;
+            z-index: 1;
         }
 
         .sidebar::-webkit-scrollbar {
@@ -122,7 +141,7 @@
             align-items: center;
             justify-content: center;
             font-size: 24px;
-            color: #0B5E2E;
+            color: var(--verde-institucional);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
@@ -174,7 +193,7 @@
         .menu-item.active {
             background: rgba(255,255,255,0.15);
             color: white;
-            border-left-color: #C9A227;
+            border-left-color: var(--dorado);
             padding-left: 24px;
         }
 
@@ -191,8 +210,8 @@
 
         .menu-item .badge {
             margin-left: auto;
-            background: #C9A227;
-            color: #0B5E2E;
+            background: var(--dorado);
+            color: var(--verde-institucional);
             font-size: 11px;
             padding: 2px 8px;
             border-radius: 10px;
@@ -267,7 +286,8 @@
         }
 
         .breadcrumbs a:hover {
-            color: var(--verde-hover);
+            color: var(--verde-institucional);
+            filter: brightness(0.8);
             text-decoration: underline;
         }
 
@@ -301,7 +321,7 @@
             color: white;
             font-weight: 600;
             font-size: 14px;
-            box-shadow: 0 2px 8px rgba(11, 94, 46, 0.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         .page-content {
@@ -315,8 +335,7 @@
         }
 
         .btn-primary:hover {
-            background-color: var(--verde-hover);
-            border-color: var(--verde-hover);
+            filter: brightness(0.85);
             transform: translateY(-1px);
             box-shadow: var(--shadow-md);
         }
@@ -329,8 +348,7 @@
         }
 
         .btn-warning:hover {
-            background-color: var(--dorado-hover);
-            border-color: var(--dorado-hover);
+            filter: brightness(0.85);
             transform: translateY(-1px);
             box-shadow: var(--shadow-md);
         }
@@ -620,7 +638,7 @@
 
         .form-control:focus, .form-select:focus {
             border-color: var(--verde-institucional);
-            box-shadow: 0 0 0 3px rgba(11, 94, 46, 0.15);
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
         }
 
         .table-hover tbody tr {
@@ -671,9 +689,9 @@
                         {{ Auth::user()->name }}
                     </div>
                     @if($esAdminGlobal)
-                        <small style="color: #C9A227;">Admin Global</small>
+                        <small style="color: var(--dorado);">Admin Global</small>
                     @else
-                        <small style="color: #C9A227;">Administrador</small>
+                        <small style="color: var(--dorado);">Administrador</small>
                     @endif
                 </div>
 
@@ -719,7 +737,7 @@
                     {{ Auth::user()->name }}
                 </div>
                 @if($esDocente)
-                    <small style="color: #C9A227;">Docente</small>
+                    <small style="color: var(--dorado);">Docente</small>
                 @else
                     <small style="color: rgba(255,255,255,0.6);">Estudiante</small>
                 @endif

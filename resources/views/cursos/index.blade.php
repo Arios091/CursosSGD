@@ -20,7 +20,7 @@
             <h2 style="font-size: 24px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">Gestión de Cursos</h2>
             <p style="color: #6b7280; margin: 0;">Administra todos los cursos del sistema</p>
         </div>
-        <a href="{{ route('crear.curso') }}" class="btn" style="background: #0B5E2E; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
+        <a href="{{ route('crear.curso') }}" class="btn" style="background: var(--verde-institucional); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
             <i class="fas fa-plus"></i> Crear Curso
         </a>
     </div>
@@ -97,7 +97,7 @@
                         @if($curso->imagen_referencial)
                             <img src="{{ asset('storage/'.$curso->imagen_referencial) }}" style="width: 80px; height: 60px; object-fit: cover; border-radius: 8px;">
                         @else
-                            <div style="width: 80px; height: 60px; background: linear-gradient(135deg, #0B5E2E 0%, #0d7a3f 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <div style="width: 80px; height: 60px; background: linear-gradient(135deg, var(--verde-institucional) 0%, #0d7a3f 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                                 <i class="fas fa-book" style="color: white; font-size: 24px;"></i>
                             </div>
                         @endif
@@ -116,7 +116,7 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 8px; flex-shrink: 0; margin-left: 16px;">
-                    <a href="{{ route('cursos.edit', $curso) }}" class="btn btn-sm" style="background: #C9A227; color: white;">
+                    <a href="{{ route('cursos.edit', $curso) }}" class="btn btn-sm" style="background: var(--dorado); color: white;">
                         <i class="fas fa-edit"></i> <span class="d-none d-md-inline">Editar</span>
                     </a>
                     <form action="{{ route('cursos.destroy', $curso) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este curso?')">
@@ -137,7 +137,7 @@
             </div>
             <h4 style="color: #1f2937; margin-bottom: 8px;">No hay cursos creados</h4>
             <p style="color: #6b7280; margin-bottom: 20px;">Crea el primer curso para comenzar.</p>
-            <a href="{{ route('crear.curso') }}" class="btn" style="background: #0B5E2E; color: white;">
+            <a href="{{ route('crear.curso') }}" class="btn" style="background: var(--verde-institucional); color: white;">
                 <i class="fas fa-plus me-2"></i>Crear curso
             </a>
         </div>
@@ -167,7 +167,7 @@
                 @if($progreso->curso->imagen_referencial)
                     <img src="{{ asset('storage/'.$progreso->curso->imagen_referencial) }}" style="width: 100%; height: 140px; object-fit: cover;">
                 @else
-                    <div style="width: 100%; height: 140px; background: linear-gradient(135deg, #0B5E2E 0%, #0d7a3f 100%); display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 100%; height: 140px; background: linear-gradient(135deg, var(--verde-institucional) 0%, #0d7a3f 100%); display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-book" style="color: white; font-size: 40px;"></i>
                     </div>
                 @endif
@@ -177,7 +177,7 @@
                         <span><i class="fas fa-clock"></i> {{ $progreso->curso->carga_horaria }} horas</span>
                         <span style="color: #3b82f6;"><i class="fas fa-spinner"></i> En progreso</span>
                     </div>
-                    <a href="{{ route('cursos.ver', $progreso->curso) }}" style="display: block; margin-top: 12px; background: #0B5E2E; color: white; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s;" class="btn-continue">
+                    <a href="{{ route('cursos.ver', $progreso->curso) }}" style="display: block; margin-top: 12px; background: var(--verde-institucional); color: white; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s;" class="btn-continue">
                         <i class="fas fa-play"></i> Continuar
                     </a>
                 </div>
@@ -210,7 +210,7 @@
                         <span><i class="fas fa-clock"></i> {{ $progreso->curso->carga_horaria }} horas</span>
                         <span><i class="fas fa-check-circle" style="color: #16a34a;"></i> Completado</span>
                     </div>
-                    <a href="{{ route('certificado', $progreso->curso) }}" style="display: block; margin-top: 12px; background: #C9A227; color: white; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s;">
+                    <a href="{{ route('certificado', $progreso->curso) }}" style="display: block; margin-top: 12px; background: var(--dorado); color: white; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s;">
                         <i class="fas fa-certificate"></i> Ver Certificado
                     </a>
                 </div>
@@ -228,7 +228,7 @@
     </div>
     <h4 style="color: #1f2937; margin-bottom: 8px;">No tienes cursos inscritos</h4>
     <p style="color: #6b7280;">Explora los cursos disponibles en la página de inicio para inscribirte.</p>
-    <a href="{{ route('home') }}" class="btn" style="background: #0B5E2E; color: white; margin-top: 16px;">
+    <a href="{{ route('home') }}" class="btn" style="background: var(--verde-institucional); color: white; margin-top: 16px;">
         <i class="fas fa-home me-2"></i>Ir al inicio
     </a>
 </div>

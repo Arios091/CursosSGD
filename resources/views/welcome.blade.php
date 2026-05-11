@@ -9,6 +9,16 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @php
+        function darkenColor($hex, $percent) {
+            $hex = ltrim($hex, '#');
+            $r = hexdec(substr($hex, 0, 2));
+            $g = hexdec(substr($hex, 2, 2));
+            $b = hexdec(substr($hex, 4, 2));
+            $r = max(0, min(255, (int)round($r * (1 - $percent))));
+            $g = max(0, min(255, (int)round($g * (1 - $percent))));
+            $b = max(0, min(255, (int)round($b * (1 - $percent))));
+            return sprintf("#%02x%02x%02x", $r, $g, $b);
+        }
         $settings = \App\Models\PageSetting::getAll();
         $primaryColor = $settings['primary_color'] ?? '#0B5E2E';
         $secondaryColor = $settings['secondary_color'] ?? '#C9A227';
@@ -18,6 +28,7 @@
         $contactPhone = $settings['contact_phone'] ?? '(062) 562341';
         $contactEmail = $settings['contact_email'] ?? 'mesadepartes@unas.edu.pe';
         $contactAddress = $settings['contact_address'] ?? 'Carretera Central Km. 1.21, Tingo María, Huánuco';
+        $heroDark = darkenColor($primaryColor, 0.25);
     @endphp
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -61,14 +72,14 @@
         .nav-links .btn-outline {
             color: {{ $primaryColor }}; border: 1px solid {{ $primaryColor }};
         }
-        .nav-links .btn-outline:hover { background: rgba(11,94,46,0.05); }
+        .nav-links .btn-outline:hover { background: {{ $primaryColor }}11; }
         .nav-links .btn-solid {
             background: {{ $primaryColor }}; color: white;
         }
         .nav-links .btn-solid:hover { filter: brightness(0.9); }
 
         .hero {
-            background: linear-gradient(135deg, {{ $primaryColor }} 0%, #06582a 50%, #0a4e28 100%);
+            background: linear-gradient(135deg, {{ $primaryColor }} 0%, {{ $heroDark }} 100%);
             min-height: 520px;
             display: flex; align-items: center;
             position: relative; overflow: hidden;
@@ -164,14 +175,14 @@
         .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
         .feature-icon {
             width: 72px; height: 72px; border-radius: 50%;
-            background: linear-gradient(135deg, {{ $primaryColor }}, #0d7a3f);
+            background: linear-gradient(135deg, {{ $primaryColor }}, {{ $heroDark }});
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto 20px; font-size: 28px; color: white;
         }
         .feature-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
         .feature-card p { color: #6b7280; font-size: 14px; line-height: 1.6; }
 
-        .stats { background: #f9fafb; }
+        .stats { background: {{ $primaryColor }}08; }
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; text-align: center; }
         .stat-number { font-size: 36px; font-weight: 800; color: {{ $primaryColor }}; }
         .stat-label { color: #6b7280; font-size: 14px; margin-top: 4px; }
