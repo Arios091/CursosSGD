@@ -594,7 +594,7 @@ class CursoController extends Controller
                 ->where('curso_id', $curso->id)
                 ->update([
                     'estado' => 'completado',
-                    'evaluacion_aprobada' => true,
+                    'evaluacion_aprobada' => 'true',
                     'completado_at' => now(),
                     'fecha_fin' => now(),
                 ]);
