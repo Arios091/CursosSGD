@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BoolToPgString;
 use Illuminate\Database\Eloquent\Model;
 
 class ResultadoEvaluacion extends Model
 {
+    use BoolToPgString;
+
+    protected $pgBoolFields = ['aprobado'];
     protected $table = 'resultados_evaluacion';
 
     protected $fillable = [
