@@ -2,6 +2,8 @@
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+$_ENV['APP_DEBUG'] = 'true';
+putenv('APP_DEBUG=true');
 
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
@@ -48,8 +50,6 @@ require __DIR__.'/../vendor/autoload.php';
 */
 
 $app = require_once __DIR__.'/../bootstrap/app.php';
-
-$app->make('config')->set('app.debug', true);
 
 $kernel = $app->make(Kernel::class);
 
