@@ -21,7 +21,7 @@
         $materialIds = $materiales->pluck('id')->toArray();
         $materialesCompletados = \App\Models\ProgresoMaterial::where('user_id', auth()->id())
             ->whereIn('material_id', $materialIds)
-            ->where('material_completado', true)
+            ->where('material_completado', 'true')
             ->pluck('material_id')
             ->toArray();
     }
@@ -29,7 +29,7 @@
     $totalMateriales = $curso->modulos->flatMap(fn($m) => $m->materiales)->count();
     $materialesCompletadosTotal = \App\Models\ProgresoMaterial::where('user_id', auth()->id())
         ->whereIn('material_id', $curso->modulos->flatMap(fn($m) => $m->materiales->pluck('id')))
-        ->where('material_completado', true)
+        ->where('material_completado', 'true')
         ->count();
     $progresoPorcentaje = $totalMateriales > 0 ? round(($materialesCompletadosTotal / $totalMateriales) * 100) : 0;
 @endphp
@@ -182,11 +182,11 @@
                     foreach($modulos as $mIdx => $mod) {
                         $mMats = $mod->materiales;
                         if ($mMats->count() == 0) { $unlockedUpTo = $mIdx + 1; continue; }
-                        $mCompleted = \App\Models\ProgresoMaterial::where('user_id', auth()->id())->whereIn('material_id', $mMats->pluck('id'))->where('material_completado', true)->count();
+                        $mCompleted = \App\Models\ProgresoMaterial::where('user_id', auth()->id())->whereIn('material_id', $mMats->pluck('id'))->where('material_completado', 'true')->count();
                         if ($mCompleted == $mMats->count()) {
                             // Check quiz
                             if ($mod->cuestionario) {
-                                $quizDone = \App\Models\ResultadoCuestionario::where('user_id', auth()->id())->where('modulo_id', $mod->id)->where('aprobado', true)->exists();
+                                $quizDone = \App\Models\ResultadoCuestionario::where('user_id', auth()->id())->where('modulo_id', $mod->id)->where('aprobado', 'true')->exists();
                                 if ($quizDone) { $unlockedUpTo = $mIdx + 1; continue; }
                             } else {
                                 $unlockedUpTo = $mIdx + 1; continue;
@@ -201,7 +201,7 @@
             @foreach($modulos as $idx => $modulo)
                 @php
                     $modMats = $modulo->materiales;
-                    $modCompleted = ($esEstudiante || $esDocente) ? \App\Models\ProgresoMaterial::where('user_id', auth()->id())->whereIn('material_id', $modMats->pluck('id'))->where('material_completado', true)->count() : 0;
+                    $modCompleted = ($esEstudiante || $esDocente) ? \App\Models\ProgresoMaterial::where('user_id', auth()->id())->whereIn('material_id', $modMats->pluck('id'))->where('material_completado', 'true')->count() : 0;
                     $modDone = $modCompleted == $modMats->count() && $modMats->count() > 0;
                     $modActive = $moduloActual && $moduloActual->id == $modulo->id;
                     $isLocked = $idx > $unlockedUpTo;
@@ -435,11 +435,11 @@
                     foreach($modulos as $mod) {
                         $modMats = $mod->materiales;
                         if ($modMats->count() > 0) {
-                            $modCompleted = \App\Models\ProgresoMaterial::where('user_id', auth()->id())->whereIn('material_id', $modMats->pluck('id'))->where('material_completado', true)->count();
+                            $modCompleted = \App\Models\ProgresoMaterial::where('user_id', auth()->id())->whereIn('material_id', $modMats->pluck('id'))->where('material_completado', 'true')->count();
                             if ($modCompleted < $modMats->count()) { $allModulesDone = false; break; }
                         }
                         if ($mod->cuestionario) {
-                            $modQuizDone = \App\Models\ResultadoCuestionario::where('user_id', auth()->id())->where('modulo_id', $mod->id)->where('aprobado', true)->exists();
+                            $modQuizDone = \App\Models\ResultadoCuestionario::where('user_id', auth()->id())->where('modulo_id', $mod->id)->where('aprobado', 'true')->exists();
                             if (!$modQuizDone) { $allModulesDone = false; break; }
                         }
                     }
