@@ -10,7 +10,7 @@ class ProgresoCurso extends Model
 {
     use BoolToPgString, HasFactory;
 
-    protected static $pgBoolFields = ['evaluacion_aprobada'];
+    protected $pgBoolFields = ['evaluacion_aprobada'];
     protected $table = 'progreso_cursos';
 
     protected $fillable = [

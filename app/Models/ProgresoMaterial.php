@@ -9,7 +9,7 @@ class ProgresoMaterial extends Model
 {
     use BoolToPgString;
 
-    protected static $pgBoolFields = ['material_completado', 'video_completado', 'scroll_completado'];
+    protected $pgBoolFields = ['material_completado', 'video_completado', 'scroll_completado'];
 
     protected $table = 'progreso_material';
 

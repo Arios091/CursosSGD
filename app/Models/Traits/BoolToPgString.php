@@ -4,7 +4,10 @@ namespace App\Models\Traits;
 
 trait BoolToPgString
 {
-    protected static $pgBoolFields = [];
+    protected function getPgBoolFields(): array
+    {
+        return property_exists($this, 'pgBoolFields') ? $this->pgBoolFields : [];
+    }
 
     protected function boolToDbString($value)
     {
@@ -13,7 +16,7 @@ trait BoolToPgString
 
     protected function prepareBoolFields(array &$attrs)
     {
-        foreach (static::$pgBoolFields as $field) {
+        foreach ($this->getPgBoolFields() as $field) {
             if (array_key_exists($field, $attrs)) {
                 $attrs[$field] = $this->boolToDbString($attrs[$field]);
             }

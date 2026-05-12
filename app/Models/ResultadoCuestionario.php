@@ -9,7 +9,7 @@ class ResultadoCuestionario extends Model
 {
     use BoolToPgString;
 
-    protected static $pgBoolFields = ['aprobado'];
+    protected $pgBoolFields = ['aprobado'];
 
     protected $table = 'resultados_cuestionario';
 
