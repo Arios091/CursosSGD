@@ -18,6 +18,10 @@ class Opcion extends Model
         'orden',
     ];
 
+    protected $casts = [
+        'es_correcta' => 'boolean',
+    ];
+
     public function pregunta()
     {
         return $this->belongsTo(Pregunta::class);

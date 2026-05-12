@@ -18,6 +18,10 @@ class OpcionEvaluacion extends Model
         'orden',
     ];
 
+    protected $casts = [
+        'es_correcta' => 'boolean',
+    ];
+
     public function preguntaEvaluacion()
     {
         return $this->belongsTo(PreguntaEvaluacion::class, 'pregunta_evaluacion_id');

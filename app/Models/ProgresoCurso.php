@@ -21,6 +21,7 @@ class ProgresoCurso extends Model
     ];
 
     protected $casts = [
+        'evaluacion_aprobada' => 'boolean',
         'completado_at' => 'datetime',
     ];
 
