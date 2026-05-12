@@ -315,14 +315,14 @@ class CursoController extends Controller
         // Marcar como completado
         \App\Models\ProgresoMaterial::updateOrCreate(
             ['user_id' => $user->id, 'material_id' => $materialId],
-            ['completado' => true, 'completado_at' => now()]
+            ['material_completado' => true, 'completado_at' => now()]
         );
 
         $modulo = $material->modulo;
         $todosMateriales = $modulo->materiales->sortBy('orden')->values();
         $materialesCompletados = \App\Models\ProgresoMaterial::where('user_id', $user->id)
             ->whereIn('material_id', $todosMateriales->pluck('id'))
-            ->where('completado', true)
+            ->where('material_completado', true)
             ->count();
         
         // Find current material index in the sorted collection
@@ -364,7 +364,7 @@ class CursoController extends Controller
         $materiales = $modulo->materiales;
         $materialesCompletados = \App\Models\ProgresoMaterial::where('user_id', $user->id)
             ->whereIn('material_id', $materiales->pluck('id'))
-            ->where('completado', true)
+            ->where('material_completado', true)
             ->count();
 
         if ($materialesCompletados != $materiales->count()) {
@@ -515,7 +515,7 @@ class CursoController extends Controller
         foreach ($modulos as $modulo) {
             $materialesCompletados = \App\Models\ProgresoMaterial::where('user_id', $user->id)
                 ->whereIn('material_id', $modulo->materiales->pluck('id'))
-                ->where('completado', true)
+                ->where('material_completado', true)
                 ->count();
             
             if ($materialesCompletados < $modulo->materiales->count()) {
@@ -716,7 +716,7 @@ class CursoController extends Controller
     public function verificarCertificado($codigo)
     {
         $progreso = ProgresoCurso::whereHas('curso', function($q) use ($codigo) {
-            $q->whereRaw("CONCAT('UNAS-CERT-', UPPER(SUBSTRING(titulo, 1, 4)), '-', LPAD(progreso_cursos.id, 6, '0'), '-', YEAR(progreso_cursos.completado_at)) = ?", [$codigo]);
+            $q->whereRaw("CONCAT('UNAS-CERT-', UPPER(SUBSTRING(titulo, 1, 4)), '-', LPAD(progreso_cursos.id, 6, '0'), '-', EXTRACT(YEAR FROM progreso_cursos.completado_at)) = ?", [$codigo]);
         })->with(['user', 'curso'])->first();
 
         if (!$progreso) {

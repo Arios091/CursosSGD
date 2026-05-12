@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         // Forzar HTTPS en producción (Render proxy)
-        if (env('APP_ENV') === 'production' || env('APP_ENV') === 'staging') {
+        if (config('app.env') === 'production' || config('app.env') === 'staging') {
             URL::forceScheme('https');
         }
     }

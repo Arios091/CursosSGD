@@ -77,9 +77,7 @@ return [
             'schema' => 'public',
             'sslmode' => 'require',
             'options' => [
-                PDO::getAvailableDrivers()[0] => [ // Esto asegura compatibilidad
                 PDO::ATTR_EMULATE_PREPARES => true,
-                ],
             ],
 
         ],

@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
     $totalMateriales = $cursoEnProgresoActual->modulos->flatMap(function($m) { return $m->materiales; })->count();
     $materialesCompletados = \App\Models\ProgresoMaterial::where('user_id', $user->id)
         ->whereIn('material_id', $cursoEnProgresoActual->modulos->flatMap(function($m) { return $m->materiales->pluck('id'); }))
-        ->where('completado', true)
+        ->where('material_completado', true)
         ->count();
     $porcentajeProgreso = $totalMateriales > 0 ? round(($materialesCompletados / $totalMateriales) * 100) : 0;
 @endphp

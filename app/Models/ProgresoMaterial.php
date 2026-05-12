@@ -6,19 +6,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProgresoMaterial extends Model
 {
+    protected $table = 'progreso_material';
+
     protected $fillable = [
         'user_id',
         'material_id',
+        'material_completado',
+        'completado_at',
         'tiempo_visto',
         'video_completado',
         'scroll_completado',
-        'material_completado'
     ];
 
     protected $casts = [
+        'material_completado' => 'boolean',
         'video_completado' => 'boolean',
         'scroll_completado' => 'boolean',
-        'material_completado' => 'boolean'
+        'completado_at' => 'datetime',
     ];
 
     public function user()
