@@ -6,6 +6,7 @@
 @php
     $user = auth()->user();
     $isAdmin = $user->isAdmin();
+    $isAdminGlobal = $user->isAdminGlobal();
     
     // Obtener cursos completados para mostrar certificados
     $cursosCompletados = \App\Models\ProgresoCurso::where('user_id', $user->id)
@@ -24,7 +25,7 @@
             <div>
                 <h2 style="font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 4px;">{{ $user->name }}</h2>
                 <span style="background: {{ $isAdmin ? 'var(--dorado)' : 'var(--verde-institucional)' }}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">
-                    {{ $isAdmin ? 'Administrador' : 'Estudiante' }}
+                    {{ $isAdminGlobal ? 'Admin Global' : ($isAdmin ? 'Administrador' : 'Estudiante') }}
                 </span>
             </div>
         </div>

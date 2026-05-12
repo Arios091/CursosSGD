@@ -104,7 +104,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Rutas exclusivas para ADMIN
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'can:admin-access'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/usuarios', [UserController::class, 'index'])->name('users.index');
     Route::get('/usuarios/{user}', [UserController::class, 'show'])->name('users.show');
     Route::put('/usuarios/{user}', [UserController::class, 'update'])->name('users.update');

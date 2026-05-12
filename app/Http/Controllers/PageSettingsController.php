@@ -8,6 +8,16 @@ use Illuminate\Support\Facades\Storage;
 
 class PageSettingsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (!auth()->user()->isAdminGlobal()) {
+                return redirect()->route('home')->with('error', 'No tienes permiso para acceder a esta sección.');
+            }
+            return $next($request);
+        });
+    }
+
     public function index()
     {
         $settings = PageSetting::pluck('value', 'key')->toArray();

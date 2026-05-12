@@ -32,24 +32,24 @@ class CursoPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role === 'admin';
+        return in_array($user->role, ['admin', 'admin_global']);
     }
 
     /**
      * Determina si el usuario puede editar un curso
-     * Solo admin puede editar
+     * Solo admin o admin_global puede editar
      */
     public function update(User $user, Curso $curso): bool
     {
-        return $user->role === 'admin';
+        return in_array($user->role, ['admin', 'admin_global']);
     }
 
     /**
      * Determina si el usuario puede eliminar un curso
-     * Solo admin puede eliminar
+     * Solo admin o admin_global puede eliminar
      */
     public function delete(User $user, Curso $curso): bool
     {
-        return $user->role === 'admin';
+        return in_array($user->role, ['admin', 'admin_global']);
     }
 }
