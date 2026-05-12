@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BoolToPgString;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class OpcionEvaluacion extends Model
 {
-    use HasFactory;
+    use BoolToPgString, HasFactory;
+
+    protected $pgBoolFields = ['es_correcta'];
 
     protected $table = 'opciones_evaluacion';
 
