@@ -46,6 +46,11 @@ class Handler extends ExceptionHandler
             return redirect()->route('login')->with('error', 'Tu sesión ha expirado. Inicia sesión nuevamente.');
         }
 
-        return parent::render($request, $e);
+        echo "<pre>";
+        echo "Error: " . $e->getMessage() . "\n\n";
+        echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n\n";
+        echo $e->getTraceAsString();
+        echo "</pre>";
+        exit;
     }
 }
