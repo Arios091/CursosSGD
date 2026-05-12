@@ -441,7 +441,7 @@ class CreateCurso extends Component
                             if (!empty(trim($opcion['texto']))) {
                                 $pregModel->opciones()->create([
                                     'opcion' => $opcion['texto'],
-                                    'es_correcta' => (bool) $opcion['es_correcta'],
+                                    'es_correcta' => $opcion['es_correcta'] ? 'true' : 'false',
                                     'orden' => $oIdx + 1,
                                 ]);
                             }
@@ -468,7 +468,7 @@ class CreateCurso extends Component
                         if (!empty(trim($opcion['texto']))) {
                             $pregModel->opciones()->create([
                                 'opcion' => $opcion['texto'],
-                                'es_correcta' => (bool) $opcion['es_correcta'],
+                                'es_correcta' => $opcion['es_correcta'] ? 'true' : 'false',
                                 'orden' => $oIdx + 1,
                             ]);
                         }
