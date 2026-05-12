@@ -119,13 +119,9 @@
                     <a href="{{ route('cursos.edit', $curso) }}" class="btn btn-sm" style="background: var(--dorado); color: white;">
                         <i class="fas fa-edit"></i> <span class="d-none d-md-inline">Editar</span>
                     </a>
-                    <form action="{{ route('cursos.destroy', $curso) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este curso?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-sm" style="background: #dc2626; color: white;">
-                            <i class="fas fa-trash"></i> <span class="d-none d-md-inline">Eliminar</span>
-                        </button>
-                    </form>
+                    <button type="button" class="btn btn-sm" style="background: #dc2626; color: white;" data-toggle="modal" data-target="#deleteModal" data-curso-id="{{ $curso->id }}" data-curso-titulo="{{ $curso->titulo }}">
+                        <i class="fas fa-trash"></i> <span class="d-none d-md-inline">Eliminar</span>
+                    </button>
                 </div>
             </div>
             @endforeach
@@ -303,9 +299,53 @@
     }
 </style>
 
+{{-- Modal de confirmación para eliminar curso --}}
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
+            <div class="modal-header" style="border-bottom: 1px solid #e5e7eb; padding: 20px 24px;">
+                <h5 class="modal-title" id="deleteModalLabel" style="font-weight: 600; color: #1f2937;">
+                    <i class="fas fa-exclamation-triangle" style="color: #dc2626; margin-right: 8px;"></i>
+                    Confirmar eliminación
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <p style="color: #374151; font-size: 15px; margin-bottom: 8px;">
+                    ¿Estás seguro de eliminar el curso <strong id="deleteCursoTitulo"></strong>?
+                </p>
+                <p style="color: #6b7280; font-size: 13px;">
+                    Esta acción eliminará todos los módulos, materiales, cuestionarios y progresos asociados. No se puede deshacer.
+                </p>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding: 16px 24px;">
+                <button type="button" class="btn" style="background: #f3f4f6; color: #374151; padding: 8px 20px; border-radius: 8px;" data-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" action="" method="POST" style="display: inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn" style="background: #dc2626; color: white; padding: 8px 20px; border-radius: 8px;">
+                        <i class="fas fa-trash"></i> Eliminar curso
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
+
+    // Modal de confirmación de eliminación
+    $('#deleteModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var cursoId = button.data('curso-id');
+        var cursoTitulo = button.data('curso-titulo');
+        $(this).find('#deleteCursoTitulo').text(cursoTitulo);
+        $(this).find('#deleteForm').attr('action', '/cursos/' + cursoId);
+    });
     const estadoSelect = document.getElementById('estadoSelect');
     const sortSelect = document.getElementById('sortSelect');
     const clearBtn = document.getElementById('clearBtn');
