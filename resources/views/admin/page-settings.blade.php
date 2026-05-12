@@ -92,6 +92,10 @@
                 <h5 class="mb-0"><i class="fas fa-images me-2"></i>Carrusel de Fotos (Inicio)</h5>
             </div>
             <div class="card-body" style="padding: 24px;">
+                <div class="alert alert-info d-flex align-items-center" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #1e40af;">
+                    <i class="fas fa-info-circle me-2" style="font-size: 16px;"></i>
+                    <span><strong>Recomendación:</strong> Usa imágenes de <strong>1200 × 675 px</strong> (relación 16:9), máximo <strong>5 MB</strong> para mejor calidad.</span>
+                </div>
                 <div class="row g-4">
                     @for($i = 1; $i <= 4; $i++)
                     @php $key = 'carousel_' . $i; @endphp

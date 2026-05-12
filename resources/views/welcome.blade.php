@@ -80,7 +80,7 @@
 
         .hero {
             background: linear-gradient(135deg, {{ $primaryColor }} 0%, {{ $heroDark }} 100%);
-            min-height: 520px;
+            min-height: 560px;
             display: flex; align-items: center;
             position: relative; overflow: hidden;
         }
@@ -124,7 +124,7 @@
         .hero-buttons .btn-secondary:hover { background: rgba(255,255,255,0.2); }
 
         .hero-carousel {
-            flex: 0 0 540px;
+            flex: 0 0 600px;
             position: relative;
             border-radius: 16px;
             overflow: hidden;
