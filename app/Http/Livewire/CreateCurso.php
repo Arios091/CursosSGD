@@ -397,7 +397,8 @@ class CreateCurso extends Component
                             $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
                             $filename = time() . '_' . $curso->id . '_m' . ($idx + 1) . '_' . $mIdx . '_' . $safeName;
                             
-                            $materialUrl = Storage::disk('public')->move($tempPath, 'materiales/' . $filename);
+                            Storage::disk('public')->move($tempPath, 'materiales/' . $filename);
+                            $materialUrl = 'materiales/' . $filename;
                         } else {
                             // Log de error para debugging
                             \Illuminate\Support\Facades\Log::warning('Archivo PDF no encontrado en temp: ' . $tempPath);

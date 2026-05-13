@@ -51,8 +51,7 @@ class ForgotPasswordController extends Controller
         );
 
         // Generar URL de recuperación - usar la ruta correcta con token y email como query params
-        $baseUrl = config('app.url', 'http://localhost:8000');
-        $resetUrl = $baseUrl . '/password/reset/verify?token=' . $token . '&email=' . urlencode($user->email);
+        $resetUrl = route('password.reset', ['token' => $token, 'email' => $user->email]);
 
         try {
             Mail::to($user->email)->send(new PasswordResetMail($user, $resetUrl));

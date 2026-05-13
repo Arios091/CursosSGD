@@ -43,13 +43,13 @@ class ProgresoMaterial extends Model
     // Verificar si el material está completo
     public function verificarCompletado($material)
     {
-        if ($material->type === 'video') {
+        if ($material->tipo === 'video') {
             // Para videos: tiempo mínimo de 2 minutos (120 segundos)
             $tiempoRequerido = 120;
             $this->video_completado = $this->tiempo_visto >= $tiempoRequerido;
         }
 
-        if ($material->type === 'pdf') {
+        if ($material->tipo === 'pdf') {
             // Para PDFs: scroll completado
             // El scroll_completado ya se actualiza via JavaScript
         }

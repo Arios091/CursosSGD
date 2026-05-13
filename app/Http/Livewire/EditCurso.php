@@ -511,7 +511,9 @@ class EditCurso extends Component
                     ];
 
                     if ($material['tipo'] === 'video' && !empty($material['url'])) {
-                        $materialData['url'] = $material['url'];
+                        $rawUrl = trim($material['url']);
+                        $youtubeId = $this->extractYouTubeId($rawUrl);
+                        $materialData['url'] = $youtubeId ? 'https://www.youtube.com/embed/' . $youtubeId : $rawUrl;
                     }
 
                     if ($material['archivo']) {
@@ -657,6 +659,26 @@ class EditCurso extends Component
             \Log::error('Error al actualizar curso: ' . $e->getMessage());
             session()->flash('error', 'Error al actualizar el curso: ' . $e->getMessage());
         }
+    }
+
+    protected function extractYouTubeId($url)
+    {
+        $patterns = [
+            '/youtu\.be\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/v\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $url, $matches)) {
+                return $matches[1];
+            }
+        }
+
+        return null;
     }
 
     public function render()

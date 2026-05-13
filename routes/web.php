@@ -29,6 +29,12 @@ Route::post('/password/reset/verify', [ResetPasswordController::class, 'reset'])
 
 Route::get('/home', [CursoController::class, 'home'])->name('home');
 
+// Verificación pública de certificados (sin auth - para QR codes)
+Route::get('/verificar/{codigo}', function($codigo) {
+    return view('certificado-verificar', compact('codigo'));
+})->name('certificado.verificar');
+Route::get('/api/verificar/{codigo}', [CursoController::class, 'verificarCertificado'])->name('certificado.verificar.api');
+
 Route::middleware(['auth'])->group(function () {
     // Perfil
     Route::get('/perfil', function () {
@@ -39,11 +45,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/certificado/{curso}', [CursoController::class, 'verCertificado'])->name('certificado');
     Route::get('/certificado/{curso}/ver', [CursoController::class, 'verCertificadoView'])->name('certificado.ver');
     Route::get('/certificado/{curso}/descargar', [CursoController::class, 'descargarCertificado'])->name('certificado.descargar');
-    
-    // Verificación de certificado público (sin auth)
-    Route::get('/verificar/{codigo}', function($codigo) {
-        return view('certificado-verificar', compact('codigo'));
-    })->name('certificado.verificar');
 
     // Página de felicitaciones al completar el curso
     Route::get('/cursos/{curso}/completado', [CursoController::class, 'cursoCompletado'])->name('cursos.completado');
@@ -95,7 +96,7 @@ Route::middleware(['auth'])->group(function () {
     
     // Archivos privados (PDF) - requiere auth
     Route::get('/archivo/pdf/{filename}', [FileController::class, 'verPdf'])->name('archivo.pdf');
-    Route::post('/archivo/pdf/{filename}/descargar', [FileController::class, 'descargarPdf'])->name('archivo.pdf.descargar');
+    Route::get('/archivo/pdf/{filename}/descargar', [FileController::class, 'descargarPdf'])->name('archivo.pdf.descargar');
 
     // Progreso de materiales (videos y PDFs)
     Route::post('/material/{material}/video-progress', [MaterialController::class, 'updateVideoProgress'])->name('material.video.progress');

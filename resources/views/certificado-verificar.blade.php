@@ -121,7 +121,7 @@
     <script>
         const codigo = window.location.pathname.split('/').pop();
         
-        fetch('/verificar/' + codigo)
+        fetch('/api/verificar/' + codigo)
             .then(r => r.json())
             .then(data => {
                 const content = document.getElementById('verifyContent');
