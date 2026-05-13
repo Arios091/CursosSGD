@@ -373,63 +373,96 @@
                         $matDone = in_array($materialSeleccionado->id, $materialesCompletados);
                         $curMatIdx = $materialIndex;
                         $nextMat = $materiales->get($curMatIdx + 1);
-                        $allDone = count($materialesCompletados) == $materiales->count();
+                        $nextModule = $modulos->get($moduloIndex + 1);
+                        $hasQuiz = $moduloActual && $moduloActual->cuestionario;
+                        $videoPlatform = $materialSeleccionado->tipo == 'video' ? $materialSeleccionado->video_platform : null;
+                        
+                        // Check evaluation final prerequisites
+                        $allModsComplete = true;
+                        $allQuizzesDone = true;
+                        if ($curso->evaluacionFinal) {
+                            foreach($modulos as $mod) {
+                                $modMats = $mod->materiales;
+                                if ($modMats->count() > 0) {
+                                    $modCompleted = \App\Models\ProgresoMaterial::where('user_id', auth()->id())
+                                        ->whereIn('material_id', $modMats->pluck('id'))
+                                        ->where('material_completado', 'true')->count();
+                                    if ($modCompleted < $modMats->count()) { $allModsComplete = false; }
+                                }
+                                if ($mod->cuestionario) {
+                                    $quizDone = \App\Models\ResultadoCuestionario::where('user_id', auth()->id())
+                                        ->where('modulo_id', $mod->id)->where('aprobado', 'true')->exists();
+                                    if (!$quizDone) { $allQuizzesDone = false; }
+                                }
+                            }
+                        }
+                        $isLastModule = $moduloIndex == ($modulos->count() - 1);
                     @endphp
                     
-                    @if($matDone)
-                        <div class="cs-actions">
-                            <span class="cs-badge cs-badge-success"><i class="fas fa-check"></i> Material completado</span>
-                            @if($nextMat)
-                                <a href="{{ route('cursos.ver', [$curso, 'modulo' => $moduloIndex, 'material' => $curMatIdx + 1]) }}" class="cs-btn cs-btn-outline">
-                                    Siguiente material: {{ $nextMat->titulo }} <i class="fas fa-arrow-right"></i>
-                                </a>
-                            @else
-                                @php
-                                    $nextModule = $modulos->get($moduloIndex + 1);
-                                @endphp
-                                @if($nextModule)
-                                    <a href="{{ route('cursos.ver', [$curso, 'modulo' => $moduloIndex + 1, 'material' => 0]) }}" class="cs-btn cs-btn-primary">
-                                        Siguiente módulo: {{ $nextModule->titulo ?: 'Módulo ' . ($moduloIndex + 2) }} <i class="fas fa-arrow-right"></i>
-                                    </a>
-                                @else
-                                    <div style="background: #dcfce7; padding: 16px 20px; border-radius: 10px; color: #166534; width: 100%;">
-                                        <i class="fas fa-check-circle me-2"></i> ¡Has completado todos los materiales de este módulo!
-                                    </div>
-                                @endif
-                            @endif
-                        </div>
-                    @else
-                        <div class="cs-actions">
-                            <span class="cs-badge cs-badge-warning"><i class="fas fa-clock"></i> Material pendiente</span>
-                            <form action="{{ route('cursos.material', $curso) }}" method="POST" style="display: inline;">
-                                @csrf
-                                <input type="hidden" name="material_id" value="{{ $materialSeleccionado->id }}">
-                                <input type="hidden" name="modulo_id" value="{{ $moduloActual->id }}">
-                                <button type="submit" class="cs-btn cs-btn-primary">
-                                    <i class="fas fa-check"></i> Marcar como Completado
-                                </button>
-                            </form>
-                        </div>
-                    @endif
+                    {{-- PENDING state --}}
+                    <div id="pending-state-{{ $materialSeleccionado->id }}" class="cs-actions" @if($matDone) style="display:none;" @endif>
+                        <span class="cs-badge cs-badge-warning"><i class="fas fa-clock"></i> Material pendiente</span>
+                        
+                        @if($materialSeleccionado->tipo == 'video' && $videoPlatform === 'youtube')
+                            <span style="color: #6b7280; font-size: 13px;">
+                                <i class="fas fa-spinner fa-spin"></i> Se marcará automáticamente al finalizar el video
+                            </span>
+                        @elseif($materialSeleccionado->tipo == 'video')
+                            <button onclick="completarManual({{ $materialSeleccionado->id }})" class="cs-btn cs-btn-primary">
+                                <i class="fas fa-check"></i> Continuar
+                            </button>
+                            <span style="color: #6b7280; font-size: 13px;">
+                                <i class="fas fa-info-circle"></i> Sin seguimiento automático
+                            </span>
+                        @elseif($materialSeleccionado->tipo == 'pdf')
+                            <span style="color: #6b7280; font-size: 13px;">
+                                <i class="fas fa-spinner fa-spin"></i> Se marcará automáticamente al desplazarte hasta el final
+                            </span>
+                        @endif
+                    </div>
+                    
+                    {{-- COMPLETED state --}}
+                    <div id="completed-state-{{ $materialSeleccionado->id }}" class="cs-actions" @if(!$matDone) style="display:none;" @endif>
+                        <span class="cs-badge cs-badge-success"><i class="fas fa-check"></i> Material completado</span>
+                        
+                        @if($nextMat)
+                            <a href="{{ route('cursos.ver', [$curso, 'modulo' => $moduloIndex, 'material' => $curMatIdx + 1]) }}" class="cs-btn cs-btn-outline">
+                                Siguiente: {{ $nextMat->titulo }} <i class="fas fa-arrow-right"></i>
+                            </a>
+                        @elseif($hasQuiz)
+                            <a href="{{ route('cursos.cuestionario.ver', [$curso, $moduloActual->id]) }}" class="cs-btn cs-btn-gold">
+                                <i class="fas fa-clipboard-list"></i> Realizar Cuestionario
+                            </a>
+                        @elseif($nextModule)
+                            <a href="{{ route('cursos.ver', [$curso, 'modulo' => $moduloIndex + 1, 'material' => 0]) }}" class="cs-btn cs-btn-primary">
+                                Siguiente módulo: {{ $nextModule->titulo ?: 'Módulo ' . ($moduloIndex + 2) }} <i class="fas fa-arrow-right"></i>
+                            </a>
+                        @elseif($isLastModule && $curso->evaluacionFinal && $allModsComplete && $allQuizzesDone)
+                            <a href="{{ route('cursos.evaluacion-final', $curso) }}" class="cs-btn" style="background: var(--verde-institucional); color: #fff;">
+                                <i class="fas fa-graduation-cap"></i> Realizar Evaluación Final
+                            </a>
+                        @else
+                            <div style="background: #dcfce7; padding: 16px 20px; border-radius: 10px; color: #166534; width: 100%;">
+                                <i class="fas fa-check-circle me-2"></i> ¡Has completado todos los materiales!
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
             @endif
 
-            {{-- Banner de cuestionario del módulo (si todos los materiales están completados) --}}
-            @if(($esEstudiante || $esDocente) && $moduloActual->cuestionario && count($materialesCompletados) == $materiales->count() && $materiales->count() > 0)
+            {{-- Banner informativo de cuestionario (sin botón, la acción está arriba) --}}
+            @if(($esEstudiante || $esDocente) && $moduloActual->cuestionario && count($materialesCompletados) == $materiales->count() && $materiales->count() > 0 && !$nextMat)
             <div class="cs-quiz-banner">
                 <div>
                     <h4><i class="fas fa-clipboard-list me-2"></i>Cuestionario del Módulo</h4>
                     <p>Has completado todos los materiales. ¡Es hora de evaluar tus conocimientos!</p>
                 </div>
-                <a href="{{ route('cursos.cuestionario.ver', [$curso, $moduloActual->id]) }}" class="cs-btn cs-btn-gold" style="flex-shrink: 0;">
-                    <i class="fas fa-play"></i> Iniciar Cuestionario
-                </a>
             </div>
             @endif
 
-            {{-- Banner de evaluación final (si es el último módulo y no tiene cuestionario o está aprobado) --}}
-            @if(($esEstudiante || $esDocente) && $moduloIndex == ($modulos->count() - 1) && $curso->evaluacionFinal)
+            {{-- Banner informativo de evaluación final (sin botón, la acción está arriba) --}}
+            @if(($esEstudiante || $esDocente) && $moduloIndex == ($modulos->count() - 1) && $curso->evaluacionFinal && !$nextMat && !$hasQuiz)
                 @php
                     $allModulesDone = true;
                     foreach($modulos as $mod) {
@@ -450,9 +483,6 @@
                         <h4><i class="fas fa-graduation-cap me-2"></i>Evaluación Final</h4>
                         <p>¡Has completado todo el curso! Realiza la evaluación final para obtener tu certificado.</p>
                     </div>
-                    <a href="{{ route('cursos.evaluacion-final', $curso) }}" class="cs-btn" style="background: #fff; color: var(--verde-institucional); flex-shrink: 0;">
-                        <i class="fas fa-play"></i> Iniciar Evaluación
-                    </a>
                 </div>
                 @endif
             @endif
@@ -474,6 +504,15 @@ let tiempoVisto = 0;
 let videoCompletado = false;
 let videoDuration = 0;
 let requiredTime = 0;
+let materialActualId = {{ $materialSeleccionado ? $materialSeleccionado->id : 0 }};
+
+// Toggle UI entre pendiente y completado
+function toggleMaterialCompletado(materialId) {
+    var pending = document.getElementById('pending-state-' + materialId);
+    var completed = document.getElementById('completed-state-' + materialId);
+    if (pending) pending.style.display = 'none';
+    if (completed) completed.style.display = 'flex';
+}
 
 // Detectar cuando se carga un video
 function initVideoTracking() {
@@ -497,31 +536,23 @@ function initVideoTracking() {
         });
         
         function onPlayerReady(event) {
-            // Obtener duración total del video
             videoDuration = player.getDuration();
-            // Calcular 90% de la duración
             requiredTime = videoDuration * 0.9;
         }
         
         function onPlayerStateChange(event) {
             if (event.data === YT.PlayerState.PLAYING && !videoCompletado) {
-                // Iniciar contador
                 videoInterval = setInterval(function() {
                     tiempoVisto++;
                     
-                    // Enviar progreso cada 10 segundos
                     if (tiempoVisto % 10 === 0) {
                         updateVideoProgress();
                     }
                     
-                    // Si llegó al 90% de la duración, marcar como completado
                     if (requiredTime > 0 && tiempoVisto >= requiredTime) {
                         videoCompletado = true;
                         clearInterval(videoInterval);
-                        // Enviar marcado final
                         updateVideoProgressFinal();
-                        // Mostrar mensaje de éxito
-                        showMaterialComplete('video');
                     }
                 }, 1000);
             } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
@@ -535,10 +566,8 @@ function initVideoTracking() {
 
 // Actualizar progreso de video en servidor
 function updateVideoProgress() {
-    const materialId = {{ $materialSeleccionado ? $materialSeleccionado->id : 0 }};
-    if (!materialId) return;
-    
-    fetch('/material/' + materialId + '/video-progress', {
+    if (!materialActualId) return;
+    fetch('/material/' + materialActualId + '/video-progress', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -553,16 +582,15 @@ function updateVideoProgress() {
     .then(data => {
         if (data.video_completado) {
             videoCompletado = true;
+            toggleMaterialCompletado(materialActualId);
         }
     });
 }
 
 // Marcar video como completado final
 function updateVideoProgressFinal() {
-    const materialId = {{ $materialSeleccionado ? $materialSeleccionado->id : 0 }};
-    if (!materialId) return;
-    
-    fetch('/material/' + materialId + '/video-progress', {
+    if (!materialActualId) return;
+    fetch('/material/' + materialActualId + '/video-progress', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -572,7 +600,13 @@ function updateVideoProgressFinal() {
             tiempo_visto: tiempoVisto,
             duracion_total: Math.round(videoDuration),
             completado: true
-        })
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.video_completado) {
+            toggleMaterialCompletado(materialActualId);
+        }
     });
 }
 
@@ -584,33 +618,46 @@ function initPdfScrollTracking() {
     let scrollTimeout = null;
     let scrollCompletado = false;
     
-    // Usar un contenedor padre para detectar scroll
     const container = embed.parentElement;
     if (!container) return;
     
-    // Verificar cuando el PDF está visible completamente
     container.addEventListener('scroll', function() {
         if (scrollCompletado) return;
         
         const scrollTop = container.scrollTop;
         const scrollHeight = container.scrollHeight - container.clientHeight;
         
-        // Si el usuario hizo scroll hasta el 90% del contenido
         if (scrollHeight > 0 && (scrollTop / scrollHeight) >= 0.9) {
             scrollCompletado = true;
             
             if (scrollTimeout) clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(function() {
                 marcarPdfCompletado();
-            }, 1000); // Esperar 1 segundo para confirmar
+            }, 1000);
         }
     });
 }
 
 function marcarPdfCompletado() {
-    const materialId = {{ $materialSeleccionado ? $materialSeleccionado->id : 0 }};
+    if (!materialActualId) return;
+    fetch('/material/' + materialActualId + '/pdf-scroll', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.scroll_completado) {
+            toggleMaterialCompletado(materialActualId);
+        }
+    });
+}
+
+// Botón "Continuar" para videos sin auto-seguimiento (Google Drive, Vimeo)
+function completarManual(materialId) {
     if (!materialId) return;
-    
     fetch('/material/' + materialId + '/pdf-scroll', {
         method: 'POST',
         headers: {
@@ -621,28 +668,14 @@ function marcarPdfCompletado() {
     .then(response => response.json())
     .then(data => {
         if (data.scroll_completado) {
-            showMaterialComplete('pdf');
+            toggleMaterialCompletado(materialId);
         }
     });
 }
 
-// Mostrar mensaje de material completado
-function showMaterialComplete(tipo) {
-    const tipoTexto = tipo === 'video' ? 'Video completado' : 'PDF leído';
-    const alert = document.createElement('div');
-    alert.className = 'alert alert-success';
-    alert.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;animation:slideIn 0.3s;';
-    alert.innerHTML = '<i class="fas fa-check-circle"></i> ¡' + tipoTexto + '! Puedes continuar con el siguiente material.';
-    document.body.appendChild(alert);
-    
-    setTimeout(function() {
-        alert.remove();
-    }, 3000);
-}
-
 // Inicializar cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
-    @if($materialSeleccionado && $materialSeleccionado->tipo == 'video')
+    @if($materialSeleccionado && $materialSeleccionado->tipo == 'video' && ($materialSeleccionado->video_platform ?? '') === 'youtube')
         setTimeout(initVideoTracking, 1000);
     @elseif($materialSeleccionado && $materialSeleccionado->tipo == 'pdf')
         initPdfScrollTracking();
