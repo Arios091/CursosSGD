@@ -497,7 +497,6 @@
     </div>
 </div>
 
-@section('scripts')
 <script>
 let videoInterval = null;
 let tiempoVisto = 0;
@@ -706,7 +705,6 @@ document.addEventListener('DOMContentLoaded', function() {
     @endif
 });
 </script>
-@endsection
 
 @endif
 @endsection
