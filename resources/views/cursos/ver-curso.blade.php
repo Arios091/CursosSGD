@@ -507,39 +507,56 @@ let materialActualId = {{ $materialSeleccionado ? $materialSeleccionado->id : 0 
 
 // Toggle UI entre pendiente y completado
 function toggleMaterialCompletado(materialId) {
+    console.log('[UI] toggleMaterialCompletado called for materialId:', materialId);
     var pending = document.getElementById('pending-state-' + materialId);
     var completed = document.getElementById('completed-state-' + materialId);
+    console.log('[UI] pending element found:', !!pending, '| completed element found:', !!completed);
     if (pending) pending.style.display = 'none';
     if (completed) completed.style.display = 'flex';
 }
 
 // Detectar cuando se carga un video
 function initVideoTracking() {
+    console.log('[VIDEO] initVideoTracking started');
+    
     function createPlayer() {
+        console.log('[VIDEO] createPlayer called');
         var iframe = document.querySelector('iframe');
-        if (!iframe || iframe.src.indexOf('youtube') === -1) return;
-        if (videoCompletado) return;
+        if (!iframe) { console.log('[VIDEO] ERROR: no iframe found in DOM'); return; }
+        console.log('[VIDEO] iframe src:', iframe.src);
+        if (iframe.src.indexOf('youtube') === -1) { console.log('[VIDEO] ERROR: iframe src is not youtube'); return; }
+        if (videoCompletado) { console.log('[VIDEO] already completed, skipping'); return; }
         
-        var player = new YT.Player(iframe, {
-            events: {
-                'onStateChange': onPlayerStateChange,
-                'onReady': onPlayerReady
-            }
-        });
+        try {
+            var player = new YT.Player(iframe, {
+                events: {
+                    'onStateChange': onPlayerStateChange,
+                    'onReady': onPlayerReady
+                }
+            });
+            console.log('[VIDEO] YT.Player created successfully');
+        } catch(e) {
+            console.log('[VIDEO] ERROR creating YT.Player:', e.message);
+            return;
+        }
         
         function onPlayerReady(event) {
             videoDuration = player.getDuration();
             requiredTime = videoDuration * 0.9;
+            console.log('[VIDEO] Player ready, duration:', videoDuration, 'requiredTime:', requiredTime);
         }
         
         function onPlayerStateChange(event) {
+            console.log('[VIDEO] State change:', event.data, '(PLAYING=1, PAUSED=2, ENDED=0)');
             if (event.data === YT.PlayerState.ENDED && !videoCompletado) {
+                console.log('[VIDEO] Video ENDED, marking complete');
                 videoCompletado = true;
                 if (videoInterval) clearInterval(videoInterval);
                 marcarVideoCompletado();
                 return;
             }
             if (event.data === YT.PlayerState.PLAYING && !videoCompletado) {
+                console.log('[VIDEO] Video PLAYING, starting interval');
                 videoInterval = setInterval(function() {
                     tiempoVisto++;
                     
@@ -548,12 +565,14 @@ function initVideoTracking() {
                     }
                     
                     if (requiredTime > 0 && tiempoVisto >= requiredTime) {
+                        console.log('[VIDEO] 90% reached at tiempoVisto=' + tiempoVisto + ', requiredTime=' + requiredTime);
                         videoCompletado = true;
                         clearInterval(videoInterval);
                         marcarVideoCompletado();
                     }
                 }, 1000);
             } else if (event.data === YT.PlayerState.PAUSED) {
+                console.log('[VIDEO] Video PAUSED, clearing interval');
                 if (videoInterval) {
                     clearInterval(videoInterval);
                 }
@@ -562,24 +581,28 @@ function initVideoTracking() {
     }
     
     function marcarVideoCompletado() {
+        console.log('[VIDEO] marcarVideoCompletado called, materialId:', materialActualId);
         updateVideoProgressFinal();
         toggleMaterialCompletado(materialActualId);
     }
     
     // Si API ya cargada, crear player directamente
     if (window.YT && typeof YT.Player === 'function') {
+        console.log('[VIDEO] YT API already loaded, creating player directly');
         createPlayer();
         return;
     }
     
-    // Esperar a que cargue la API
+    console.log('[VIDEO] YT API not loaded, will wait for onYouTubeIframeAPIReady');
     var prevCallback = window.onYouTubeIframeAPIReady;
     window.onYouTubeIframeAPIReady = function() {
+        console.log('[VIDEO] onYouTubeIframeAPIReady fired');
         if (typeof prevCallback === 'function') prevCallback();
         createPlayer();
     };
     
     if (!window.YT) {
+        console.log('[VIDEO] Loading YouTube IFrame API script');
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
