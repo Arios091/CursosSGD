@@ -516,11 +516,12 @@ function toggleMaterialCompletado(materialId) {
 
 // Detectar cuando se carga un video
 function initVideoTracking() {
-    const iframe = document.querySelector('iframe');
-    if (!iframe || iframe.src.indexOf('youtube') === -1) return;
-    
     function createPlayer() {
-        const player = new YT.Player(iframe, {
+        var iframe = document.querySelector('iframe');
+        if (!iframe || iframe.src.indexOf('youtube') === -1) return;
+        if (videoCompletado) return;
+        
+        var player = new YT.Player(iframe, {
             events: {
                 'onStateChange': onPlayerStateChange,
                 'onReady': onPlayerReady
@@ -533,6 +534,12 @@ function initVideoTracking() {
         }
         
         function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED && !videoCompletado) {
+                videoCompletado = true;
+                if (videoInterval) clearInterval(videoInterval);
+                marcarVideoCompletado();
+                return;
+            }
             if (event.data === YT.PlayerState.PLAYING && !videoCompletado) {
                 videoInterval = setInterval(function() {
                     tiempoVisto++;
@@ -544,10 +551,10 @@ function initVideoTracking() {
                     if (requiredTime > 0 && tiempoVisto >= requiredTime) {
                         videoCompletado = true;
                         clearInterval(videoInterval);
-                        updateVideoProgressFinal();
+                        marcarVideoCompletado();
                     }
                 }, 1000);
-            } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+            } else if (event.data === YT.PlayerState.PAUSED) {
                 if (videoInterval) {
                     clearInterval(videoInterval);
                 }
@@ -555,13 +562,18 @@ function initVideoTracking() {
         }
     }
     
-    // Si la API ya está cargada, crear el player directamente
-    if (window.YT && YT.loaded) {
+    function marcarVideoCompletado() {
+        updateVideoProgressFinal();
+        toggleMaterialCompletado(materialActualId);
+    }
+    
+    // Si API ya cargada, crear player directamente
+    if (window.YT && typeof YT.Player === 'function') {
         createPlayer();
         return;
     }
     
-    // Cargar la API
+    // Esperar a que cargue la API
     var prevCallback = window.onYouTubeIframeAPIReady;
     window.onYouTubeIframeAPIReady = function() {
         if (typeof prevCallback === 'function') prevCallback();
