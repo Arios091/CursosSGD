@@ -519,15 +519,7 @@ function initVideoTracking() {
     const iframe = document.querySelector('iframe');
     if (!iframe || iframe.src.indexOf('youtube') === -1) return;
     
-    // YouTube API
-    if (!window.YT) {
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-    }
-    
-    window.onYouTubeIframeAPIReady = function() {
+    function createPlayer() {
         const player = new YT.Player(iframe, {
             events: {
                 'onStateChange': onPlayerStateChange,
@@ -561,7 +553,27 @@ function initVideoTracking() {
                 }
             }
         }
+    }
+    
+    // Si la API ya está cargada, crear el player directamente
+    if (window.YT && YT.loaded) {
+        createPlayer();
+        return;
+    }
+    
+    // Cargar la API
+    var prevCallback = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = function() {
+        if (typeof prevCallback === 'function') prevCallback();
+        createPlayer();
     };
+    
+    if (!window.YT) {
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
 }
 
 // Actualizar progreso de video en servidor
@@ -600,7 +612,7 @@ function updateVideoProgressFinal() {
             tiempo_visto: tiempoVisto,
             duracion_total: Math.round(videoDuration),
             completado: true
-        }
+        })
     })
     .then(response => response.json())
     .then(data => {
