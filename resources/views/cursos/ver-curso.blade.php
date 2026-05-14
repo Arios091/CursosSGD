@@ -415,8 +415,11 @@
                                 <i class="fas fa-info-circle"></i> Sin seguimiento automático
                             </span>
                         @elseif($materialSeleccionado->tipo == 'pdf')
+                            <button onclick="completarManual({{ $materialSeleccionado->id }})" class="cs-btn cs-btn-primary">
+                                <i class="fas fa-check"></i> Continuar
+                            </button>
                             <span style="color: #6b7280; font-size: 13px;">
-                                <i class="fas fa-spinner fa-spin"></i> Se marcará automáticamente al desplazarte hasta el final
+                                <i class="fas fa-info-circle"></i> Marca como completado al terminar de leer
                             </span>
                         @endif
                     </div>
