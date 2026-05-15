@@ -29,26 +29,18 @@
         $cursosPopulares = \App\Models\Curso::withCount('progresos')->orderBy('progresos_count', 'desc')->take(5)->get();
         $cursosData = \App\Models\Curso::withCount('progresos')->get();
     } else {
-        $cursosEnProgreso = \App\Models\ProgresoCurso::where('user_id', $user->id)
-            ->where('estado', 'en_progreso')
-            ->with('curso')
-            ->get();
+        $cursoEnProgresoActual = $user->cursoEnProgreso;
 
         $cursosCompletados = \App\Models\ProgresoCurso::where('user_id', $user->id)
             ->where('estado', 'completado')
             ->with('curso')
             ->get();
 
-        $horasEstudiadas = $cursosCompletados->sum(function($progreso) {
-            return $progreso->curso ? $progreso->curso->carga_horaria : 0;
-        });
-
         $cursoIdsInscritos = \App\Models\ProgresoCurso::where('user_id', $user->id)
             ->pluck('curso_id')
             ->toArray();
 
         $cursosDisponibles = \App\Models\Curso::whereNotIn('id', $cursoIdsInscritos)->get();
-        $cursoEnProgresoActual = $user->cursoEnProgreso;
     }
 @endphp
 
@@ -321,62 +313,9 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @else
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
-    <div class="stat-card" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s;">
-        <div style="display: flex; align-items: center; gap: 16px;">
-            <div style="width: 50px; height: 50px; background: #dcfce7; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-check-circle" style="color: #16a34a; font-size: 24px;"></i>
-            </div>
-            <div>
-                <div class="stat-number" style="font-size: 28px; font-weight: 700; color: #1f2937;" data-target="{{ $cursosCompletados->count() }}">0</div>
-                <div style="font-size: 14px; color: #6b7280;">Cursos Completados</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="stat-card" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s;">
-        <div style="display: flex; align-items: center; gap: 16px;">
-            <div style="width: 50px; height: 50px; background: #fef3c7; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-clock" style="color: #f59e0b; font-size: 24px;"></i>
-            </div>
-            <div>
-                <div class="stat-number" style="font-size: 28px; font-weight: 700; color: #1f2937;" data-target="{{ $horasEstudiadas }}">0</div>
-                <div style="font-size: 14px; color: #6b7280;">Horas de Estudio</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="stat-card" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s;">
-        <div style="display: flex; align-items: center; gap: 16px;">
-            <div style="width: 50px; height: 50px; background: #dbeafe; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-spinner" style="color: #3b82f6; font-size: 24px;"></i>
-            </div>
-            <div>
-                <div class="stat-number" style="font-size: 28px; font-weight: 700; color: #1f2937;" data-target="{{ $cursosEnProgreso->count() }}">0</div>
-                <div style="font-size: 14px; color: #6b7280;">Cursos en Progreso</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="stat-card" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s;">
-        <div style="display: flex; align-items: center; gap: 16px;">
-            <div style="width: 50px; height: 50px; background: #f3e8ff; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-book" style="color: #9333ea; font-size: 24px;"></i>
-            </div>
-            <div>
-                <div class="stat-number" style="font-size: 28px; font-weight: 700; color: #1f2937;" data-target="{{ $cursosDisponibles->count() }}">0</div>
-                <div style="font-size: 14px; color: #6b7280;">Cursos Disponibles</div>
-            </div>
-        </div>
-    </div>
-</div>
-
+{{-- Curso activo --}}
 @if($cursoEnProgresoActual)
 @php
-    $progresoActual = \App\Models\ProgresoCurso::where('user_id', $user->id)
-        ->where('curso_id', $cursoEnProgresoActual->id)
-        ->first();
-
     $totalMateriales = $cursoEnProgresoActual->modulos->flatMap(function($m) { return $m->materiales; })->count();
     $materialesCompletados = \App\Models\ProgresoMaterial::where('user_id', $user->id)
         ->whereIn('material_id', $cursoEnProgresoActual->modulos->flatMap(function($m) { return $m->materiales->pluck('id'); }))
@@ -399,8 +338,41 @@ document.addEventListener('DOMContentLoaded', function() {
         <div style="background: var(--dorado); height: 100%; width: {{ $porcentajeProgreso }}%; transition: width 0.5s ease;"></div>
     </div>
 </div>
+@else
+<div style="background: white; border-radius: 16px; padding: 48px 24px; margin-bottom: 30px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <div style="font-size: 64px; margin-bottom: 16px;">📚</div>
+    <h3 style="font-size: 20px; font-weight: 600; color: #1f2937; margin-bottom: 8px;">No tienes cursos en progreso</h3>
+    <p style="font-size: 14px; color: #6b7280; margin: 0;">Explora los cursos disponibles abajo e inscríbete para comenzar tu aprendizaje.</p>
+</div>
 @endif
 
+{{-- Cursos Completados --}}
+@if($cursosCompletados->count() > 0)
+<div style="margin-bottom: 30px;">
+    <h3 style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-check-circle" style="color: #16a34a;"></i> Cursos Completados
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+        @foreach($cursosCompletados as $progreso)
+        @if($progreso->curso)
+        <div class="card" style="border: none; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="font-size: 16px; font-weight: 600; color: #1f2937; margin: 0 0 4px;">{{ $progreso->curso->titulo }}</h4>
+                    <span style="font-size: 13px; color: #16a34a; font-weight: 500;">✓ Completado</span>
+                </div>
+                <a href="{{ route('certificado.ver', $progreso->curso) }}" style="display: inline-flex; align-items: center; gap: 8px; background: var(--dorado); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 500;">
+                    <i class="fas fa-certificate"></i> Ver Certificado
+                </a>
+            </div>
+        </div>
+        @endif
+        @endforeach
+    </div>
+</div>
+@endif
+
+{{-- Cursos Disponibles --}}
 @if($cursosDisponibles->count() > 0)
 <div style="margin-bottom: 30px;">
     <h3 style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
@@ -408,7 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </h3>
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
         @foreach($cursosDisponibles as $curso)
-        <div class="course-card" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s; cursor: pointer;">
+        <div class="course-card" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s;">
             @if($curso->imagen_referencial)
             <img src="{{ asset('storage/'.$curso->imagen_referencial) }}" style="width: 100%; height: 160px; object-fit: cover;" alt="{{ $curso->titulo }}">
             @else
@@ -435,38 +407,13 @@ document.addEventListener('DOMContentLoaded', function() {
         @endforeach
     </div>
 </div>
-@else
+@elseif(!$cursoEnProgresoActual)
 <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 40px; text-align: center;">
     <div style="width: 80px; height: 80px; background: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
         <i class="fas fa-check-circle" style="color: white; font-size: 40px;"></i>
     </div>
     <h4 style="color: #1f2937; margin-bottom: 8px;">¡Estás al día!</h4>
-    <p style="color: #6b7280;">No hay cursos disponibles nuevos por ahora.</p>
-</div>
-@endif
-
-@if($cursosEnProgreso->count() > 0 && !$cursoEnProgresoActual)
-<div style="margin-bottom: 30px;">
-    <h3 style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-spinner" style="color: #3b82f6;"></i> Cursos en Progreso
-    </h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
-        @foreach($cursosEnProgreso as $progreso)
-        @if($progreso->curso)
-        <a href="{{ route('cursos.ver', $progreso->curso) }}" class="course-card" style="display: block; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-decoration: none; transition: all 0.3s;">
-            <h4 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 8px;">{{ $progreso->curso->titulo }}</h4>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 13px; color: #6b7280;">
-                    <i class="fas fa-layer-group" style="margin-right: 4px;"></i>{{ $progreso->curso->modulos->count() }} módulos
-                </span>
-                <span style="background: #dbeafe; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">
-                    En Progreso
-                </span>
-            </div>
-        </a>
-        @endif
-        @endforeach
-    </div>
+    <p style="color: #6b7280;">No hay cursos disponibles por ahora.</p>
 </div>
 @endif
 @endif
