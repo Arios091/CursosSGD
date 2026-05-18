@@ -197,7 +197,7 @@ class CursoController extends Controller
             $mensaje = 'Solo puedes llevar un curso a la vez. Estás llevando "' . ($cursoActual ? $cursoActual->titulo : 'un curso') . '". Termínalo primero.';
             
             if ($isJson) {
-                return response()->json(['error' => $mensaje]);
+                return response()->json(['error' => $mensaje], 409);
             }
             
             return redirect()->route('home')->with('error', $mensaje);
