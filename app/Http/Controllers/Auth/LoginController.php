@@ -77,4 +77,15 @@ class LoginController extends Controller
             'email' => 'El usuario o la contraseña son incorrectos. Por favor, verifica tus credenciales e intenta nuevamente.'
         ]);
     }
+
+    protected function authenticated(Request $request, $user)
+    {
+        if (! $user->hasVerifiedEmail()) {
+            $this->guard()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('verification.notice')
+                ->with('warning', 'Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.');
+        }
+    }
 }

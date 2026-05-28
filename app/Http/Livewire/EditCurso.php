@@ -574,7 +574,7 @@ class EditCurso extends Component
                                     [
                                         'pregunta_id' => $preguntaModel->id,
                                         'opcion' => $opcion['texto'],
-                                        'es_correcta' => $opcion['es_correcta'] ? 'true' : 'false',
+                                        'es_correcta' => (bool) $opcion['es_correcta'],
                                         'orden' => $oIndex + 1,
                                     ]
                                 );
@@ -636,7 +636,7 @@ class EditCurso extends Component
                                 [
                                     'pregunta_evaluacion_id' => $preguntaModel->id,
                                     'opcion' => $opcion['texto'],
-                                    'es_correcta' => $opcion['es_correcta'] ? 'true' : 'false',
+                                    'es_correcta' => (bool) $opcion['es_correcta'],
                                     'orden' => $oIndex + 1,
                                 ]
                             );

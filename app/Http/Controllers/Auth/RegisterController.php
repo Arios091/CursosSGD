@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -88,6 +89,15 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \App\Models\User
      */
+    protected function registered(Request $request, $user)
+    {
+        $this->guard()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('verification.notice')
+            ->with('success', 'Te hemos enviado un correo de verificación. Revisa tu bandeja de entrada.');
+    }
+
     protected function create(array $data)
     {
         $name = $data['primer_nombre'];

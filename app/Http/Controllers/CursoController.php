@@ -322,7 +322,7 @@ class CursoController extends Controller
         $todosMateriales = $modulo->materiales->sortBy('orden')->values();
         $materialesCompletados = \App\Models\ProgresoMaterial::where('user_id', $user->id)
             ->whereIn('material_id', $todosMateriales->pluck('id'))
-            ->where('material_completado', 'true')
+            ->where('material_completado', true)
             ->count();
         
         // Find current material index in the sorted collection
@@ -364,7 +364,7 @@ class CursoController extends Controller
         $materiales = $modulo->materiales;
         $materialesCompletados = \App\Models\ProgresoMaterial::where('user_id', $user->id)
             ->whereIn('material_id', $materiales->pluck('id'))
-            ->where('material_completado', 'true')
+            ->where('material_completado', true)
             ->count();
 
         if ($materialesCompletados != $materiales->count()) {
@@ -515,7 +515,7 @@ class CursoController extends Controller
         foreach ($modulos as $modulo) {
             $materialesCompletados = \App\Models\ProgresoMaterial::where('user_id', $user->id)
                 ->whereIn('material_id', $modulo->materiales->pluck('id'))
-                ->where('material_completado', 'true')
+                ->where('material_completado', true)
                 ->count();
             
             if ($materialesCompletados < $modulo->materiales->count()) {
@@ -526,7 +526,7 @@ class CursoController extends Controller
             if ($modulo->cuestionario) {
                 $quizAprobado = \App\Models\ResultadoCuestionario::where('user_id', $user->id)
                     ->where('modulo_id', $modulo->id)
-                    ->where('aprobado', 'true')
+                    ->where('aprobado', true)
                     ->exists();
                 
                 if (!$quizAprobado) {
@@ -594,7 +594,7 @@ class CursoController extends Controller
                 ->where('curso_id', $curso->id)
                 ->update([
                     'estado' => 'completado',
-                    'evaluacion_aprobada' => 'true',
+                    'evaluacion_aprobada' => true,
                     'completado_at' => now(),
                     'fecha_fin' => now(),
                 ]);

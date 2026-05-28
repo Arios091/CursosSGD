@@ -77,7 +77,7 @@ return [
             'schema' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
             'options' => [
-                PDO::ATTR_EMULATE_PREPARES => true,
+                PDO::ATTR_EMULATE_PREPARES => false,
             ],
 
         ],

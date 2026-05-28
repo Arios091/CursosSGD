@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
-use App\Models\Traits\BoolToPgString;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ProgresoCurso extends Model
 {
-    use BoolToPgString, HasFactory;
+    use HasFactory;
 
-    protected $pgBoolFields = ['evaluacion_aprobada'];
     protected $table = 'progreso_cursos';
 
     protected $fillable = [
