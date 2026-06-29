@@ -34,24 +34,4 @@ class ProgresoMaterial extends Model
     {
         return $this->belongsTo(Material::class);
     }
-
-    // Verificar si el material está completo
-    public function verificarCompletado($material)
-    {
-        if ($material->tipo === 'video') {
-            // Para videos: tiempo mínimo de 2 minutos (120 segundos)
-            $tiempoRequerido = 120;
-            $this->video_completado = $this->tiempo_visto >= $tiempoRequerido;
-        }
-
-        if ($material->tipo === 'pdf') {
-            // Para PDFs: scroll completado
-            // El scroll_completado ya se actualiza via JavaScript
-        }
-
-        $this->material_completado = $this->video_completado || $this->scroll_completado;
-        $this->save();
-
-        return $this->material_completado;
-    }
 }

@@ -3,51 +3,25 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
-use App\Models\User;
-use Illuminate\Foundation\Auth\RegistersUsers;
+use App\Models\PendingUser;
+use App\Notifications\VerifyPendingEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
-    use RegistersUsers;
-
-    /**
-     * Where to redirect users after registration.
-     *
-     * @var string
-     */
-    protected $redirectTo = RouteServiceProvider::HOME;
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('guest');
     }
 
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
+    public function showRegistrationForm()
+    {
+        return view('auth.register');
+    }
+
     protected function validator(array $data)
     {
         return Validator::make($data, [
@@ -55,7 +29,12 @@ class RegisterController extends Controller
             'segundo_nombre' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
             'primer_apellido' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
             'segundo_apellido' => ['required', 'string', 'max:255', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => [
+                'required', 'string', 'email', 'max:255',
+                'unique:users',
+                'unique:pending_users',
+                'regex:/^[a-zA-Z0-9._%+-]+@unas\.edu\.pe$/i',
+            ],
             'password' => [
                 'required', 
                 'string', 
@@ -74,6 +53,7 @@ class RegisterController extends Controller
             'segundo_apellido.regex' => 'El segundo apellido solo puede contener letras. No uses números ni símbolos.',
             'email.required' => 'El correo electrónico es obligatorio. Por favor, ingresa tu correo institucional.',
             'email.email' => 'El formato del correo no es válido. Ejemplo: juan.perez@unas.edu.pe',
+            'email.regex' => 'Solo se permiten correos institucionales @unas.edu.pe.',
             'email.unique' => 'Este correo ya está registrado. ¿Ya tienes una cuenta? <a href="' . route('login') . '" class="alert-link">Inicia sesión</a>',
             'email.max' => 'El correo electrónico es demasiado largo. Máximo 255 caracteres.',
             'password.required' => 'La contraseña es obligatoria. Por favor, ingresa una contraseña.',
@@ -83,41 +63,35 @@ class RegisterController extends Controller
         ]);
     }
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\Models\User
-     */
-    protected function registered(Request $request, $user)
+    public function register(Request $request)
     {
-        $this->guard()->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect()->route('verification.notice')
-            ->with('success', 'Te hemos enviado un correo de verificación. Revisa tu bandeja de entrada.');
-    }
+        $this->validator($request->all())->validate();
 
-    protected function create(array $data)
-    {
-        $name = $data['primer_nombre'];
-        if (!empty($data['segundo_nombre'])) {
-            $name .= ' ' . $data['segundo_nombre'];
+        $name = $request->primer_nombre;
+        if ($request->filled('segundo_nombre')) {
+            $name .= ' ' . $request->segundo_nombre;
         }
-        $name .= ' ' . $data['primer_apellido'];
-        if (!empty($data['segundo_apellido'])) {
-            $name .= ' ' . $data['segundo_apellido'];
+        $name .= ' ' . $request->primer_apellido;
+        if ($request->filled('segundo_apellido')) {
+            $name .= ' ' . $request->segundo_apellido;
         }
-        
-        return User::create([
+
+        $pendingUser = PendingUser::create([
             'name' => $name,
-            'primer_nombre' => $data['primer_nombre'],
-            'segundo_nombre' => $data['segundo_nombre'] ?? null,
-            'primer_apellido' => $data['primer_apellido'],
-            'segundo_apellido' => $data['segundo_apellido'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'primer_nombre' => $request->primer_nombre,
+            'segundo_nombre' => $request->segundo_nombre,
+            'primer_apellido' => $request->primer_apellido,
+            'segundo_apellido' => $request->segundo_apellido,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
             'role' => 'docente',
+            'token' => Str::random(64),
+            'expires_at' => now()->addHours(24),
         ]);
+
+        $pendingUser->notify(new VerifyPendingEmail($pendingUser));
+
+        return redirect()->route('pending-verification.notice')
+            ->with('email', $request->email);
     }
 }

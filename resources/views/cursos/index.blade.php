@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var cursoId = button.data('curso-id');
         var cursoTitulo = button.data('curso-titulo');
         $(this).find('#deleteCursoTitulo').text(cursoTitulo);
-        $(this).find('#deleteForm').attr('action', '/cursos/' + cursoId);
+        $(this).find('#deleteForm').attr('action', '{{ url('/cursos/') }}' + cursoId);
     });
     const estadoSelect = document.getElementById('estadoSelect');
     const sortSelect = document.getElementById('sortSelect');

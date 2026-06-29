@@ -321,17 +321,51 @@ class CreateCurso extends Component
             if (!$tieneMaterial) {
                 return false;
             }
-        }
 
-        $evalValida = false;
-        foreach ($this->evaluacion_final_preguntas as $preg) {
-            if (!empty(trim($preg['texto']))) {
-                $evalValida = true;
-                break;
+            $hasValidQuestion = false;
+            foreach ($modulo['cuestionario']['preguntas'] as $pregunta) {
+                if (!empty(trim($pregunta['texto']))) {
+                    $opcionesValidas = 0;
+                    $tieneCorrecta = false;
+                    foreach ($pregunta['opciones'] as $opcion) {
+                        if (!empty(trim($opcion['texto']))) {
+                            $opcionesValidas++;
+                            if ($opcion['es_correcta']) {
+                                $tieneCorrecta = true;
+                            }
+                        }
+                    }
+                    if ($opcionesValidas >= 2 && $tieneCorrecta) {
+                        $hasValidQuestion = true;
+                        break;
+                    }
+                }
+            }
+            if (!$hasValidQuestion) {
+                return false;
             }
         }
 
-        return $evalValida;
+        foreach ($this->evaluacion_final_preguntas as $pregunta) {
+            if (empty(trim($pregunta['texto']))) {
+                return false;
+            }
+            $opcionesValidas = 0;
+            $tieneCorrecta = false;
+            foreach ($pregunta['opciones'] as $opcion) {
+                if (!empty(trim($opcion['texto']))) {
+                    $opcionesValidas++;
+                    if ($opcion['es_correcta']) {
+                        $tieneCorrecta = true;
+                    }
+                }
+            }
+            if ($opcionesValidas < 2 || !$tieneCorrecta) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function guardar()
@@ -429,8 +463,8 @@ class CreateCurso extends Component
                 if (!empty($preguntasValidas)) {
                     $cuestionario = $modulo->cuestionario()->create([
                         'titulo' => $moduloData['cuestionario']['titulo'],
-                        'min_aprobacion' => 80,
-                    ]);
+                            'min_aprobacion' => $moduloData['cuestionario']['min_aprobacion'] ?? 80,
+                        ]);
 
                     foreach ($preguntasValidas as $pIdx => $pregunta) {
                         $pregModel = $cuestionario->preguntas()->create([

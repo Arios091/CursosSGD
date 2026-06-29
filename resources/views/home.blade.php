@@ -314,13 +314,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @else
 {{-- Curso activo --}}
-@if($cursoEnProgresoActual)
+@if($cursoEnProgresoActual && $cursoEnProgresoActual->relationLoaded('modulos'))
 @php
-    $totalMateriales = $cursoEnProgresoActual->modulos->flatMap(function($m) { return $m->materiales; })->count();
-    $materialesCompletados = \App\Models\ProgresoMaterial::where('user_id', $user->id)
-        ->whereIn('material_id', $cursoEnProgresoActual->modulos->flatMap(function($m) { return $m->materiales->pluck('id'); }))
-        ->where('material_completado', 'true')
-        ->count();
+    $modulos = $cursoEnProgresoActual->modulos;
+    $totalMateriales = $modulos->flatMap(function($m) { return $m->materiales; })->count();
+    $materialesCompletados = $totalMateriales > 0 ? \App\Models\ProgresoMaterial::where('user_id', $user->id)
+        ->whereIn('material_id', $modulos->flatMap(function($m) { return $m->materiales->pluck('id'); }))
+        ->where('material_completado', true)
+        ->count() : 0;
     $porcentajeProgreso = $totalMateriales > 0 ? round(($materialesCompletados / $totalMateriales) * 100) : 0;
 @endphp
 <div style="background: linear-gradient(135deg, var(--verde-institucional) 0%, #0d7a3f 100%); border-radius: 16px; padding: 24px; margin-bottom: 30px; color: white;" class="continue-course-card">

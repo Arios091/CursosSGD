@@ -39,7 +39,7 @@ class Material extends Model
         }
 
         if (str_contains($url, 'youtube.com') || str_contains($url, 'youtu.be')) {
-            $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s ]{11})/i';
+            $pattern = '/(?:youtube\.com\/(?:shorts\/|live\/|[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s ]{11})/i';
             if (preg_match($pattern, $url, $matches)) {
                 return "https://www.youtube.com/embed/" . $matches[1] . "?enablejsapi=1&rel=0&modestbranding=1";
             }
@@ -69,7 +69,7 @@ class Material extends Model
         }
 
         if (str_contains($this->url, 'youtube.com') || str_contains($this->url, 'youtu.be')) {
-            $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s ]{11})/i';
+            $pattern = '/(?:youtube\.com\/(?:shorts\/|live\/|[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s ]{11})/i';
             return (bool) preg_match($pattern, $this->url);
         }
 

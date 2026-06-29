@@ -15,7 +15,7 @@ class CursoController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except(['verificarCertificado']);
     }
 
     public function index(Request $request)
@@ -73,65 +73,11 @@ class CursoController extends Controller
         return view('cursos.create');
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-                'titulo' => 'required|string|max:255',
-                'descripcion' => 'nullable|string',
-                'fecha_inicio' => 'nullable|date',
-                'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
-                'modulo_titulo' => 'nullable|string|max:255',
-        ]);
-
-        // Crear el curso
-        $curso = Curso::create([
-            'titulo' => $request->titulo,
-            'descripcion' => $request->descripcion,
-            'fecha_inicio' => $request->fecha_inicio,
-            'fecha_fin' => $request->fecha_fin,
-            'user_id' => auth()->id(),
-        ]);
-
-        // Crear el primer módulo (si se proporcionó título o autogenerado)
-        $moduloTitulo = $request->modulo_titulo ?: 'Módulo 1';
-
-        $curso->modulos()->create([
-            'titulo' => $moduloTitulo,
-            'orden' => 1,
-        ]);
-
-        return redirect()->route('home')
-                        ->with('success', '¡Curso y módulo inicial creados correctamente!');
-    }
-    /**
-     * Muestra el formulario para editar un curso (solo admin)
-     */
-    public function edit(Curso $curso)
-    {
-        // Verificar permiso con la Policy (ya lo tienes registrado)
-        $this->authorize('update', $curso);
-
-        // Cargar el curso con sus módulos
-        $curso->load('modulos');
-
-        return view('cursos.edit', compact('curso'));
-    }
-
     public function editLivewire(Curso $curso)
     {
         $this->authorize('update', $curso);
 
         return view('cursos.edit-livewire', compact('curso'));
-    }
-
-
-    public function update(Request $request, Curso $curso)
-    {
-        $this->authorize('update', $curso);
-
-        // Legacy method - course editing is now handled by Livewire EditCurso component
-        // This method is kept for backward compatibility but redirects to Livewire
-        return redirect()->route('cursos.edit', $curso);
     }
 
     public function destroy(Curso $curso)
@@ -425,7 +371,7 @@ class CursoController extends Controller
         }
 
         $porcentaje = $total > 0 ? round(($correctas / $total) * 100) : 0;
-        $aprobado = $porcentaje == 100; // 100% para aprobar
+        $aprobado = $porcentaje >= $cuestionario->min_aprobacion;
 
         \App\Models\ResultadoCuestionario::updateOrCreate(
             ['user_id' => auth()->id(), 'modulo_id' => $modulo->id],
@@ -716,7 +662,7 @@ class CursoController extends Controller
     public function verificarCertificado($codigo)
     {
         $progreso = ProgresoCurso::whereHas('curso', function($q) use ($codigo) {
-            $q->whereRaw("CONCAT('UNAS-CERT-', UPPER(SUBSTRING(titulo, 1, 4)), '-', LPAD(progreso_cursos.id, 6, '0'), '-', EXTRACT(YEAR FROM progreso_cursos.completado_at)) = ?", [$codigo]);
+            $q->whereRaw("CONCAT('UNAS-CERT-', UPPER(SUBSTRING(titulo, 1, 4)), '-', LPAD(CAST(progreso_cursos.id AS TEXT), 6, '0'), '-', EXTRACT(YEAR FROM progreso_cursos.completado_at)) = ?", [$codigo]);
         })->with(['user', 'curso'])->first();
 
         if (!$progreso) {

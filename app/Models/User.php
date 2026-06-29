@@ -27,6 +27,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
         'password',
         'role',
         'curso_en_progreso_id',
+        'email_verified_at',
     ];
 
     public function isAdmin(): bool

@@ -20,6 +20,7 @@ class Curso extends Model
         'imagen_referencial',
         'user_id',
         'categoria',
+        'estado',
     ];
 
     /**
@@ -44,14 +45,6 @@ class Curso extends Model
     public function modulos()
     {
         return $this->hasMany(Modulo::class)->orderBy('orden');
-    }
-
-    /**
-     * Materiales del curso
-     */
-    public function materiales()
-    {
-        return $this->hasMany(Material::class)->orderBy('orden');
     }
 
     /**

@@ -21,10 +21,16 @@ Route::post('/logout', '\App\Http\Controllers\Auth\LoginController@logout')->nam
 Route::get('/register', '\App\Http\Controllers\Auth\RegisterController@showRegistrationForm')->name('register');
 Route::post('/register', '\App\Http\Controllers\Auth\RegisterController@register');
 
-// Verificación de email
+// Verificación de email post-registro (cuenta creada)
 Route::get('/email/verify', '\App\Http\Controllers\Auth\VerificationController@show')->name('verification.notice');
 Route::get('/email/verify/{id}/{hash}', '\App\Http\Controllers\Auth\VerificationController@verify')->name('verification.verify');
 Route::post('/email/resend', '\App\Http\Controllers\Auth\VerificationController@resend')->name('verification.resend');
+
+// Verificación de email pre-registro (pendiente - cuenta temporal)
+Route::get('/registro/verificar', function () {
+    return view('auth.pending-verification');
+})->name('pending-verification.notice');
+Route::get('/registro/verificar/{token}', [\App\Http\Controllers\Auth\PendingVerificationController::class, 'verify'])->name('pending-verification.verify');
 
 // Rutas de recuperación de contraseña
 Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');

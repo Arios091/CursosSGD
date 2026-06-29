@@ -188,7 +188,15 @@
                 pageLoader.classList.remove('active');
             }
         });
+    </script>
+    @else
+        @yield('content')
+    @endauth
+    
+    <!-- Livewire Scripts -->
+    @livewireScripts
 
+    <script>
         Livewire.hook('message.sent', () => {
             const pageLoader = document.getElementById('pageLoader');
             if (pageLoader) {
@@ -203,12 +211,6 @@
             }
         });
     </script>
-    @else
-        @yield('content')
-    @endauth
-    
-    <!-- Livewire Scripts -->
-    @livewireScripts
 
     @if(session('success'))
     <script>
